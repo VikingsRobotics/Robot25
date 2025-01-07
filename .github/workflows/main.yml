@@ -28,7 +28,7 @@ jobs:
         # working-directory: .
       
       - name: Check formatting
-        run: ./gradlew spotlessCheck
+        run: ./gradlew spotlessCheck -Ptoolchain-optional-roboRio
         # working-directory: .
   
   # We don't do any tests
