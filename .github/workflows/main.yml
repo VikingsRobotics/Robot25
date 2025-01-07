@@ -25,11 +25,11 @@ jobs:
       
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
-        working-directory: .
+        # working-directory: .
       
       - name: Check formatting
         run: ./gradlew spotlessCheck
-        working-directory: .
+        # working-directory: .
   
   # We don't do any tests
 
@@ -62,15 +62,15 @@ jobs:
       
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
-        working-directory: ./pathplannerlib
+        # working-directory: .
       
       - name: Ensure spotless is applied
         run: ./gradlew spotlessApply
-        working-directory: ./pathplannerlib
+        # working-directory: .
       
       - name: Build
         run: ./gradlew build ${{ matrix.build-options }}
-        working-directory: ./pathplannerlib
+        # working-directory: .
 
   # Make sure that simulation code can work on both Windows and MacOS
   build-host:
@@ -102,18 +102,18 @@ jobs:
       - name: Set version
         if: ${{ matrix.os-name != 'macos' }}
         run: sed -i "s/0.0.0/${{ env.VERSION_NAME }}/g" publish.gradle
-        working-directory: ./pathplannerlib
+        # working-directory: .
       
       - name: Set version (mac)
         if: ${{ matrix.os-name == 'macos' }}
         run: sed -i '' "s/0.0.0/${{ env.VERSION_NAME }}/g" publish.gradle
-        working-directory: ./pathplannerlib
+        # working-directory: .
       
       - name: Ensure spotless is applied
         run: ./gradlew spotlessApply
-        working-directory: ./pathplannerlib
+        # working-directory: .
       
       - name: Build
         run: ./gradlew build -Pbuildalldesktop
-        working-directory: ./pathplannerlib  
+        # working-directory: .
   
