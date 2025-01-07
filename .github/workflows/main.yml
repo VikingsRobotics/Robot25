@@ -65,7 +65,7 @@ jobs:
         # working-directory: .
       
       - name: Ensure spotless is applied
-        run: ./gradlew spotlessApply
+        run: ./gradlew spotlessApply -Ptoolchain-optional-roboRio
         # working-directory: .
       
       - name: Build
@@ -100,7 +100,7 @@ jobs:
           distribution: 'zulu'
       
       - name: Ensure spotless is applied
-        run: ./gradlew spotlessApply
+        run: ./gradlew spotlessApply -Ptoolchain-optional-roboRio
         # working-directory: .
       
       - name: Build
