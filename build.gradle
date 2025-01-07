@@ -2,6 +2,7 @@ plugins {
     id "cpp"
     id "google-test-test-suite"
     id "edu.wpi.first.GradleRIO" version "2025.1.1"
+    id "com.diffplug.spotless" version "5.0.0"
 }
 
 // Define my targets (RoboRIO) and artifacts (deployable files)
@@ -28,7 +29,7 @@ deploy {
                     files = project.fileTree('src/main/deploy')
                     directory = '/home/lvuser/deploy'
                     deleteOldFiles = true   // Change to true to delete files on roboRIO that no
-                                            // longer exist in deploy directory of this project
+                    // longer exist in deploy directory of this project
                 }
             }
         }
@@ -97,5 +98,34 @@ model {
             wpi.cpp.deps.wpilib(it)
             wpi.cpp.deps.googleTest(it)
         }
+    }
+}
+
+spotless {
+    cpp {
+        target fileTree('.') {
+            include '**/*.cpp', '**/*.h'
+            exclude '**/build/**', '**/build-*/**'
+        }
+        eclipseCdt()
+    }
+    groovyGradle {
+        target fileTree('.') {
+            include '**/*.gradle'
+            exclude '**/build/**', '**/build-*/**'
+        }
+        greclipse()
+        indentWithSpaces(4)
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+    format 'misc', {
+        target fileTree('.') {
+            include '**/*.md', '**/.gitignore'
+            exclude '**/build/**', '**/build-*/**'
+        }
+        trimTrailingWhitespace()
+        indentWithSpaces(4)
+        endWithNewline()
     }
 }
