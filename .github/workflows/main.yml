@@ -99,16 +99,6 @@ jobs:
           java-version: '17'
           distribution: 'zulu'
       
-      - name: Set version
-        if: ${{ matrix.os-name != 'macos' }}
-        run: sed -i "s/0.0.0/${{ env.VERSION_NAME }}/g" publish.gradle
-        # working-directory: .
-      
-      - name: Set version (mac)
-        if: ${{ matrix.os-name == 'macos' }}
-        run: sed -i '' "s/0.0.0/${{ env.VERSION_NAME }}/g" publish.gradle
-        # working-directory: .
-      
       - name: Ensure spotless is applied
         run: ./gradlew spotlessApply
         # working-directory: .
