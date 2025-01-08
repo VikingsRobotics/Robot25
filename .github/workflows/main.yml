@@ -68,6 +68,9 @@ jobs:
         run: ./gradlew spotlessApply -Ptoolchain-optional-roboRio
         # working-directory: .
       
+      - name: Get RoboRio Toolchains
+        run: ./gradlew installRoboRioToolchain
+
       - name: Build
         run: ./gradlew build ${{ matrix.build-options }}
         # working-directory: .
@@ -103,6 +106,10 @@ jobs:
         run: ./gradlew spotlessApply -Ptoolchain-optional-roboRio
         # working-directory: .
       
+      - name: Get RoboRio Toolchains
+        run: ./gradlew installRoboRioToolchain
+
+
       - name: Build
         run: ./gradlew build -Pbuildalldesktop
         # working-directory: .
