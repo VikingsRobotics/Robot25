@@ -2,6 +2,8 @@ plugins {
     id "cpp"
     id "google-test-test-suite"
     id "edu.wpi.first.GradleRIO" version "2025.1.1"
+    id "com.diffplug.spotless" version "5.0.0"
+    id "edu.wpi.first.NativeUtils" version "2025.9.0"
 }
 
 // Define my targets (RoboRIO) and artifacts (deployable files)
@@ -28,7 +30,7 @@ deploy {
                     files = project.fileTree('src/main/deploy')
                     directory = '/home/lvuser/deploy'
                     deleteOldFiles = true   // Change to true to delete files on roboRIO that no
-                                            // longer exist in deploy directory of this project
+                    // longer exist in deploy directory of this project
                 }
             }
         }
@@ -48,10 +50,56 @@ wpi.sim.addGui().defaultEnabled = true
 // Enable DS but not by default
 wpi.sim.addDriverstation()
 
+nativeUtils.addWpiNativeUtils()
+nativeUtils.withCrossRoboRIO()
+nativeUtils.withCrossLinuxArm32()
+nativeUtils.withCrossLinuxArm64()
+
+nativeUtils {
+    wpi {
+        configureDependencies {
+            wpiVersion = "2025.+"
+            opencvYear = "frc2025"
+            niLibVersion = "2025.0.0"
+            opencvVersion = "4.10.0-2"
+        }
+    }
+}
+
+nativeUtils.wpi.addWarnings()
+nativeUtils.wpi.addWarningsAsErrors()
+
+nativeUtils.setSinglePrintPerPlatform()
+
+nativeUtils.wpi.addVendorDeps()
+nativeUtils.wpi.getVendorDeps().loadAll()
+//nativeUtils.wpi.getVendorDeps().getNativeVendor().initializeNativeDependencies()
+nativeUtils.wpi.getVendorDeps().addVendorReposToMaven(false)
+
+model {
+    // components {
+    //     all {
+    //         targetPlatform nativeUtils.wpi.platforms.roborio
+    //     }
+    // }
+    // Uncomment this, and remove above lines to enable builds for all platforms
+    components {
+        all {
+            nativeUtils.useAllPlatforms(it)
+        }
+    }
+    binaries {
+        withType(NativeBinarySpec).all {
+            nativeUtils.usePlatformArguments(it)
+            nativeUtils.wpi.getVendorDeps().getNativeVendor().cpp(it)
+        }
+    }
+}
+
 model {
     components {
         frcUserProgram(NativeExecutableSpec) {
-            targetPlatform wpi.platforms.roborio
+            //targetPlatform wpi.platforms.roborio
             if (includeDesktopSupport) {
                 targetPlatform wpi.platforms.desktop
             }
@@ -77,6 +125,7 @@ model {
             // Defining my dependencies. In this case, WPILib (+ friends), and vendor libraries.
             wpi.cpp.vendor.cpp(it)
             wpi.cpp.deps.wpilib(it)
+            nativeUtils.useRequiredLibrary(it, 'wpilib_shared')
         }
     }
     testSuites {
@@ -97,5 +146,34 @@ model {
             wpi.cpp.deps.wpilib(it)
             wpi.cpp.deps.googleTest(it)
         }
+    }
+}
+
+spotless {
+    cpp {
+        target fileTree('.') {
+            include '**/*.cpp', '**/*.h'
+            exclude '**/build/**', '**/build-*/**'
+        }
+        eclipseCdt()
+    }
+    groovyGradle {
+        target fileTree('.') {
+            include '**/*.gradle'
+            exclude '**/build/**', '**/build-*/**'
+        }
+        greclipse()
+        indentWithSpaces(4)
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+    format 'misc', {
+        target fileTree('.') {
+            include '**/*.md', '**/.gitignore'
+            exclude '**/build/**', '**/build-*/**'
+        }
+        trimTrailingWhitespace()
+        indentWithSpaces(4)
+        endWithNewline()
     }
 }
