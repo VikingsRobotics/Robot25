@@ -102,12 +102,17 @@ jobs:
           java-version: '17'
           distribution: 'zulu'
       
+      - name: Grant execute permission for gradlew (mac)
+        if: ${{ matrix.os-name == 'macos' }}
+        run: chmod +x gradlew
+
       - name: Ensure spotless is applied
         run: ./gradlew spotlessApply -Ptoolchain-optional-roboRio
         # working-directory: .
       
       - name: Get RoboRio Toolchains
         run: ./gradlew installRoboRioToolchain
+        # working-directory: .
 
 
       - name: Build
