@@ -28,7 +28,7 @@ jobs:
         # working-directory: .
       
       - name: Check formatting
-        run: ./gradlew spotlessCheck -Ptoolchain-optional-roboRio
+        run: ./gradlew spotlessCheck
         # working-directory: .
   
   # We don't do any tests
@@ -65,7 +65,7 @@ jobs:
         # working-directory: .
       
       - name: Ensure spotless is applied
-        run: ./gradlew spotlessApply -Ptoolchain-optional-roboRio
+        run: ./gradlew spotlessApply
         # working-directory: .
       
       - name: Build
@@ -100,7 +100,7 @@ jobs:
           distribution: 'zulu'
       
       - name: Ensure spotless is applied
-        run: ./gradlew spotlessApply -Ptoolchain-optional-roboRio
+        run: ./gradlew spotlessApply
         # working-directory: .
       
       - name: Build
