@@ -18,6 +18,6 @@ public:
 
 private:
 	void ConfigureBindings();
-	SwerveSubsystem swerveSubsystem{};
+	SwerveSubsystem swerveSubsystem { };
 	frc2::CommandJoystick joystick;
 };
