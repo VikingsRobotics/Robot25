@@ -1,6 +1,6 @@
 #include "subsystems/SwerveSubsystem.h"
 
-#include <frc/smartdashboard/smartdashboard.h>
+#include <frc/smartdashboard/SmartDashboard.h>
 #include <frc/DriverStation.h>
 
 #include <pathplanner/lib/auto/AutoBuilder.h>
@@ -48,7 +48,7 @@ SwerveSubsystem::SwerveSubsystem() : m_getGyroYaw { m_gryo.GetYaw().AsSupplier()
 				m_field.GetObject("path")->SetPoses(poses);
 			});
 
-	frc::SmartDashboard::PutData("Field Picture", &m_field);
+	frc::SmartDashboard::PutData("Field", &m_field);
 	frc::SmartDashboard::PutData(this);
 }
 
