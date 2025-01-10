@@ -8,6 +8,9 @@
 #include <units/acceleration.h>
 #include <units/angular_acceleration.h>
 
+#include <units/time.h>
+#include <units/frequency.h>
+
 #include <units/length.h>
 
 #include <ctre/phoenix6/CANBus.hpp>
@@ -38,29 +41,18 @@ constexpr double kDriveDeadband = 0.05;
 constexpr double kDriveAngleDeadband = 0.05;
 //Maximum speed that the robot will move (limited by physical design)
 constexpr units::meters_per_second_t kDriveMoveSpeedMax = 3.0_mps;
-//Minimum speed that the robot will move (limited by physical design)
-constexpr units::meters_per_second_t kDriveMoveSpeedLow = 1.5_mps;
-//Percentage that the mimimum speed is compared to maximum speed
-constexpr double kPercentDriveMoveLow = kDriveMoveSpeedLow / kDriveMoveSpeedMax;
 //Speed when speed throttle is less that precision throttle threshold
 constexpr units::meters_per_second_t kDrivePrecision = 0.6_mps;
-//Percentage that the percision speed is compared to maximum speed
-constexpr double kPercentDriveMovePrecision = kDrivePrecision
-		/ kDriveMoveSpeedMax;
 //[-1 ... 1] when throttle transforms to precision
 constexpr double kPrecisionThrottleThreshold = -0.6;
+//What the throttle value will be on startup
+constexpr double kDefaultThrottleXbox = 0.7;
+//Rate at which throttle changes when using Xbox Controller
+constexpr units::hertz_t kThrottleRateChange = 0.4 / 1_s;
 //Maximum turning speed that the robot will move (limited by physical design)
 constexpr units::radians_per_second_t kDriveAngleSpeedMax = 3.0_rad_per_s;
 //Maximum turning speed that the robot will move (limited by physical design)
-constexpr units::radians_per_second_t kDriveAngleSpeedLow = 1.0_rad_per_s;
-//Maximum turning speed that the robot will move (limited by physical design)
 constexpr units::radians_per_second_t kDriveAngleSpeedPrecision = 0.5_rad_per_s;
-//Percentage that the mimimum turning speed is compared to maximum turning speed
-constexpr double kPercentDriveAngleLow = kDriveAngleSpeedLow
-		/ kDriveAngleSpeedMax;
-//Percentage that the mimimum turning speed is compared to maximum turning speed
-constexpr double kPercentDriveAnglePrecision = kDriveAngleSpeedPrecision
-		/ kDriveAngleSpeedMax;
 }
 
 namespace DeviceIdentifier {
@@ -91,9 +83,9 @@ namespace DeviceProperties {
 constexpr rev::spark::SparkLowLevel::MotorType kSparkMotorType =
 		rev::spark::SparkLowLevel::MotorType::kBrushless;
 // Default voltage configs (nominal)
-extern ctre::phoenix6::configs::VoltageConfigs kDriveMotorVoltageConfig;
+extern const ctre::phoenix6::configs::VoltageConfigs kDriveMotorVoltageConfig;
 // Default drive motor output configs
-extern ctre::phoenix6::configs::MotorOutputConfigs kDriveMotorOutputConfig;
+extern const ctre::phoenix6::configs::MotorOutputConfigs kDriveMotorOutputConfig;
 // Invert absolute encoder to match direction of motor movement
 constexpr bool kInvertEncoder = true;
 }
@@ -129,7 +121,7 @@ constexpr units::meters_per_second_t kPhysicalMoveMax { kDriveRps
 
 namespace SystemControl {
 //Velocity PIDF Values (For CTRE Velocity Motor)
-extern ctre::phoenix6::configs::Slot0Configs kVelocityPID;
+extern const ctre::phoenix6::configs::Slot0Configs kVelocityPID;
 //Angle PID Values
 constexpr double kAngleP = 1.0;
 constexpr double kAngleI = 0.0;
@@ -137,7 +129,7 @@ constexpr double kAngleD = 0.0;
 constexpr double kAngleF = 0.0;
 //extern rev::spark::ClosedLoopConfig kAnglePID;
 //Swerve Kinematics (in cpp)
-extern frc::SwerveDriveKinematics<4> kDriveKinematics;
+extern const frc::SwerveDriveKinematics<4> kDriveKinematics;
 }
 
 namespace AutoSettings {

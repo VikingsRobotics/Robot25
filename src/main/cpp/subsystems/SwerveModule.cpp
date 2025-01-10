@@ -49,18 +49,16 @@ SwerveModule::SwerveModule(const int drivingCANId, const int turningCANId,
 }
 
 frc::SwerveModuleState SwerveModule::GetState() {
-	return frc::SwerveModuleState { .speed =
-			units::meters_per_second_squared_t { m_getTalonVelocity().value()
-					* Drive::Mechanism::kWheelTurnsToMetersDistance }, .angle =
+	return frc::SwerveModuleState { .speed = m_getTalonVelocity()
+			* Drive::Mechanism::kWheelTurnsToMetersDistance, .angle =
 			frc::Rotation2d { units::angle::radian_t {
 					m_turningAbsoluteEncoder.GetPosition() }
 					- m_chassisAngularOffest } };
 }
 
 frc::SwerveModulePosition SwerveModule::GetPosition() {
-	return frc::SwerveModulePosition { .distance = units::meter_t {
-			m_getTalonPosition().value()
-					* Drive::Mechanism::kWheelTurnsToMetersDistance }, .angle =
+	return frc::SwerveModulePosition { .distance = m_getTalonPosition()
+			* Drive::Mechanism::kWheelTurnsToMetersDistance, .angle =
 			frc::Rotation2d { units::angle::radian_t {
 					m_turningAbsoluteEncoder.GetPosition() }
 					- m_chassisAngularOffest } };

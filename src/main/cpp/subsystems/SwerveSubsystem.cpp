@@ -9,7 +9,9 @@
 #include <pathplanner/lib/controllers/PPHolonomicDriveController.h>
 #include <pathplanner/lib/config/RobotConfig.h>
 
-SwerveSubsystem::SwerveSubsystem() : m_odometry {
+#include <units/math.h>
+
+SwerveSubsystem::SwerveSubsystem() : m_getGyroYaw { m_gryo.GetYaw().AsSupplier() }, m_odometry {
 		Drive::SystemControl::kDriveKinematics, frc::Rotation2d {
 				units::radian_t { 0 } }, { m_frontLeft.GetPosition(),
 				m_frontRight.GetPosition(), m_backLeft.GetPosition(),
@@ -61,11 +63,15 @@ void SwerveSubsystem::ZeroHeading() {
 	m_gryo.Reset();
 }
 
+static units::degree_t WrapAngle(units::degree_t angle) {
+	angle = units::math::fmod(angle + 180_deg, 360_deg);
+	if (angle < 0_deg)
+		angle += 360_deg;
+	return angle - 180_deg;
+}
+
 units::degree_t SwerveSubsystem::GetHeading() {
-	double angle = m_gryo.GetAngle();
-	double angleLeft = std::fmod(-angle, 360.0);
-	double angleRight = 360.0 - std::fmod(angle, 360.0);
-	return units::degree_t { angle > 0 ? angleLeft : angleRight };
+	return WrapAngle(m_getGyroYaw());
 }
 
 frc::Rotation2d SwerveSubsystem::GetRotation2d() {
@@ -118,6 +124,10 @@ void SwerveSubsystem::Drive(frc::ChassisSpeeds speed) {
 }
 
 void SwerveSubsystem::Brake() {
+	StopModules();
+}
+
+void SwerveSubsystem::X() {
 	m_frontLeft.SetState(frc::SwerveModuleState { 0_mps, frc::Rotation2d {
 			45_deg } });
 	m_frontRight.SetState(frc::SwerveModuleState { 0_mps, frc::Rotation2d {

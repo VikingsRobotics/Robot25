@@ -42,10 +42,13 @@ public:
 	void Drive(frc::ChassisSpeeds speed);
 
 	void Brake();
+
+	void X();
 private:
 	// Gryo used for odometry and for field centric control
 	ctre::phoenix6::hardware::Pigeon2 m_gryo { Drive::DeviceIdentifier::kGyroId,
 			Drive::DeviceIdentifier::kCANBus };
+	std::function<units::angle::degree_t()> m_getGyroYaw;
 	// Front Left module
 	SwerveModule m_frontLeft { Drive::DeviceIdentifier::kFLDriveMotorId,
 			Drive::DeviceIdentifier::kFLAngleMotorId, units::radian_t {
