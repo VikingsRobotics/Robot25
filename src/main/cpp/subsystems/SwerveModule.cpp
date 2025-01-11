@@ -8,8 +8,8 @@ SwerveModule::SwerveModule(const int drivingCANId, const int turningCANId,
 		m_turningSparkMax.GetAbsoluteEncoder() }, m_chassisAngularOffest {
 		chassisAngularOffest }, m_sparkLoopController {
 		m_turningSparkMax.GetClosedLoopController() }, m_getTalonPosition {
-		std::move(m_drivingTalonFx.GetPosition().AsSupplier()) }, m_getTalonVelocity {
-		std::move(m_drivingTalonFx.GetVelocity().AsSupplier()) } {
+		m_drivingTalonFx.GetPosition().AsSupplier() }, m_getTalonVelocity {
+		m_drivingTalonFx.GetVelocity().AsSupplier() } {
 
 	rev::spark::SparkBaseConfig sparkConfigurator { };
 	sparkConfigurator.absoluteEncoder.PositionConversionFactor(
