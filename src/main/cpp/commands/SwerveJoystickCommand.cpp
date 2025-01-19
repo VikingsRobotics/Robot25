@@ -5,12 +5,19 @@
 
 #include <frc/smartdashboard/SmartDashboard.h>
 
+#include <frc2/command/RunCommand.h>
+
 #include <wpi/array.h>
 
 SwerveJoystickCommand::SwerveJoystickCommand(SwerveSubsystem *const subsystem,
 		frc2::CommandJoystick &joystick, bool enableFieldCentric) : m_subsystem {
 		subsystem }, m_joystick { joystick.GetHID() }, m_fieldCentric {
 		enableFieldCentric } {
+
+	joystick.Button(frc::Joystick::ButtonType::kTopButton).OnTrue(
+			frc2::RunCommand([this]() {
+				m_fieldCentric = !m_fieldCentric;
+			}).ToPtr());
 	AddRequirements (m_subsystem);
 	SetName("Swerve Joystick Command");
 }
@@ -65,7 +72,7 @@ void SwerveJoystickCommand::Execute() {
 
 	wpi::array < frc::SwerveModuleState, 4
 			> swerveModule {
-					Drive::SystemControl::kDriveKinematics.ToSwerveModuleStates(
+					Drive::DeviceProperties::SystemControl::kDriveKinematics.ToSwerveModuleStates(
 							m_fieldCentric ?
 									frc::ChassisSpeeds::FromFieldRelativeSpeeds(
 											vx, vy, va,
@@ -84,12 +91,4 @@ void SwerveJoystickCommand::End(bool interrupted) {
 
 bool SwerveJoystickCommand::IsFinished() {
 	return false;
-}
-
-bool SwerveJoystickCommand::IsFieldCentric() {
-	return m_fieldCentric;
-}
-
-void SwerveJoystickCommand::SetFieldCentric(bool enableFieldCentric) {
-	m_fieldCentric = enableFieldCentric;
 }

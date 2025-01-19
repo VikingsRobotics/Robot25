@@ -15,8 +15,10 @@
 
 #include <ctre/phoenix6/CANBus.hpp>
 #include <ctre/phoenix6/configs/Configs.hpp>
+#include <ctre/phoenix6/core/CoreTalonFX.hpp>
 
 #include <rev/SparkMax.h>
+#include <rev/config/SparkMaxConfig.h>
 #include <rev/config/ClosedLoopConfig.h>
 #include <rev/AbsoluteEncoder.h>
 
@@ -80,14 +82,18 @@ constexpr int kBRAngleMotorId = 9;
 
 namespace DeviceProperties {
 // Default motor type used for REV spark max motors
+extern rev::spark::SparkMaxConfig& GetSparkMaxConfig();
+// Default motor type used for TalonFX motors
+extern ctre::phoenix6::configs::TalonFXConfiguration GetTalonFXConfig();
+// Default motor type enum for REV spark max motors
 constexpr rev::spark::SparkLowLevel::MotorType kSparkMotorType =
 		rev::spark::SparkLowLevel::MotorType::kBrushless;
-// Default voltage configs (nominal)
-extern const ctre::phoenix6::configs::VoltageConfigs kDriveMotorVoltageConfig;
-// Default drive motor output configs
-extern const ctre::phoenix6::configs::MotorOutputConfigs kDriveMotorOutputConfig;
 // Invert absolute encoder to match direction of motor movement
 constexpr bool kInvertEncoder = true;
+namespace SystemControl {
+//Swerve Kinematics (in cpp)
+extern const frc::SwerveDriveKinematics<4> kDriveKinematics;
+}
 }
 
 namespace Mechanism {
@@ -117,19 +123,9 @@ constexpr units::volt_t kVelocityVoltage { 12 / kDriveRps.value() };
 // Max speed the wheel move, used to normialize swerve modules speeds to maintain control
 constexpr units::meters_per_second_t kPhysicalMoveMax { kDriveRps
 		* kWheelCircumference / kDriveGearRatio };
-}
-
-namespace SystemControl {
-//Velocity PIDF Values (For CTRE Velocity Motor)
-extern const ctre::phoenix6::configs::Slot0Configs kVelocityPID;
-//Angle PID Values
-constexpr double kAngleP = 1.0;
-constexpr double kAngleI = 0.0;
-constexpr double kAngleD = 0.0;
-constexpr double kAngleF = 0.0;
-//extern rev::spark::ClosedLoopConfig kAnglePID;
-//Swerve Kinematics (in cpp)
-extern const frc::SwerveDriveKinematics<4> kDriveKinematics;
+// Nm divided by N resulting in meters of the newton force of the wheels
+constexpr units::meter_t kDriveMotorNewtonForce = (kWheelDiameter / 2)
+		/ kDriveGearRatio.value();
 }
 
 namespace AutoSettings {

@@ -21,6 +21,9 @@ SwerveControllerCommand::SwerveControllerCommand(
 	AddRequirements (m_subsystem);
 	SetName("Swerve Xbox Controller Command");
 
+	controller.LeftBumper().OnTrue(frc2::RunCommand([this]() {
+		m_fieldCentric = !m_fieldCentric;
+	}).ToPtr());
 	// Pressing the up on the little pad increases throttle
 	controller.POVUp().WhileTrue(frc2::RunCommand([this]() {
 		units::microsecond_t now { double(WPI_Now()) };
@@ -99,7 +102,7 @@ void SwerveControllerCommand::Execute() {
 
 	wpi::array < frc::SwerveModuleState, 4
 			> swerveModule {
-					Drive::SystemControl::kDriveKinematics.ToSwerveModuleStates(
+					Drive::DeviceProperties::SystemControl::kDriveKinematics.ToSwerveModuleStates(
 							m_fieldCentric ?
 									frc::ChassisSpeeds::FromFieldRelativeSpeeds(
 											vx, vy, va,
@@ -118,24 +121,4 @@ void SwerveControllerCommand::End(bool interrupted) {
 
 bool SwerveControllerCommand::IsFinished() {
 	return false;
-}
-
-bool SwerveControllerCommand::IsFieldCentric() {
-	return m_fieldCentric;
-}
-
-void SwerveControllerCommand::SetFieldCentric(bool enableFieldCentric) {
-	m_fieldCentric = enableFieldCentric;
-}
-
-double SwerveControllerCommand::GetThrottle() {
-	return m_internalThrottle;
-}
-
-void SwerveControllerCommand::SetThrottle(double desired) {
-	if (desired > 1)
-		desired = 1;
-	if (desired < -1)
-		desired = -1;
-	m_internalThrottle = desired;
 }

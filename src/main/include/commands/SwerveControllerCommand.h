@@ -21,14 +21,6 @@ public:
 	void End(bool interrupted) override;
 
 	bool IsFinished() override;
-
-	bool IsFieldCentric();
-
-	void SetFieldCentric(bool enableFieldCentric);
-
-	double GetThrottle();
-
-	void SetThrottle(double desiredThrottle);
 private:
 	SwerveSubsystem *const m_subsystem;
 	frc::XboxController &m_controller;

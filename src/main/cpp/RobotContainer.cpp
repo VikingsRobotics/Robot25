@@ -15,14 +15,8 @@
 
 RobotContainer::RobotContainer() : joystick {
 		Drive::ControllerPorts::kDriverControllerPort } {
-	SwerveJoystickCommand joystickCommand { &swerveSubsystem, joystick, true };
-	joystick.Button(frc::Joystick::ButtonType::kTopButton).OnTrue(
-			frc2::RunCommand(
-					[&joystickCommand]() {
-						joystickCommand.SetFieldCentric(
-								!joystickCommand.IsFieldCentric());
-					}).ToPtr());
-	swerveSubsystem.SetDefaultCommand(std::move(joystickCommand));
+	swerveSubsystem.SetDefaultCommand(SwerveJoystickCommand { &swerveSubsystem,
+			joystick, true });
 
 	ConfigureBindings();
 }

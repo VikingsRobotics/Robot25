@@ -24,10 +24,27 @@ public:
 	frc::SwerveModulePosition GetPosition();
 
 	void SetState(frc::SwerveModuleState desiredState);
+	void SetState(frc::SwerveModuleState desiredState,
+			units::newton_t feedforwardX, units::newton_t feedforwardY);
+
 	void ResetEncoder();
 	void Stop();
+	void Brake();
+
+	bool UsingMotionMagic();
+	void UseMotionMagic(bool enable);
 
 private:
+	struct Feedforward {
+		units::newton_meter_t torque;
+		units::ampere_t current;
+		units::volt_t voltage;
+	};
+
+	Feedforward CalculateFeedforward(units::newton_t feedforwardX,
+			units::newton_t feedforwardY);
+
+	bool m_useSmartMotionSparkMax = false;
 	ctre::phoenix6::hardware::TalonFX m_drivingTalonFx;
 	rev::spark::SparkMax m_turningSparkMax;
 

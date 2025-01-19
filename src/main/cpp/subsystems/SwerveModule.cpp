@@ -11,64 +11,36 @@ SwerveModule::SwerveModule(const int drivingCANId, const int turningCANId,
 		m_drivingTalonFx.GetPosition().AsSupplier() }, m_getTalonVelocity {
 		m_drivingTalonFx.GetVelocity().AsSupplier() } {
 
-	rev::spark::SparkBaseConfig sparkConfigurator { };
-	sparkConfigurator.absoluteEncoder.PositionConversionFactor(
-			Drive::Mechanism::kAngleGearRatio.value());
-	sparkConfigurator.absoluteEncoder.VelocityConversionFactor(
-			Drive::Mechanism::kAngleGearRatio.value() / 60);
-
-	sparkConfigurator.absoluteEncoder.Inverted(
-			Drive::DeviceProperties::kInvertEncoder);
-
-	sparkConfigurator.closedLoop.PositionWrappingEnabled(true);
-	sparkConfigurator.closedLoop.MinOutput(0);
-	sparkConfigurator.closedLoop.MaxOutput(std::numbers::pi * 2);
-	sparkConfigurator.closedLoop.SetFeedbackSensor(
-			rev::spark::ClosedLoopConfig::kAbsoluteEncoder);
-	sparkConfigurator.closedLoop.OutputRange(-1, 1);
-
-	sparkConfigurator.closedLoop.Pidf(Drive::SystemControl::kAngleP,
-			Drive::SystemControl::kAngleI, Drive::SystemControl::kAngleD,
-			Drive::SystemControl::kAngleF);
-
-	sparkConfigurator.SetIdleMode(rev::spark::SparkBaseConfig::kBrake);
-
-	m_turningSparkMax.Configure(sparkConfigurator,
+	// * SETING UP NEO 550 TURING MOTOR CONFIGURATION * //
+	m_turningSparkMax.Configure(Drive::DeviceProperties::GetSparkMaxConfig(),
 			rev::spark::SparkBase::ResetMode::kNoResetSafeParameters,
 			rev::spark::SparkBase::PersistMode::kPersistParameters);
+	// * FINISHED SETTING UP CONFIGURATION * //
 
+	// * SETING UP TALON DRIVE MOTOR CONFIGURATION * //
 	m_drivingTalonFx.GetConfigurator().Apply(
-			Drive::DeviceProperties::kDriveMotorOutputConfig);
-	m_drivingTalonFx.GetConfigurator().Apply(
-			Drive::DeviceProperties::kDriveMotorVoltageConfig);
-	m_drivingTalonFx.GetConfigurator().Apply(
-			Drive::SystemControl::kVelocityPID);
+			Drive::DeviceProperties::GetTalonFXConfig());
+	// * FINISHED SETTING UP CONFIGURATION * //
 
 	ResetEncoder();
 	Stop();
 }
 
 frc::SwerveModuleState SwerveModule::GetState() {
-	return frc::SwerveModuleState { .speed = m_getTalonVelocity()
-			* Drive::Mechanism::kWheelTurnsToMetersDistance, .angle =
-			frc::Rotation2d { units::angle::radian_t {
-					m_turningAbsoluteEncoder.GetPosition() }
+	return frc::SwerveModuleState { m_getTalonVelocity()
+			* Drive::Mechanism::kWheelTurnsToMetersDistance, frc::Rotation2d {
+			units::angle::radian_t { m_turningAbsoluteEncoder.GetPosition() }
 					- m_chassisAngularOffest } };
 }
 
 frc::SwerveModulePosition SwerveModule::GetPosition() {
-	return frc::SwerveModulePosition { .distance = m_getTalonPosition()
-			* Drive::Mechanism::kWheelTurnsToMetersDistance, .angle =
-			frc::Rotation2d { units::angle::radian_t {
-					m_turningAbsoluteEncoder.GetPosition() }
+	return frc::SwerveModulePosition { m_getTalonPosition()
+			* Drive::Mechanism::kWheelTurnsToMetersDistance, frc::Rotation2d {
+			units::angle::radian_t { m_turningAbsoluteEncoder.GetPosition() }
 					- m_chassisAngularOffest } };
 }
 
 void SwerveModule::SetState(frc::SwerveModuleState desiredState) {
-	if (std::abs(desiredState.speed.value()) < 0.00001) {
-		Stop();
-		return;
-	}
 
 	frc::SwerveModuleState optimizedDesiredState { };
 	optimizedDesiredState.speed = desiredState.speed;
@@ -84,18 +56,101 @@ void SwerveModule::SetState(frc::SwerveModuleState desiredState) {
 							/ Drive::Mechanism::kWheelTurnsToMetersDistance }.WithSlot(
 					0));
 
-	m_sparkLoopController.SetReference(
-			optimizedDesiredState.angle.Radians().value(),
-			rev::spark::SparkLowLevel::ControlType::kPosition);
+	if (m_useSmartMotionSparkMax) {
+		m_sparkLoopController.SetReference(
+				optimizedDesiredState.angle.Radians().value(),
+				rev::spark::SparkLowLevel::ControlType::kMAXMotionPositionControl,
+				rev::spark::kSlot1);
+	} else {
+		m_sparkLoopController.SetReference(
+				optimizedDesiredState.angle.Radians().value(),
+				rev::spark::SparkLowLevel::ControlType::kPosition);
+	}
 
+}
+
+void SwerveModule::SetState(frc::SwerveModuleState desiredState,
+		units::newton_t feedforwardX, units::newton_t feedforwardY) {
+
+	frc::SwerveModuleState optimizedDesiredState { };
+	optimizedDesiredState.speed = desiredState.speed;
+	optimizedDesiredState.angle = desiredState.angle + frc::Rotation2d {
+			m_chassisAngularOffest };
+
+	optimizedDesiredState.Optimize(frc::Rotation2d(units::radian_t {
+			m_turningAbsoluteEncoder.GetPosition() }));
+
+	Feedforward calculatedFeedforward = CalculateFeedforward(feedforwardX,
+			feedforwardY);
+
+	m_drivingTalonFx.SetControl(
+			ctre::phoenix6::controls::VelocityVoltage {
+					optimizedDesiredState.speed
+							/ Drive::Mechanism::kWheelTurnsToMetersDistance }.WithSlot(
+					0).WithFeedForward(calculatedFeedforward.voltage));
+
+	if (m_useSmartMotionSparkMax) {
+		m_sparkLoopController.SetReference(
+				optimizedDesiredState.angle.Radians().value(),
+				rev::spark::SparkLowLevel::ControlType::kMAXMotionPositionControl,
+				rev::spark::kSlot1);
+	} else {
+		m_sparkLoopController.SetReference(
+				optimizedDesiredState.angle.Radians().value(),
+				rev::spark::SparkLowLevel::ControlType::kPosition);
+	}
 }
 
 void SwerveModule::ResetEncoder() {
 	m_drivingTalonFx.SetPosition(0_tr);
-
 }
 
 void SwerveModule::Stop() {
+	m_drivingTalonFx.Set(0);
+	m_turningSparkMax.Set(0);
+}
+
+void SwerveModule::Brake() {
+	m_drivingTalonFx.Set(0);
 	m_drivingTalonFx.SetControl(ctre::phoenix6::controls::StaticBrake { });
 	m_turningSparkMax.Set(0);
+}
+
+SwerveModule::Feedforward SwerveModule::CalculateFeedforward(
+		units::newton_t feedforwardX, units::newton_t feedforwardY) {
+	if ((std::abs(feedforwardX.value()) * std::numeric_limits
+			< UNIT_LIB_DEFAULT_TYPE > ::epsilon() <= feedforwardX.value()
+			&& feedforwardX.value() >= std::numeric_limits
+					< UNIT_LIB_DEFAULT_TYPE > ::epsilon())
+			|| (std::abs(feedforwardY.value()) * std::numeric_limits
+					< UNIT_LIB_DEFAULT_TYPE > ::epsilon()
+					<= feedforwardY.value()
+					&& feedforwardY.value() >= std::numeric_limits
+							< UNIT_LIB_DEFAULT_TYPE > ::epsilon())) {
+		Feedforward calculated;
+
+		units::newton_t distance = units::newton_t { hypot(feedforwardX.value(),
+				feedforwardY.value()) };
+
+		frc::Rotation2d feedforwardRotation { feedforwardX.value(),
+				feedforwardY.value() };
+		frc::Rotation2d moduleFeedforwardRototation =
+				feedforwardRotation.RotateBy(
+						frc::Rotation2d { units::radian_t {
+								m_turningAbsoluteEncoder.GetPosition() }
+								+ m_chassisAngularOffest });
+
+		calculated.torque = distance * moduleFeedforwardRototation.Cos()
+				* Drive::Mechanism::kDriveMotorNewtonForce;
+		ctre::unit::newton_meters_per_ampere_t motorKT =
+				m_drivingTalonFx.GetMotorKT(true).GetValue();
+		calculated.current = calculated.torque / motorKT;
+		calculated.voltage = (12_V
+				/ m_drivingTalonFx.GetMotorStallCurrent(true).GetValue())
+				* calculated.current;
+
+		return calculated;
+	}
+	return Feedforward { units::newton_meter_t { 0 }, units::ampere_t { 0 },
+			units::volt_t { 0 } };
 }

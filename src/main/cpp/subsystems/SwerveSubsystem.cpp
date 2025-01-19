@@ -11,8 +11,9 @@
 
 #include <units/math.h>
 
+// @formatter:off 
 SwerveSubsystem::SwerveSubsystem() : m_getGyroYaw { m_gryo.GetYaw().AsSupplier() }, m_odometry {
-		Drive::SystemControl::kDriveKinematics, frc::Rotation2d {
+		Drive::DeviceProperties::SystemControl::kDriveKinematics, frc::Rotation2d {
 				units::radian_t { 0 } }, { m_frontLeft.GetPosition(),
 				m_frontRight.GetPosition(), m_backLeft.GetPosition(),
 				m_backRight.GetPosition() } } {
@@ -22,7 +23,6 @@ SwerveSubsystem::SwerveSubsystem() : m_getGyroYaw { m_gryo.GetYaw().AsSupplier()
 	pathplanner::RobotConfig config =
 			pathplanner::RobotConfig::fromGUISettings();
 
-	// @formatter:off 
     pathplanner::AutoBuilder::configure(
         [this](){ return GetPose2d(); },
         [this](frc::Pose2d pose){ ResetOdometry(pose); },
@@ -42,7 +42,6 @@ SwerveSubsystem::SwerveSubsystem() : m_getGyroYaw { m_gryo.GetYaw().AsSupplier()
         },
         this
     );
-    // @formatter:on
 	pathplanner::PathPlannerLogging::setLogActivePathCallback(
 			[this](auto poses) {
 				m_field.GetObject("path")->SetPoses(poses);
@@ -51,7 +50,7 @@ SwerveSubsystem::SwerveSubsystem() : m_getGyroYaw { m_gryo.GetYaw().AsSupplier()
 	frc::SmartDashboard::PutData("Field", &m_field);
 	frc::SmartDashboard::PutData(this);
 }
-
+// @formatter:on
 void SwerveSubsystem::Periodic() {
 	// Tracks robot position using the position of swerve modules and gryo rotation
 	m_odometry.Update(GetRotation2d(),
@@ -102,8 +101,8 @@ void SwerveSubsystem::StopModules() {
 void SwerveSubsystem::SetModulesState(
 		wpi::array<frc::SwerveModuleState, 4> states) {
 	// Make sure that we are under max speed
-	Drive::SystemControl::kDriveKinematics.DesaturateWheelSpeeds(&states,
-			Drive::Mechanism::kPhysicalMoveMax);
+	Drive::DeviceProperties::SystemControl::kDriveKinematics.DesaturateWheelSpeeds(
+			&states, Drive::Mechanism::kPhysicalMoveMax);
 	// Calls every swerve modules SetStates function
 	m_frontLeft.SetState(states[0]);
 	m_frontRight.SetState(states[1]);
@@ -111,16 +110,40 @@ void SwerveSubsystem::SetModulesState(
 	m_backRight.SetState(states[3]);
 }
 
+void SwerveSubsystem::SetModulesState(
+		wpi::array<frc::SwerveModuleState, 4> states,
+		std::vector<units::newton_t> &feedforwardX,
+		std::vector<units::newton_t> &feedforwardY) {
+	// Make sure that we are under max speed
+	Drive::DeviceProperties::SystemControl::kDriveKinematics.DesaturateWheelSpeeds(
+			&states, Drive::Mechanism::kPhysicalMoveMax);
+	// Calls every swerve modules SetStates function with feedforward
+	m_frontLeft.SetState(states[0], feedforwardX.at(0), feedforwardY.at(0));
+	m_frontRight.SetState(states[1], feedforwardX.at(1), feedforwardY.at(1));
+	m_backLeft.SetState(states[2], feedforwardX.at(2), feedforwardY.at(2));
+	m_backRight.SetState(states[3], feedforwardX.at(3), feedforwardY.at(3));
+}
+
 frc::ChassisSpeeds SwerveSubsystem::GetCurrentSpeeds() {
-	return Drive::SystemControl::kDriveKinematics.ToChassisSpeeds(
+	return Drive::DeviceProperties::SystemControl::kDriveKinematics.ToChassisSpeeds(
 			{ m_frontLeft.GetState(), m_frontRight.GetState(),
 					m_backLeft.GetState(), m_backRight.GetState() });
 }
 
 void SwerveSubsystem::Drive(frc::ChassisSpeeds speed) {
 	wpi::array < frc::SwerveModuleState, 4 > states =
-			Drive::SystemControl::kDriveKinematics.ToSwerveModuleStates(speed);
+			Drive::DeviceProperties::SystemControl::kDriveKinematics.ToSwerveModuleStates(
+					speed);
 	SetModulesState (states);
+}
+
+void SwerveSubsystem::Drive(frc::ChassisSpeeds speed,
+		std::vector<units::newton_t> &feedforwardX,
+		std::vector<units::newton_t> &feedforwardY) {
+	wpi::array < frc::SwerveModuleState, 4 > states =
+			Drive::DeviceProperties::SystemControl::kDriveKinematics.ToSwerveModuleStates(
+					speed);
+	SetModulesState(states, feedforwardX, feedforwardY);
 }
 
 void SwerveSubsystem::Brake() {

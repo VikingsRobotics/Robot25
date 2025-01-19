@@ -20,10 +20,6 @@ public:
 	void End(bool interrupted) override;
 
 	bool IsFinished() override;
-
-	bool IsFieldCentric();
-
-	void SetFieldCentric(bool enableFieldCentric);
 private:
 	SwerveSubsystem *const m_subsystem;
 	frc::Joystick &m_joystick;

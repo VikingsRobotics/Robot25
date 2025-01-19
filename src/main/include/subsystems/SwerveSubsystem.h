@@ -3,6 +3,8 @@
 #include "subsystems/SwerveModule.h"
 #include "Constants.h"
 
+#include <vector>
+
 #include <ctre/phoenix6/Pigeon2.hpp>
 
 #include <frc/smartdashboard/Field2d.h>
@@ -36,10 +38,16 @@ public:
 	void StopModules();
 
 	void SetModulesState(wpi::array<frc::SwerveModuleState, 4> states);
+	void SetModulesState(wpi::array<frc::SwerveModuleState, 4> states,
+			std::vector<units::newton_t> &feedforwardX,
+			std::vector<units::newton_t> &feedforwardY);
 
 	frc::ChassisSpeeds GetCurrentSpeeds();
 
 	void Drive(frc::ChassisSpeeds speed);
+	void Drive(frc::ChassisSpeeds speed,
+			std::vector<units::newton_t> &feedforwardX,
+			std::vector<units::newton_t> &feedforwardY);
 
 	void Brake();
 
