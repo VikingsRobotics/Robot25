@@ -53,29 +53,6 @@ constexpr units::radians_per_second_t kDriveAngleSpeedMax = 3.0_rad_per_s;
 constexpr units::radians_per_second_t kDriveAngleSpeedPrecision = 0.5_rad_per_s;
 }
 
-namespace DeviceIdentifier {
-//CTRE: CANBus Name for contructors of CRTE software classes
-constexpr ctre::phoenix6::CANBus kCANBus { "" };
-//CTRE: CANBus Pigeon2 ID
-constexpr int kGyroId = 1;
-//CTRE: Falcon 500 Front Left Motor ID
-constexpr int kFLDriveMotorId = 2;
-//REV: Neo 550 Front Left Angle Motor ID
-constexpr int kFLAngleMotorId = 3;
-//CTRE: Falcon 500 Front Right Motor ID
-constexpr int kFRDriveMotorId = 4;
-//REV: Neo 550 Front Right Angle Motor ID
-constexpr int kFRAngleMotorId = 5;
-//CTRE: Falcon 500 Back Left Motor ID
-constexpr int kBLDriveMotorId = 6;
-//REV: Neo 550 Back Left Angle Motor ID
-constexpr int kBLAngleMotorId = 7;
-//CTRE: Falcon 500 Back Right Motor ID
-constexpr int kBRDriveMotorId = 8;
-//REV: Neo 550 Back Right Angle Motor ID
-constexpr int kBRAngleMotorId = 9;
-}
-
 namespace DeviceProperties {
 // Default motor type used for REV spark max motors
 extern rev::spark::SparkMaxConfig& GetSparkMaxConfig();
@@ -139,4 +116,31 @@ constexpr units::radians_per_second_t kMaxAngularSpeed = 3.0_rad_per_s;
 constexpr units::radians_per_second_squared_t kMaxAngularAcceleration =
 		5.0_rad_per_s_sq;
 }
+}
+
+namespace DeviceIdentifier {
+//CTRE: CANBus Name for contructors of CRTE software classes
+constexpr ctre::phoenix6::CANBus kCANBus { "" };
+//REV: PDH
+constexpr int kPDHId = 1;
+//REV: Pneumatic Hub
+constexpr int kPneumaticHubId = 2;
+//CTRE: CANBus Pigeon2 ID
+constexpr int kGyroId = 3;
+//CTRE: Falcon 500 Front Left Motor ID
+constexpr int kFLDriveMotorId = 4;
+//REV: Neo 550 Front Left Angle Motor ID
+constexpr int kFLAngleMotorId = 5;
+//CTRE: Falcon 500 Front Right Motor ID
+constexpr int kFRDriveMotorId = 6;
+//REV: Neo 550 Front Right Angle Motor ID
+constexpr int kFRAngleMotorId = 7;
+//CTRE: Falcon 500 Back Left Motor ID
+constexpr int kBLDriveMotorId = 8;
+//REV: Neo 550 Back Left Angle Motor ID
+constexpr int kBLAngleMotorId = 9;
+//CTRE: Falcon 500 Back Right Motor ID
+constexpr int kBRDriveMotorId = 10;
+//REV: Neo 550 Back Right Angle Motor ID
+constexpr int kBRAngleMotorId = 11;
 }

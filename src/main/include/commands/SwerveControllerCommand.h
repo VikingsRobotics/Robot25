@@ -10,7 +10,7 @@ class SwerveControllerCommand: public frc2::CommandHelper<frc2::Command,
 		SwerveControllerCommand> {
 public:
 	SwerveControllerCommand(SwerveSubsystem *const subsystem,
-			frc2::CommandXboxController &controller, bool enableFieldCentric);
+			frc2::CommandXboxController &controller);
 
 	void Initialize() override;
 
@@ -22,8 +22,8 @@ public:
 private:
 	SwerveSubsystem *const m_subsystem;
 	frc::XboxController &m_controller;
-	double m_internalThrottle;
-	bool m_fieldCentric;
+	double m_internalThrottle = 0.0;
+	bool m_fieldCentric = true;
 	bool m_precision = false;
 	bool m_storedThrottle = true;
 };

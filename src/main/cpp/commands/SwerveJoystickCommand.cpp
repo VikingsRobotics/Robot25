@@ -10,9 +10,8 @@
 #include <wpi/array.h>
 
 SwerveJoystickCommand::SwerveJoystickCommand(SwerveSubsystem *const subsystem,
-		frc2::CommandJoystick &joystick, bool enableFieldCentric) : m_subsystem {
-		subsystem }, m_joystick { joystick.GetHID() }, m_fieldCentric {
-		enableFieldCentric } {
+		frc2::CommandJoystick &joystick) : m_subsystem { subsystem }, m_joystick {
+		joystick.GetHID() } {
 	AddRequirements (m_subsystem);
 	SetName("Swerve Joystick Command");
 

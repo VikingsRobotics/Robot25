@@ -16,7 +16,7 @@
 RobotContainer::RobotContainer() : joystick {
 		Drive::ControllerPorts::kDriverControllerPort } {
 	swerveSubsystem.SetDefaultCommand(SwerveJoystickCommand { &swerveSubsystem,
-			joystick, true });
+			joystick });
 
 	ConfigureBindings();
 }

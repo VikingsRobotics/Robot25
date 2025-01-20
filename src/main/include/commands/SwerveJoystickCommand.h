@@ -11,7 +11,7 @@ class SwerveJoystickCommand: public frc2::CommandHelper<frc2::Command,
 		SwerveJoystickCommand> {
 public:
 	SwerveJoystickCommand(SwerveSubsystem *const subsystem,
-			frc2::CommandJoystick &joystick, bool enableFieldCentric);
+			frc2::CommandJoystick &joystick);
 
 	void Initialize() override;
 
@@ -23,6 +23,6 @@ public:
 private:
 	SwerveSubsystem *const m_subsystem;
 	frc::Joystick &m_joystick;
-	bool m_fieldCentric;
-	bool m_precision;
+	bool m_fieldCentric = true;
+	bool m_precision = false;
 };

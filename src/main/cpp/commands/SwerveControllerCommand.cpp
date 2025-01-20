@@ -11,10 +11,8 @@
 
 SwerveControllerCommand::SwerveControllerCommand(
 		SwerveSubsystem *const subsystem,
-		frc2::CommandXboxController &controller, bool enableFieldCentric) : m_subsystem {
-		subsystem }, m_controller { controller.GetHID() }, m_internalThrottle {
-		Drive::TeleopOperator::kDefaultThrottleXbox }, m_fieldCentric {
-		enableFieldCentric } {
+		frc2::CommandXboxController &controller) : m_subsystem { subsystem }, m_controller {
+		controller.GetHID() } {
 	AddRequirements (m_subsystem);
 	SetName("Swerve Xbox Controller Command");
 

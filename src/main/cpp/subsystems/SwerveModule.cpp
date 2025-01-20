@@ -3,7 +3,7 @@
 
 SwerveModule::SwerveModule(const int drivingCANId, const int turningCANId,
 		const units::radian_t chassisAngularOffest) : m_drivingTalonFx {
-		drivingCANId, Drive::DeviceIdentifier::kCANBus }, m_turningSparkMax {
+		drivingCANId, DeviceIdentifier::kCANBus }, m_turningSparkMax {
 		turningCANId, Drive::DeviceProperties::kSparkMotorType }, m_turningAbsoluteEncoder {
 		m_turningSparkMax.GetAbsoluteEncoder() }, m_chassisAngularOffest {
 		chassisAngularOffest }, m_sparkLoopController {
