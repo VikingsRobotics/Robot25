@@ -16,17 +16,14 @@ SwerveJoystickCommand::SwerveJoystickCommand(SwerveSubsystem *const subsystem,
 	AddRequirements (m_subsystem);
 	SetName("Swerve Joystick Command");
 
-	joystick.Button(2).OnTrue(
-		frc2::RunCommand([this]() {
-			m_fieldCentric = !m_fieldCentric;
+	joystick.Button(2).OnTrue(frc2::RunCommand([this]() {
+		m_fieldCentric = !m_fieldCentric;
 	}).ToPtr());
-	joystick.Button(5).OnTrue(
-		frc2::RunCommand([this]() {
-			m_subsystem->ZeroHeading();
+	joystick.Button(5).OnTrue(frc2::RunCommand([this]() {
+		m_subsystem->ZeroHeading();
 	}).ToPtr());
-	joystick.Button(4).OnTrue(
-		frc2::RunCommand([this]() {
-			m_precision = !m_precision;
+	joystick.Button(4).OnTrue(frc2::RunCommand([this]() {
+		m_precision = !m_precision;
 	}).ToPtr());
 }
 

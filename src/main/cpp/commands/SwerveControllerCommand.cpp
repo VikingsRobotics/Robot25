@@ -44,7 +44,7 @@ void SwerveControllerCommand::Execute() {
 	frc::SmartDashboard::PutBoolean("Field Centric", m_fieldCentric);
 	frc::SmartDashboard::PutBoolean("Stored Throttle", m_storedThrottle);
 	frc::SmartDashboard::PutBoolean("Precision Mode", m_precision);
-	if (m_controller.GetLeftBumper()) {
+	if (m_controller.GetLeftBumperButton()) {
 		m_subsystem->Brake();
 		return;
 	}
