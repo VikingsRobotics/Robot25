@@ -36,7 +36,10 @@ SwerveControllerCommand::SwerveControllerCommand(
 }
 
 void SwerveControllerCommand::Initialize() {
-	// Nothing (for now >:])
+	m_internalThrottle = Drive::TeleopOperator::kDefaultThrottleXbox;
+	m_fieldCentric = true;
+	m_storedThrottle = true;
+	m_precision = false;
 }
 
 void SwerveControllerCommand::Execute() {
@@ -46,8 +49,10 @@ void SwerveControllerCommand::Execute() {
 	frc::SmartDashboard::PutBoolean("Precision Mode", m_precision);
 	if (m_controller.GetLeftBumperButton()) {
 		m_subsystem->Brake();
+		m_controller.SetRumble(frc::GenericHID::RumbleType::kBothRumble, 0.2);
 		return;
 	}
+	m_controller.SetRumble(frc::GenericHID::RumbleType::kBothRumble, 0.2);
 
 	double controllerX = m_controller.GetRawAxis(
 			frc::XboxController::Axis::kLeftX);
@@ -115,6 +120,7 @@ void SwerveControllerCommand::Execute() {
 }
 
 void SwerveControllerCommand::End(bool interrupted) {
+	m_controller.SetRumble(frc::GenericHID::kBothRumble, 0);
 	m_subsystem->StopModules();
 }
 

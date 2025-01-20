@@ -28,7 +28,8 @@ SwerveJoystickCommand::SwerveJoystickCommand(SwerveSubsystem *const subsystem,
 }
 
 void SwerveJoystickCommand::Initialize() {
-	// Nothing (for now >:])
+	m_fieldCentric = true;
+	m_precision = false;
 }
 
 void SwerveJoystickCommand::Execute() {
