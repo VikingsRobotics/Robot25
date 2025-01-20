@@ -3,8 +3,6 @@
 
 #include <frc/kinematics/ChassisSpeeds.h>
 
-#include <wpi/timestamp.h>
-
 #include <frc/smartdashboard/SmartDashboard.h>
 
 #include <frc2/command/RunCommand.h>
@@ -14,36 +12,27 @@
 SwerveControllerCommand::SwerveControllerCommand(
 		SwerveSubsystem *const subsystem,
 		frc2::CommandXboxController &controller, bool enableFieldCentric) : m_subsystem {
-		subsystem }, m_controller { controller.GetHID() }, m_throttleTimestamp {
-		double(WPI_Now()) }, m_internalThrottle {
+		subsystem }, m_controller { controller.GetHID() }, m_internalThrottle {
 		Drive::TeleopOperator::kDefaultThrottleXbox }, m_fieldCentric {
 		enableFieldCentric } {
 	AddRequirements (m_subsystem);
 	SetName("Swerve Xbox Controller Command");
 
-	controller.LeftBumper().OnTrue(frc2::RunCommand([this]() {
+	controller.RightBumper().OnTrue(frc2::RunCommand([this]() {
 		m_fieldCentric = !m_fieldCentric;
 	}).ToPtr());
-	// Pressing the up on the little pad increases throttle
-	controller.POVUp().WhileTrue(frc2::RunCommand([this]() {
-		units::microsecond_t now { double(WPI_Now()) };
-		units::second_t elapsedTime = now - m_throttleTimestamp;
-		if (elapsedTime > 1_s)
-			elapsedTime = 0_s;
-		m_internalThrottle = std::clamp(m_internalThrottle + (Drive::TeleopOperator::kThrottleRateChange * elapsedTime).value(),-1.0,1.0);
-		m_throttleTimestamp = now;
-	}
-	).ToPtr());
-	// Pressing the down on the little pad descreases throttle
-	controller.POVDown().WhileTrue(frc2::RunCommand([this]() {
-		units::microsecond_t now { double(WPI_Now()) };
-		units::second_t elapsedTime = now - m_throttleTimestamp;
-		if (elapsedTime > 1_s)
-			elapsedTime = 0_s;
-		m_internalThrottle = std::clamp(m_internalThrottle - (Drive::TeleopOperator::kThrottleRateChange * elapsedTime).value(),-1.0,1.0);
-		m_throttleTimestamp = now;
-	}
-	).ToPtr());
+
+	controller.A().OnTrue(frc2::RunCommand([this]() {
+		m_storedThrottle = !m_storedThrottle;
+	}).ToPtr());
+
+	controller.Back().OnTrue(frc2::RunCommand([this]() {
+		m_subsystem->ZeroHeading();
+	}).ToPtr());
+
+	controller.Start().OnTrue(frc2::RunCommand([this]() {
+		m_precision = !m_precision;
+	}).ToPtr());
 }
 
 void SwerveControllerCommand::Initialize() {
@@ -53,65 +42,75 @@ void SwerveControllerCommand::Initialize() {
 void SwerveControllerCommand::Execute() {
 	frc::SmartDashboard::PutNumber("Throttle", m_internalThrottle);
 	frc::SmartDashboard::PutBoolean("Field Centric", m_fieldCentric);
-	if (m_controller.GetXButton()) {
+	frc::SmartDashboard::PutBoolean("Stored Throttle", m_storedThrottle);
+	frc::SmartDashboard::PutBoolean("Precision Mode", m_precision);
+	if (m_controller.GetLeftBumper()) {
 		m_subsystem->Brake();
 		return;
 	}
+
+	double controllerX = m_controller.GetRawAxis(
+			frc::XboxController::Axis::kLeftX);
+	double controllerY = m_controller.GetRawAxis(
+			frc::XboxController::Axis::kLeftY);
+	double controllerRot = m_controller.GetRawAxis(
+			frc::XboxController::Axis::kRightX);
+
+	double deadbandMove = Drive::TeleopOperator::kDriveDeadband;
+	double deadbandRot = Drive::TeleopOperator::kDriveAngleDeadband;
 
 	double renormalizedX = 0.0;
 	double renormalizedY = 0.0;
 	double renormalizedA = 0.0;
 	// X^2 + Y^2 > D^2 
 	// Easier process than sqrt(X^2 + Y^2) > Deadband
-	if (m_controller.GetRawAxis(frc::XboxController::Axis::kLeftX)
-			* m_controller.GetRawAxis(frc::XboxController::Axis::kLeftX)
-			+ m_controller.GetRawAxis(frc::XboxController::Axis::kLeftY)
-					* m_controller.GetRawAxis(frc::XboxController::Axis::kLeftY)
-			> Drive::TeleopOperator::kDriveDeadband
-					* Drive::TeleopOperator::kDriveDeadband) {
-		renormalizedX = m_controller.GetRawAxis(
-				frc::XboxController::Axis::kLeftX)
-				/ (1 - Drive::TeleopOperator::kDriveDeadband);
-		renormalizedY = m_controller.GetRawAxis(
-				frc::XboxController::Axis::kLeftY)
-				/ (1 - Drive::TeleopOperator::kDriveDeadband);
+	if (controllerX * controllerX + controllerY * controllerY
+			> deadbandMove * deadbandMove) {
+		renormalizedX = -controllerX / (1 - deadbandMove);
+		renormalizedY = -controllerY / (1 - deadbandMove);
 	}
-	if (std::abs(m_controller.GetRawAxis(frc::XboxController::Axis::kRightX))
-			> Drive::TeleopOperator::kDriveAngleDeadband) {
-		renormalizedA = m_controller.GetRawAxis(
-				frc::XboxController::Axis::kRightX)
-				/ (1 - Drive::TeleopOperator::kDriveAngleDeadband);
+	if (std::abs(controllerRot) > deadbandRot) {
+		renormalizedA = -controllerRot / (1 - deadbandRot);
 	}
 
-	units::meters_per_second_t vx =
-			m_internalThrottle
-					< Drive::TeleopOperator::kPrecisionThrottleThreshold ?
-					Drive::TeleopOperator::kDrivePrecision * renormalizedX :
-					Drive::TeleopOperator::kDriveMoveSpeedMax * renormalizedX;
-	units::meters_per_second_t vy =
-			m_internalThrottle
-					< Drive::TeleopOperator::kPrecisionThrottleThreshold ?
-					Drive::TeleopOperator::kDrivePrecision * renormalizedY :
-					Drive::TeleopOperator::kDriveMoveSpeedMax * renormalizedY;
-	units::radians_per_second_t va =
-			m_internalThrottle
-					< Drive::TeleopOperator::kPrecisionThrottleThreshold ?
-					Drive::TeleopOperator::kDriveAngleSpeedPrecision
-							* renormalizedA :
-					Drive::TeleopOperator::kDriveAngleSpeedMax * renormalizedA;
+	if (!m_storedThrottle) {
+		m_internalThrottle = m_controller.GetRawAxis(
+				frc::XboxController::Axis::kLeftTrigger);
+	}
 
-	wpi::array < frc::SwerveModuleState, 4
-			> swerveModule {
-					Drive::DeviceProperties::SystemControl::kDriveKinematics.ToSwerveModuleStates(
-							m_fieldCentric ?
-									frc::ChassisSpeeds::FromFieldRelativeSpeeds(
-											vx, vy, va,
-											frc::Rotation2d {
-													m_subsystem->GetHeading() }) :
-									frc::ChassisSpeeds::FromRobotRelativeSpeeds(
-											vx, vy, va,
-											frc::Rotation2d {
-													m_subsystem->GetHeading() })) };
+	units::meters_per_second_t vx = 0_mps;
+	units::meters_per_second_t vy = 0_mps;
+	units::radians_per_second_t va = 0_rad_per_s;
+
+	if (!m_precision) {
+		vx = renormalizedX * m_internalThrottle
+				* Drive::TeleopOperator::kDriveMoveSpeedMax;
+		vy = renormalizedY * m_internalThrottle
+				* Drive::TeleopOperator::kDriveMoveSpeedMax;
+		va = renormalizedA * m_internalThrottle
+				* Drive::TeleopOperator::kDriveAngleSpeedMax;
+	} else {
+		vx = renormalizedX * m_internalThrottle
+				* Drive::TeleopOperator::kDrivePrecision;
+		vy = renormalizedY * m_internalThrottle
+				* Drive::TeleopOperator::kDrivePrecision;
+		va = renormalizedA * m_internalThrottle
+				* Drive::TeleopOperator::kDriveAngleSpeedPrecision;
+	}
+
+	wpi::array < frc::SwerveModuleState, 4 > swerveModule { wpi::empty_array };
+
+	if (m_fieldCentric) {
+		swerveModule =
+				Drive::DeviceProperties::SystemControl::kDriveKinematics.ToSwerveModuleStates(
+						frc::ChassisSpeeds::FromFieldRelativeSpeeds(vx, vy, va,
+								m_subsystem->GetHeading()));
+	} else {
+		swerveModule =
+				Drive::DeviceProperties::SystemControl::kDriveKinematics.ToSwerveModuleStates(
+						frc::ChassisSpeeds { vx, vy, va });
+	}
+
 	m_subsystem->SetModulesState(swerveModule);
 }
 

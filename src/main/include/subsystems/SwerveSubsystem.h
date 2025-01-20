@@ -39,15 +39,15 @@ public:
 
 	void SetModulesState(wpi::array<frc::SwerveModuleState, 4> states);
 	void SetModulesState(wpi::array<frc::SwerveModuleState, 4> states,
-			std::vector<units::newton_t> &feedforwardX,
-			std::vector<units::newton_t> &feedforwardY);
+			const std::vector<units::newton_t> &feedforwardX,
+			const std::vector<units::newton_t> &feedforwardY);
 
 	frc::ChassisSpeeds GetCurrentSpeeds();
 
 	void Drive(frc::ChassisSpeeds speed);
 	void Drive(frc::ChassisSpeeds speed,
-			std::vector<units::newton_t> &feedforwardX,
-			std::vector<units::newton_t> &feedforwardY);
+			const std::vector<units::newton_t> &feedforwardX,
+			const std::vector<units::newton_t> &feedforwardY);
 
 	void Brake();
 

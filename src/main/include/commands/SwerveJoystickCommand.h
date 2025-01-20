@@ -24,4 +24,5 @@ private:
 	SwerveSubsystem *const m_subsystem;
 	frc::Joystick &m_joystick;
 	bool m_fieldCentric;
+	bool m_precision;
 };

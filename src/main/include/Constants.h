@@ -45,12 +45,8 @@ constexpr double kDriveAngleDeadband = 0.05;
 constexpr units::meters_per_second_t kDriveMoveSpeedMax = 3.0_mps;
 //Speed when speed throttle is less that precision throttle threshold
 constexpr units::meters_per_second_t kDrivePrecision = 0.6_mps;
-//[-1 ... 1] when throttle transforms to precision
-constexpr double kPrecisionThrottleThreshold = -0.6;
 //What the throttle value will be on startup
 constexpr double kDefaultThrottleXbox = 0.7;
-//Rate at which throttle changes when using Xbox Controller
-constexpr units::hertz_t kThrottleRateChange = 0.4 / 1_s;
 //Maximum turning speed that the robot will move (limited by physical design)
 constexpr units::radians_per_second_t kDriveAngleSpeedMax = 3.0_rad_per_s;
 //Maximum turning speed that the robot will move (limited by physical design)

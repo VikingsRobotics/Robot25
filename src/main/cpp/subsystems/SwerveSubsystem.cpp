@@ -27,7 +27,9 @@ SwerveSubsystem::SwerveSubsystem() : m_getGyroYaw { m_gryo.GetYaw().AsSupplier()
         [this](){ return GetPose2d(); },
         [this](frc::Pose2d pose){ ResetOdometry(pose); },
         [this](){ return GetCurrentSpeeds(); },
-        [this](const frc::ChassisSpeeds speeds, const pathplanner::DriveFeedforwards dff){ Drive(speeds); },
+        [this](const frc::ChassisSpeeds speeds, const pathplanner::DriveFeedforwards dff) { 
+			Drive(speeds,dff.robotRelativeForcesX,dff.robotRelativeForcesY); 
+		},
         std::make_shared<pathplanner::PPHolonomicDriveController>( 
             Drive::AutoSettings::kTranslationPID,
             Drive::AutoSettings::kRotationalPID
@@ -112,8 +114,8 @@ void SwerveSubsystem::SetModulesState(
 
 void SwerveSubsystem::SetModulesState(
 		wpi::array<frc::SwerveModuleState, 4> states,
-		std::vector<units::newton_t> &feedforwardX,
-		std::vector<units::newton_t> &feedforwardY) {
+		const std::vector<units::newton_t> &feedforwardX,
+		const std::vector<units::newton_t> &feedforwardY) {
 	// Make sure that we are under max speed
 	Drive::DeviceProperties::SystemControl::kDriveKinematics.DesaturateWheelSpeeds(
 			&states, Drive::Mechanism::kPhysicalMoveMax);
@@ -138,8 +140,8 @@ void SwerveSubsystem::Drive(frc::ChassisSpeeds speed) {
 }
 
 void SwerveSubsystem::Drive(frc::ChassisSpeeds speed,
-		std::vector<units::newton_t> &feedforwardX,
-		std::vector<units::newton_t> &feedforwardY) {
+		const std::vector<units::newton_t> &feedforwardX,
+		const std::vector<units::newton_t> &feedforwardY) {
 	wpi::array < frc::SwerveModuleState, 4 > states =
 			Drive::DeviceProperties::SystemControl::kDriveKinematics.ToSwerveModuleStates(
 					speed);
@@ -147,7 +149,10 @@ void SwerveSubsystem::Drive(frc::ChassisSpeeds speed,
 }
 
 void SwerveSubsystem::Brake() {
-	StopModules();
+	m_frontLeft.Brake();
+	m_frontRight.Brake();
+	m_backLeft.Brake();
+	m_backRight.Brake();
 }
 
 void SwerveSubsystem::X() {

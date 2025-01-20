@@ -4,8 +4,6 @@
 #include <frc2/command/CommandHelper.h>
 #include <frc2/command/Command.h>
 
-#include <units/time.h>
-
 #include <frc2/command/button/CommandXboxController.h>
 
 class SwerveControllerCommand: public frc2::CommandHelper<frc2::Command,
@@ -24,7 +22,8 @@ public:
 private:
 	SwerveSubsystem *const m_subsystem;
 	frc::XboxController &m_controller;
-	units::microsecond_t m_throttleTimestamp;
 	double m_internalThrottle;
 	bool m_fieldCentric;
+	bool m_precision = false;
+	bool m_storedThrottle = true;
 };
