@@ -1,7 +1,7 @@
 plugins {
     id "cpp"
     id "google-test-test-suite"
-    id "edu.wpi.first.GradleRIO" version "2025.1.1"
+    id "edu.wpi.first.GradleRIO" version "2025.2.1"
     id "com.diffplug.spotless" version "5.0.0"
     id "edu.wpi.first.NativeUtils" version "2025.9.0"
 }
