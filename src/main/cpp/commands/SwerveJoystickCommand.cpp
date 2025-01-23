@@ -7,34 +7,36 @@
 
 #include <frc2/command/RunCommand.h>
 
-#include <wpi/array.h>
-
 SwerveJoystickCommand::SwerveJoystickCommand(SwerveSubsystem *const subsystem,
 		frc2::CommandJoystick &joystick) : m_subsystem { subsystem }, m_joystick {
-		joystick.GetHID() } {
+		joystick.GetHID() }, m_limiterX { Drive::TeleopOperator::kLimiter }, m_limiterY {
+		Drive::TeleopOperator::kLimiter }, m_limiterA {
+		Drive::TeleopOperator::kLimiter } {
 	AddRequirements (m_subsystem);
 	SetName("Swerve Joystick Command");
-
-	joystick.Button(2).OnTrue(frc2::RunCommand([this]() {
-		m_fieldCentric = !m_fieldCentric;
-	}).ToPtr());
-	joystick.Button(5).OnTrue(frc2::RunCommand([this]() {
-		m_subsystem->ZeroHeading();
-	}).ToPtr());
-	joystick.Button(4).OnTrue(frc2::RunCommand([this]() {
-		m_precision = !m_precision;
-	}).ToPtr());
 }
 
 void SwerveJoystickCommand::Initialize() {
 	m_fieldCentric = true;
 	m_precision = false;
+	m_limiterX.Reset(0);
+	m_limiterY.Reset(0);
+	m_limiterA.Reset(0);
 }
 
 void SwerveJoystickCommand::Execute() {
-	double throttle = -m_joystick.GetRawAxis(
-			frc::Joystick::AxisType::kThrottleAxis) / 2;
-	frc::SmartDashboard::PutNumber("Throttle", m_joystick.GetThrottle());
+	double throttle = (-m_joystick.GetRawAxis(3) + 1) / 2;
+	if (m_joystick.GetRawButtonPressed(2)) {
+		m_fieldCentric = !m_fieldCentric;
+	}
+	if (m_joystick.GetRawButtonPressed(4)) {
+		m_precision = !m_precision;
+	}
+	if (m_joystick.GetRawButtonPressed(5)) {
+		m_subsystem->ZeroHeading();
+	}
+
+	frc::SmartDashboard::PutNumber("Throttle", throttle);
 	frc::SmartDashboard::PutBoolean("Field Centric", m_fieldCentric);
 	frc::SmartDashboard::PutBoolean("Stored Throttle", false);
 	frc::SmartDashboard::PutBoolean("Precision Mode", m_precision);
@@ -43,10 +45,9 @@ void SwerveJoystickCommand::Execute() {
 		return;
 	}
 
-	double controllerX = m_joystick.GetRawAxis(frc::Joystick::AxisType::kXAxis);
-	double controllerY = m_joystick.GetRawAxis(frc::Joystick::AxisType::kYAxis);
-	double controllerRot = m_joystick.GetRawAxis(
-			frc::Joystick::AxisType::kZAxis);
+	double controllerX = m_limiterX.Calculate(m_joystick.GetRawAxis(1));
+	double controllerY = m_limiterY.Calculate(m_joystick.GetRawAxis(0));
+	double controllerRot = m_limiterA.Calculate(m_joystick.GetRawAxis(2));
 
 	double deadbandMove = Drive::TeleopOperator::kDriveDeadband;
 	double deadbandRot = Drive::TeleopOperator::kDriveAngleDeadband;
@@ -54,15 +55,24 @@ void SwerveJoystickCommand::Execute() {
 	double renormalizedX = 0.0;
 	double renormalizedY = 0.0;
 	double renormalizedA = 0.0;
+
+	double normalizedDeadbandX = controllerX < 0 ? deadbandMove : -deadbandMove;
+	double normalizedDeadbandY = controllerY < 0 ? deadbandMove : -deadbandMove;
+	double normalizedDeadbandA =
+			controllerRot < 0 ? deadbandMove : -deadbandMove;
+
 	// X^2 + Y^2 > D^2 
 	// Easier process than sqrt(X^2 + Y^2) > Deadband
 	if (controllerX * controllerX + controllerY * controllerY
 			> deadbandMove * deadbandMove) {
-		renormalizedX = -controllerX / (1 - deadbandMove);
-		renormalizedY = -controllerY / (1 - deadbandMove);
+		renormalizedX = -(controllerX + normalizedDeadbandX)
+				/ (1 - deadbandMove);
+		renormalizedY = -(controllerY + normalizedDeadbandY)
+				/ (1 - deadbandMove);
 	}
 	if (std::abs(controllerRot) > deadbandRot) {
-		renormalizedA = -controllerRot / (1 - deadbandRot);
+		renormalizedA = -(controllerRot + normalizedDeadbandA)
+				/ (1 - deadbandRot);
 	}
 
 	units::meters_per_second_t vx = 0_mps;
@@ -83,17 +93,24 @@ void SwerveJoystickCommand::Execute() {
 				* Drive::TeleopOperator::kDriveAngleSpeedPrecision;
 	}
 
-	wpi::array < frc::SwerveModuleState, 4 > swerveModule { wpi::empty_array };
-
+	frc::ChassisSpeeds speeds { };
 	if (m_fieldCentric) {
-		swerveModule =
-				Drive::DeviceProperties::SystemControl::kDriveKinematics.ToSwerveModuleStates(
-						frc::ChassisSpeeds::FromFieldRelativeSpeeds(vx, vy, va,
-								m_subsystem->GetHeading()));
+		speeds = frc::ChassisSpeeds::FromFieldRelativeSpeeds(vx, vy, va,
+				m_subsystem->GetHeading());
 	} else {
-		swerveModule =
-				Drive::DeviceProperties::SystemControl::kDriveKinematics.ToSwerveModuleStates(
-						frc::ChassisSpeeds { vx, vy, va });
+		speeds = frc::ChassisSpeeds { vx, vy, va };
+	}
+
+	wpi::array < frc::SwerveModuleState, 4 > swerveModule =
+			Drive::DeviceProperties::SystemControl::kDriveKinematics.ToSwerveModuleStates(
+					speeds);
+
+	for (size_t i = 0; i < swerveModule.size(); ++i) {
+		if (units::math::abs(swerveModule[i].speed) < 0.001_mps) {
+			swerveModule[i].speed = 0_mps;
+			swerveModule[i].angle = m_lastState[i];
+		}
+		m_lastState[i] = swerveModule[i].angle;
 	}
 
 	m_subsystem->SetModulesState(swerveModule);

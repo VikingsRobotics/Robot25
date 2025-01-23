@@ -37,10 +37,12 @@ constexpr int kDriverControllerPort = 0;
 }
 
 namespace TeleopOperator {
+//Slew rate limiter for input controller
+constexpr units::hertz_t kLimiter = units::scalar_t { 1 } / 1_s;
 //Minimum percent of joystick distance before robot response (move)
-constexpr double kDriveDeadband = 0.05;
+constexpr double kDriveDeadband = 0.15;
 //Minimum percent of joystick twist distance before robot response (angle)
-constexpr double kDriveAngleDeadband = 0.05;
+constexpr double kDriveAngleDeadband = 0.15;
 //Maximum speed that the robot will move (limited by physical design)
 constexpr units::meters_per_second_t kDriveMoveSpeedMax = 3.0_mps;
 //Speed when speed throttle is less that precision throttle threshold

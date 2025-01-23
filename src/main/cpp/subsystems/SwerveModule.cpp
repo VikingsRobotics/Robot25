@@ -1,6 +1,8 @@
 #include "subsystems/SwerveModule.h"
 #include "Constants.h"
 
+#include <frc/smartdashboard/SmartDashboard.h>
+
 SwerveModule::SwerveModule(const int drivingCANId, const int turningCANId,
 		const units::radian_t chassisAngularOffest) : m_drivingTalonFx {
 		drivingCANId, DeviceIdentifier::kCANBus }, m_turningSparkMax {
@@ -50,11 +52,15 @@ void SwerveModule::SetState(frc::SwerveModuleState desiredState) {
 	optimizedDesiredState.Optimize(frc::Rotation2d(units::radian_t {
 			m_turningAbsoluteEncoder.GetPosition() }));
 
-	m_drivingTalonFx.SetControl(
-			ctre::phoenix6::controls::VelocityVoltage {
-					optimizedDesiredState.speed
-							/ Drive::Mechanism::kWheelTurnsToMetersDistance }.WithSlot(
-					0));
+	if (std::abs(desiredState.speed.value()) > 0.0001) {
+		m_drivingTalonFx.SetControl(
+				ctre::phoenix6::controls::VelocityVoltage {
+						optimizedDesiredState.speed
+								/ Drive::Mechanism::kWheelTurnsToMetersDistance }.WithSlot(
+						0));
+	} else {
+		m_drivingTalonFx.Set(0);
+	}
 
 	if (m_useSmartMotionSparkMax) {
 		m_sparkLoopController.SetReference(
@@ -83,11 +89,15 @@ void SwerveModule::SetState(frc::SwerveModuleState desiredState,
 	Feedforward calculatedFeedforward = CalculateFeedforward(feedforwardX,
 			feedforwardY);
 
-	m_drivingTalonFx.SetControl(
-			ctre::phoenix6::controls::VelocityVoltage {
-					optimizedDesiredState.speed
-							/ Drive::Mechanism::kWheelTurnsToMetersDistance }.WithSlot(
-					0).WithFeedForward(calculatedFeedforward.voltage));
+	if (std::abs(desiredState.speed.value()) > 0.0001) {
+		m_drivingTalonFx.SetControl(
+				ctre::phoenix6::controls::VelocityVoltage {
+						optimizedDesiredState.speed
+								/ Drive::Mechanism::kWheelTurnsToMetersDistance }.WithSlot(
+						0).WithFeedForward(calculatedFeedforward.voltage));
+	} else {
+		m_drivingTalonFx.Set(0);
+	}
 
 	if (m_useSmartMotionSparkMax) {
 		m_sparkLoopController.SetReference(

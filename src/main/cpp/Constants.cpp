@@ -14,7 +14,7 @@ rev::spark::SparkMaxConfig& GetSparkMaxConfig() {
 	config.absoluteEncoder.VelocityConversionFactor(
 			Drive::Mechanism::kAngleGearRatio.value() / 60);
 
-	config.absoluteEncoder.Inverted(Drive::DeviceProperties::kInvertEncoder);
+	config.absoluteEncoder.Inverted(kInvertEncoder);
 
 	config.closedLoop.PositionWrappingEnabled(true);
 	config.closedLoop.SetFeedbackSensor(
@@ -33,10 +33,10 @@ rev::spark::SparkMaxConfig& GetSparkMaxConfig() {
 	config.closedLoop.OutputRange(-1, 1, rev::spark::kSlot1);
 	config.closedLoop.Pidf(1.0, 0.0, 0.0, 0.0, rev::spark::kSlot1);
 	// SMART MOTION CONFIGS
-	config.closedLoop.maxMotion.MaxVelocity(2 * std::numbers::pi,
-			rev::spark::kSlot1);
-	config.closedLoop.maxMotion.MaxAcceleration(2 * std::numbers::pi,
-			rev::spark::kSlot1);
+	config.closedLoop.maxMotion.MaxVelocity(
+			AutoSettings::kMaxAngularSpeed.value(), rev::spark::kSlot1);
+	config.closedLoop.maxMotion.MaxAcceleration(
+			AutoSettings::kMaxAngularAcceleration.value(), rev::spark::kSlot1);
 	config.closedLoop.maxMotion.PositionMode(
 			rev::spark::MAXMotionConfig::MAXMotionPositionMode::kMAXMotionTrapezoidal,
 			rev::spark::kSlot1);
@@ -58,7 +58,7 @@ ctre::phoenix6::configs::TalonFXConfiguration GetTalonFXConfig() {
 			ctre::phoenix6::configs::MotorOutputConfigs { }.WithNeutralMode(
 					ctre::phoenix6::signals::NeutralModeValue::Brake));
 	config.WithSlot0(
-			ctre::phoenix6::configs::Slot0Configs { }.WithKP(1.0).WithKI(0.0).WithKD(
+			ctre::phoenix6::configs::Slot0Configs { }.WithKP(0.1).WithKI(0.0).WithKD(
 					0.0).WithKS(Mechanism::kStaticVoltage.value()).WithKV(
 					Mechanism::kVelocityVoltage.value()).WithKA(0.0).WithGravityType(
 					ctre::phoenix6::signals::GravityTypeValue::Elevator_Static).WithStaticFeedforwardSign(

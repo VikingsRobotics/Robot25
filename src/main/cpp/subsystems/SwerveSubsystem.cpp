@@ -44,12 +44,26 @@ SwerveSubsystem::SwerveSubsystem() : m_getGyroYaw { m_gryo.GetYaw().AsSupplier()
         },
         this
     );
-	pathplanner::PathPlannerLogging::setLogActivePathCallback(
-			[this](auto poses) {
-				m_field.GetObject("path")->SetPoses(poses);
-			});
-
 	frc::SmartDashboard::PutData("Field", &m_field);
+
+    // Logging callback for current robot pose
+    pathplanner::PathPlannerLogging::setLogCurrentPoseCallback([this](frc::Pose2d pose){
+        // Do whatever you want with the pose here
+        m_field.SetRobotPose(pose);
+    });
+
+    // Logging callback for target robot pose
+    pathplanner::PathPlannerLogging::setLogTargetPoseCallback([this](frc::Pose2d pose){
+        // Do whatever you want with the pose here
+        m_field.GetObject("target pose")->SetPose(pose);
+    });
+
+    // Logging callback for the active path, this is sent as a vector of poses
+    pathplanner::PathPlannerLogging::setLogActivePathCallback([this](std::vector<frc::Pose2d> poses){
+        // Do whatever you want with the poses here
+        m_field.GetObject("path")->SetPoses(poses);
+    });
+
 	frc::SmartDashboard::PutData(this);
 }
 // @formatter:on
@@ -58,6 +72,8 @@ void SwerveSubsystem::Periodic() {
 	m_odometry.Update(GetRotation2d(),
 			{ m_frontLeft.GetPosition(), m_frontRight.GetPosition(),
 					m_backLeft.GetPosition(), m_backRight.GetPosition() });
+	frc::SmartDashboard::PutNumber("Gyro Angle (deg)", GetHeading().value());
+
 }
 
 void SwerveSubsystem::ZeroHeading() {
