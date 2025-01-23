@@ -4,15 +4,26 @@
 
 #include "RobotContainer.h"
 
+#include "Constants.h"
+
+#include "commands/SwerveControllerCommand.h"
+#include "commands/SwerveJoystickCommand.h"
+
+#include <frc2/command/RunCommand.h>
+
 #include <frc2/command/Commands.h>
 
-RobotContainer::RobotContainer() {
+RobotContainer::RobotContainer() : joystick {
+		Drive::ControllerPorts::kDriverControllerPort } {
+	swerveSubsystem.SetDefaultCommand(SwerveJoystickCommand { &swerveSubsystem,
+			joystick });
+
 	ConfigureBindings();
 }
 
 void RobotContainer::ConfigureBindings() {
 }
 
-frc2::CommandPtr RobotContainer::GetAutonomousCommand() {
-	return frc2::cmd::Print("No autonomous command configured");
+frc2::Command* RobotContainer::GetAutonomousCommand() {
+	return nullptr;
 }
