@@ -59,7 +59,7 @@ namespace DeviceProperties {
 // Default motor type used for REV spark max motors
 extern rev::spark::SparkMaxConfig& GetSparkMaxConfig();
 // Default motor type used for TalonFX motors
-extern ctre::phoenix6::configs::TalonFXConfiguration GetTalonFXConfig();
+extern constexpr ctre::phoenix6::configs::TalonFXConfiguration GetTalonFXConfig();
 // Default motor type enum for REV spark max motors
 constexpr rev::spark::SparkLowLevel::MotorType kSparkMotorType =
 		rev::spark::SparkLowLevel::MotorType::kBrushless;
@@ -120,6 +120,37 @@ constexpr units::radians_per_second_squared_t kMaxAngularAcceleration =
 }
 }
 
+namespace Elevator {
+namespace Destination {
+constexpr units::meter_t kMaxHeight = 32_in;
+constexpr units::meter_t kCollectionHeight = 5_in;
+constexpr units::meter_t kFourthGoal = 4_in;
+constexpr units::meter_t kThirdGoal = 3_in;
+constexpr units::meter_t kSecondGoal = 2_in;
+constexpr units::meter_t kFirstGoal = 1_in;
+constexpr units::meter_t kMinHeight = 0_in;
+}
+namespace Mechanism {
+constexpr units::turn_t kGearRatio { 1.0 / 20.0 };
+constexpr units::meter_t kGearDiameter = units::inch_t{ 2 };
+constexpr units::turns_per_second_t kMaxSpeed = 10_t / 1_s;
+constexpr units::turns_per_second_squared_t kMaxAcceleration = 10_t / (1_s * 1_s);
+constexpr units::unit_t<
+	units::compound_unit<units::meter,units::inverse<units::turn>>> kTurnsToMeters = (kGearDiameter / 2) / kGearRatio;
+constexpr units::meters_per_second_t kMaxSpeedInMeters = kMaxSpeed * kTurnsToMeters;
+constexpr units::meters_per_second_squared_t kMaxAccelerationInMeters = kMaxAcceleration * kTurnsToMeters;
+}
+namespace DeviceProperties {
+// Default motor type used for REV spark max motors
+extern rev::spark::SparkMaxConfig& GetElevatorConfig();
+// Default motor type used for REV spark max motors
+extern rev::spark::SparkMaxConfig& GetFollowerConfig();
+// Default motor type enum for REV spark max motors
+constexpr rev::spark::SparkLowLevel::MotorType kSparkMotorType =
+		rev::spark::SparkLowLevel::MotorType::kBrushless;
+}
+}
+
 namespace DeviceIdentifier {
 //CTRE: CANBus Name for contructors of CRTE software classes
 constexpr ctre::phoenix6::CANBus kCANBus { "" };
@@ -145,4 +176,8 @@ constexpr int kBLAngleMotorId = 9;
 constexpr int kBRDriveMotorId = 10;
 //REV: Neo 550 Back Right Angle Motor ID
 constexpr int kBRAngleMotorId = 11;
+//REV: Neo 500 Elevator Driver ID
+constexpr int kElevatorDriverId = 12;
+//REV: Neo 500 Elevator Follower ID
+constexpr int kElevatorFollowId = 13;
 }
