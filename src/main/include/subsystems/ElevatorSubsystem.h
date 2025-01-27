@@ -5,6 +5,10 @@
 
 #include <rev/SparkMax.h>
 
+#include <units/length.h>
+
+class HeightCommand;
+
 class ElevatorSubsystem : public frc2::SubsystemBase {
 public:
     ElevatorSubsystem();
@@ -14,8 +18,12 @@ public:
 	ElevatorSubsystem& operator=(ElevatorSubsystem &&rhs) = delete;
 
     frc2::Trigger LimiterTriggered();
-    
+    HeightCommand GotoHeight(units::meter_t height);
+
+    friend HeightCommand;
 private:
     rev::spark::SparkMax m_elevatorDriver;
+    rev::spark::SparkRelativeEncoder m_driverEncoder;
     rev::spark::SparkMax m_elevatorFollow;
+    rev::spark::SparkClosedLoopController m_elevatorPID;
 };

@@ -6,7 +6,9 @@
 
 ElevatorSubsystem::ElevatorSubsystem() :
     m_elevatorDriver{DeviceIdentifier::kElevatorDriverId, Elevator::DeviceProperties::kSparkMotorType},
-    m_elevatorFollow{DeviceIdentifier::kElevatorFollowId, Elevator::DeviceProperties::kSparkMotorType} {
+    m_driverEncoder{m_elevatorDriver.GetEncoder()},
+    m_elevatorFollow{DeviceIdentifier::kElevatorFollowId, Elevator::DeviceProperties::kSparkMotorType},
+    m_elevatorPID{m_elevatorDriver.GetClosedLoopController()} {
     SetName("Elevator Subsystem");
     
     m_elevatorDriver.Configure(Elevator::DeviceProperties::GetElevatorConfig(),

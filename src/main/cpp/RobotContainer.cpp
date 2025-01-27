@@ -22,6 +22,27 @@ RobotContainer::RobotContainer() : joystick {
 }
 
 void RobotContainer::ConfigureBindings() {
+	ConfigureDestination();
+}
+
+void RobotContainer::ConfigureDestination() {
+	std::vector<units::meter_t> destinations = 
+	{
+		Elevator::Destination::kMaxHeight,
+		Elevator::Destination::kCollectionHeight,
+		Elevator::Destination::kFourthGoal,
+		Elevator::Destination::kThirdGoal,
+		Elevator::Destination::kSecondGoal,
+		Elevator::Destination::kFirstGoal,
+		Elevator::Destination::kMinHeight
+	};
+	
+	for(units::meter_t& height : destinations)
+	{
+		destinationCommands.emplace_back(&elevatorSubsystem, height,
+		Elevator::Destination::kAllowableSwitchTime,
+		Elevator::Destination::kAllowableError);
+	}
 }
 
 frc2::Command* RobotContainer::GetAutonomousCommand() {

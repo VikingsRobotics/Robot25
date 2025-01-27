@@ -6,9 +6,16 @@
 
 #include <frc2/command/Command.h>
 
+#include <vector>
+
 #include "subsystems/SwerveSubsystem.h"
+#include "subsystems/ElevatorSubsystem.h"
 
 #include <frc2/command/button/CommandJoystick.h>
+
+class HeightCommand;
+class SwerveControllerCommand;
+class SwerveJoystickCommand;
 
 class RobotContainer {
 public:
@@ -18,6 +25,9 @@ public:
 
 private:
 	void ConfigureBindings();
+	void ConfigureDestination();
 	SwerveSubsystem swerveSubsystem { };
+	ElevatorSubsystem elevatorSubsystem { };
 	frc2::CommandJoystick joystick;
+	std::vector<HeightCommand> destinationCommands;
 };

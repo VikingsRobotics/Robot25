@@ -122,6 +122,8 @@ constexpr units::radians_per_second_squared_t kMaxAngularAcceleration =
 
 namespace Elevator {
 namespace Destination {
+constexpr units::meter_t kAllowableError{ 0.1 };
+constexpr units::second_t kAllowableSwitchTime{ 0.5 };
 constexpr units::meter_t kMaxHeight = 32_in;
 constexpr units::meter_t kCollectionHeight = 5_in;
 constexpr units::meter_t kFourthGoal = 4_in;
@@ -131,6 +133,7 @@ constexpr units::meter_t kFirstGoal = 1_in;
 constexpr units::meter_t kMinHeight = 0_in;
 }
 namespace Mechanism {
+constexpr units::volt_t kStaticVoltage{ 0.0 };
 constexpr units::turn_t kGearRatio { 1.0 / 20.0 };
 constexpr units::meter_t kGearDiameter = units::inch_t{ 2 };
 constexpr units::turns_per_second_t kMaxSpeed = 10_t / 1_s;
