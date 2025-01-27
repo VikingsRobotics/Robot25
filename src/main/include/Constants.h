@@ -120,6 +120,25 @@ constexpr units::radians_per_second_squared_t kMaxAngularAcceleration =
 }
 }
 
+namespace Arm {
+namespace Destinations {
+	
+}
+namespace DeviceProperties {
+// Default motor type used for REV spark max motors
+extern rev::spark::SparkMaxConfig& GetSparkMaxConfig();
+// Default motor type enum for REV spark max motors
+constexpr rev::spark::SparkLowLevel::MotorType kSparkMotorType =
+		rev::spark::SparkLowLevel::MotorType::kBrushless;
+// Invert absolute encoder to match direction of motor movement
+constexpr bool kInvertEncoder = false;
+}
+namespace Mechanism {
+units::turns_per_second_t kMaxAngularSpeed{ 1.0 };
+units::turns_per_second_squared_t kMaxAngularAcceleration{ 1.0 };
+}
+}
+
 namespace DeviceIdentifier {
 //CTRE: CANBus Name for contructors of CRTE software classes
 constexpr ctre::phoenix6::CANBus kCANBus { "" };
@@ -145,4 +164,6 @@ constexpr int kBLAngleMotorId = 9;
 constexpr int kBRDriveMotorId = 10;
 //REV: Neo 550 Back Right Angle Motor ID
 constexpr int kBRAngleMotorId = 11;
+//REV: Neo 550 Direction Motor ID
+constexpr int kDirectionMotorId = 14;
 }
