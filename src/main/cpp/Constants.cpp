@@ -79,6 +79,39 @@ const frc::SwerveDriveKinematics<4> kDriveKinematics { frc::Translation2d {
 }
 }
 
+namespace Arm{
+namespace DeviceProperties{
+static rev::spark::SparkMaxConfig storedConfig { };
+rev::spark::SparkMaxConfig& GetSparkMaxConfig() {
+	rev::spark::SparkMaxConfig &config = storedConfig;
+
+	config.encoder.Inverted(kInvertEncoder);
+
+	config.closedLoop.PositionWrappingEnabled(true);
+	config.closedLoop.SetFeedbackSensor(
+			rev::spark::ClosedLoopConfig::kPrimaryEncoder);
+
+	// * SMART MOTION CLOSED-LOOP * //
+	config.closedLoop.MinOutput(0);
+	config.closedLoop.MaxOutput(std::numbers::pi * 2);
+	config.closedLoop.OutputRange(-1, 1);
+	config.closedLoop.Pidf(1.0, 0.0, 0.0, 0.0);
+	// SMART MOTION CONFIGS
+	config.closedLoop.maxMotion.MaxVelocity(
+			Mechanism::kMaxAngularSpeed.value());
+	config.closedLoop.maxMotion.MaxAcceleration(
+			Mechanism::kMaxAngularAcceleration.value());
+	config.closedLoop.maxMotion.PositionMode(
+			rev::spark::MAXMotionConfig::MAXMotionPositionMode::kMAXMotionTrapezoidal);
+	config.closedLoop.maxMotion.AllowedClosedLoopError(0);
+	// * END CLOSED-LOOP * //
+
+	config.SetIdleMode(rev::spark::SparkBaseConfig::kBrake);
+
+	return config;
+}
+}
+}
 namespace Elevator {
 namespace DeviceProperties {
 static rev::spark::SparkMaxConfig storedElevatorConfig { };

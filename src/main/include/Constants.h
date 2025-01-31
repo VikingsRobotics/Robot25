@@ -120,6 +120,25 @@ constexpr units::radians_per_second_squared_t kMaxAngularAcceleration =
 }
 }
 
+namespace Arm {
+namespace Destinations {
+	
+}
+namespace DeviceProperties {
+// Default motor type used for REV spark max motors
+extern rev::spark::SparkMaxConfig& GetSparkMaxConfig();
+// Default motor type enum for REV spark max motors
+constexpr rev::spark::SparkLowLevel::MotorType kSparkMotorType =
+		rev::spark::SparkLowLevel::MotorType::kBrushless;
+// Invert absolute encoder to match direction of motor movement
+constexpr bool kInvertEncoder = false;
+}
+namespace Mechanism {
+units::turns_per_second_t kMaxAngularSpeed{ 1.0 };
+units::turns_per_second_squared_t kMaxAngularAcceleration{ 1.0 };
+}
+}
+
 namespace Elevator {
 namespace Destination {
 constexpr units::meter_t kAllowableError{ 0.1 };
@@ -179,8 +198,4 @@ constexpr int kBLAngleMotorId = 9;
 constexpr int kBRDriveMotorId = 10;
 //REV: Neo 550 Back Right Angle Motor ID
 constexpr int kBRAngleMotorId = 11;
-//REV: Neo 500 Elevator Driver ID
-constexpr int kElevatorDriverId = 12;
-//REV: Neo 500 Elevator Follower ID
-constexpr int kElevatorFollowId = 13;
 }
