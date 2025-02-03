@@ -22,8 +22,9 @@ void RotationCommand::Initialize() {
 					rev::spark::kSlot0,
 					(Arm::Mechanism::kStaticVoltage
 							* units::math::cos(
-									m_desiredRotation
-											* Arm::Mechanism::kGearRatio)).value());
+									(m_desiredRotation
+											* Arm::Mechanism::kGearRatio)
+											+ m_subsystem->m_rotationalOffset)).value());
 	if (error != rev::REVLibError::kOk) {
 		this->Cancel();
 	}
@@ -37,13 +38,14 @@ void RotationCommand::End(bool interrupted) {
 	m_subsystem->m_directionMotor.SetVoltage(
 			Arm::Mechanism::kStaticVoltage
 					* units::math::cos(
-							m_desiredRotation * Arm::Mechanism::kGearRatio).value());
+							(m_desiredRotation * Arm::Mechanism::kGearRatio)
+									+ m_subsystem->m_rotationalOffset).value());
 }
 
 bool RotationCommand::IsFinished() {
-	units::turn_t currentHeight = units::turn_t {
+	units::turn_t currentHeight = (units::turn_t {
 			m_subsystem->m_directionEncoder.GetPosition() }
-			* Arm::Mechanism::kGearRatio;
+			* Arm::Mechanism::kGearRatio) + m_subsystem->m_rotationalOffset;
 	units::turn_t error = m_desiredRotation - currentHeight;
 	return m_limitSwitch.Debounce(m_stopOnLimitSeconds).Get()
 			|| units::math::abs(error) < m_allowedError;
