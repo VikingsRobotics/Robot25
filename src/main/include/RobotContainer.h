@@ -15,10 +15,6 @@
 
 #include <frc2/command/button/CommandJoystick.h>
 
-class HeightCommand;
-class SwerveControllerCommand;
-class SwerveJoystickCommand;
-
 class RobotContainer {
 public:
 	RobotContainer();
@@ -28,8 +24,11 @@ public:
 private:
 	void ConfigureBindings();
 	void ConfigureDestination();
+	void ConfigureRotation();
 	SwerveSubsystem swerveSubsystem { };
 	ElevatorSubsystem elevatorSubsystem { };
+	ArmSubsystem armSubsystem { };
 	frc2::CommandJoystick joystick;
 	std::vector<HeightCommand> destinationCommands;
+	std::vector<RotationCommand> rotationCommands;
 };

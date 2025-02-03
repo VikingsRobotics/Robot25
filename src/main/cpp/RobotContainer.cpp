@@ -42,6 +42,17 @@ void RobotContainer::ConfigureDestination() {
 	}
 }
 
+void RobotContainer::ConfigureRotation() {
+	std::vector < units::turn_t > rotations = { Arm::Destination::kMinTurn,
+			Arm::Destination::kMaxTurn };
+
+	for (units::turn_t &rotation : rotations) {
+		rotationCommands.emplace_back(&armSubsystem, rotation,
+				Arm::Destination::kAllowableSwitchTime,
+				Arm::Destination::kAllowableError);
+	}
+}
+
 frc2::Command* RobotContainer::GetAutonomousCommand() {
 	return nullptr;
 }
