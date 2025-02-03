@@ -9,21 +9,22 @@
 
 class HeightCommand;
 
-class ElevatorSubsystem : public frc2::SubsystemBase {
+class ElevatorSubsystem: public frc2::SubsystemBase {
 public:
-    ElevatorSubsystem();
-    ElevatorSubsystem(ElevatorSubsystem &rhs) = delete;
+	ElevatorSubsystem();
+	ElevatorSubsystem(ElevatorSubsystem &rhs) = delete;
 	ElevatorSubsystem& operator=(ElevatorSubsystem &rhs) = delete;
 	ElevatorSubsystem(ElevatorSubsystem &&rhs) = delete;
 	ElevatorSubsystem& operator=(ElevatorSubsystem &&rhs) = delete;
 
-    frc2::Trigger LimiterTriggered();
-    HeightCommand GotoHeight(units::meter_t height);
+	void Periodic() override;
 
-    friend HeightCommand;
+	frc2::Trigger LimiterTriggered();
+
+	friend HeightCommand;
 private:
-    rev::spark::SparkMax m_elevatorDriver;
-    rev::spark::SparkRelativeEncoder m_driverEncoder;
-    rev::spark::SparkMax m_elevatorFollow;
-    rev::spark::SparkClosedLoopController m_elevatorPID;
+	rev::spark::SparkMax m_elevatorDriver;
+	rev::spark::SparkRelativeEncoder m_driverEncoder;
+	rev::spark::SparkMax m_elevatorFollow;
+	rev::spark::SparkClosedLoopController m_elevatorPID;
 };

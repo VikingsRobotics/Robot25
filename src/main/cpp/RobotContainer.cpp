@@ -26,22 +26,19 @@ void RobotContainer::ConfigureBindings() {
 }
 
 void RobotContainer::ConfigureDestination() {
-	std::vector<units::meter_t> destinations = 
-	{
-		Elevator::Destination::kMaxHeight,
-		Elevator::Destination::kCollectionHeight,
-		Elevator::Destination::kFourthGoal,
-		Elevator::Destination::kThirdGoal,
-		Elevator::Destination::kSecondGoal,
-		Elevator::Destination::kFirstGoal,
-		Elevator::Destination::kMinHeight
-	};
-	
-	for(units::meter_t& height : destinations)
-	{
+	std::vector < units::meter_t > destinations =
+			{ Elevator::Destination::kMaxHeight,
+					Elevator::Destination::kCollectionHeight,
+					Elevator::Destination::kFourthGoal,
+					Elevator::Destination::kThirdGoal,
+					Elevator::Destination::kSecondGoal,
+					Elevator::Destination::kFirstGoal,
+					Elevator::Destination::kMinHeight };
+
+	for (units::meter_t &height : destinations) {
 		destinationCommands.emplace_back(&elevatorSubsystem, height,
-		Elevator::Destination::kAllowableSwitchTime,
-		Elevator::Destination::kAllowableError);
+				Elevator::Destination::kAllowableSwitchTime,
+				Elevator::Destination::kAllowableError);
 	}
 }
 

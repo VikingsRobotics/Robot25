@@ -6,6 +6,7 @@
 namespace Drive {
 
 namespace DeviceProperties {
+
 static rev::spark::SparkMaxConfig storedConfig { };
 rev::spark::SparkMaxConfig& GetSparkMaxConfig() {
 	rev::spark::SparkMaxConfig &config = storedConfig;
@@ -48,7 +49,7 @@ rev::spark::SparkMaxConfig& GetSparkMaxConfig() {
 	return config;
 }
 
-constexpr ctre::phoenix6::configs::TalonFXConfiguration GetTalonFXConfig() {
+ctre::phoenix6::configs::TalonFXConfiguration GetTalonFXConfig() {
 	ctre::phoenix6::configs::TalonFXConfiguration config;
 
 	config.WithVoltage(
@@ -79,8 +80,10 @@ const frc::SwerveDriveKinematics<4> kDriveKinematics { frc::Translation2d {
 }
 }
 
-namespace Arm{
-namespace DeviceProperties{
+namespace Arm {
+
+namespace DeviceProperties {
+
 static rev::spark::SparkMaxConfig storedConfig { };
 rev::spark::SparkMaxConfig& GetSparkMaxConfig() {
 	rev::spark::SparkMaxConfig &config = storedConfig;
@@ -110,10 +113,13 @@ rev::spark::SparkMaxConfig& GetSparkMaxConfig() {
 
 	return config;
 }
+
 }
 }
 namespace Elevator {
+
 namespace DeviceProperties {
+
 static rev::spark::SparkMaxConfig storedElevatorConfig { };
 rev::spark::SparkMaxConfig& GetElevatorConfig() {
 	rev::spark::SparkMaxConfig &config = storedElevatorConfig;
@@ -122,19 +128,19 @@ rev::spark::SparkMaxConfig& GetElevatorConfig() {
 	config.encoder.VelocityConversionFactor(
 			(Mechanism::kGearRatio.value() * 2 * std::numbers::pi) / 60);
 
-	config.closedLoop.SetFeedbackSensor(rev::spark::ClosedLoopConfig::FeedbackSensor::kPrimaryEncoder);
+	config.closedLoop.SetFeedbackSensor(
+			rev::spark::ClosedLoopConfig::FeedbackSensor::kPrimaryEncoder);
 
-	config.closedLoop.Pidf(0.1,0,0,0.1);
+	config.closedLoop.Pidf(0.1, 0, 0, 0.1);
 	config.closedLoop.PositionWrappingEnabled(false);
-	config.closedLoop.OutputRange(-1,1);
+	config.closedLoop.OutputRange(-1, 1);
 
 	config.softLimit.ForwardSoftLimitEnabled(true);
 	config.softLimit.ForwardSoftLimit(10);
 	config.softLimit.ReverseSoftLimitEnabled(true);
 	config.softLimit.ReverseSoftLimit(0);
 
-	config.closedLoop.maxMotion.MaxVelocity(
-			Mechanism::kMaxSpeed.value());
+	config.closedLoop.maxMotion.MaxVelocity(Mechanism::kMaxSpeed.value());
 	config.closedLoop.maxMotion.MaxAcceleration(
 			Mechanism::kMaxAcceleration.value());
 	config.closedLoop.maxMotion.PositionMode(
@@ -148,12 +154,13 @@ rev::spark::SparkMaxConfig& GetElevatorConfig() {
 static rev::spark::SparkMaxConfig storedFollowerConfig { };
 rev::spark::SparkMaxConfig& GetFollowerConfig() {
 	rev::spark::SparkMaxConfig &config = storedFollowerConfig;
-	
+
 	config.Follow(DeviceIdentifier::kElevatorDriverId, true);
 
 	config.SetIdleMode(rev::spark::SparkBaseConfig::kBrake);
 
 	return config;
 }
+
 }
 }

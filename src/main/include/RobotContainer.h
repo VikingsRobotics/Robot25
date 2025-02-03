@@ -10,6 +10,8 @@
 
 #include "subsystems/SwerveSubsystem.h"
 #include "subsystems/ElevatorSubsystem.h"
+#include "commands/HeightCommand.h"
+#include "commands/RotationCommand.h"
 
 #include <frc2/command/button/CommandJoystick.h>
 

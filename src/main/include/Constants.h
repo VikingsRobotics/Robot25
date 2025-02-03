@@ -59,7 +59,7 @@ namespace DeviceProperties {
 // Default motor type used for REV spark max motors
 extern rev::spark::SparkMaxConfig& GetSparkMaxConfig();
 // Default motor type used for TalonFX motors
-extern constexpr ctre::phoenix6::configs::TalonFXConfiguration GetTalonFXConfig();
+extern ctre::phoenix6::configs::TalonFXConfiguration GetTalonFXConfig();
 // Default motor type enum for REV spark max motors
 constexpr rev::spark::SparkLowLevel::MotorType kSparkMotorType =
 		rev::spark::SparkLowLevel::MotorType::kBrushless;
@@ -121,9 +121,11 @@ constexpr units::radians_per_second_squared_t kMaxAngularAcceleration =
 }
 
 namespace Arm {
+
 namespace Destinations {
-	
+
 }
+
 namespace DeviceProperties {
 // Default motor type used for REV spark max motors
 extern rev::spark::SparkMaxConfig& GetSparkMaxConfig();
@@ -133,16 +135,20 @@ constexpr rev::spark::SparkLowLevel::MotorType kSparkMotorType =
 // Invert absolute encoder to match direction of motor movement
 constexpr bool kInvertEncoder = false;
 }
+
 namespace Mechanism {
-units::turns_per_second_t kMaxAngularSpeed{ 1.0 };
-units::turns_per_second_squared_t kMaxAngularAcceleration{ 1.0 };
+units::volt_t kStaticVoltage { 1.0 };
+units::turns_per_second_t kMaxAngularSpeed { 1.0 };
+units::turns_per_second_squared_t kMaxAngularAcceleration { 1.0 };
+units::scalar_t kGearRatio { 1.0 / 69.0 };
 }
 }
 
 namespace Elevator {
+
 namespace Destination {
-constexpr units::meter_t kAllowableError{ 0.1 };
-constexpr units::second_t kAllowableSwitchTime{ 0.5 };
+constexpr units::meter_t kAllowableError { 0.1 };
+constexpr units::second_t kAllowableSwitchTime { 0.5 };
 constexpr units::meter_t kMaxHeight = 32_in;
 constexpr units::meter_t kCollectionHeight = 5_in;
 constexpr units::meter_t kFourthGoal = 4_in;
@@ -151,17 +157,22 @@ constexpr units::meter_t kSecondGoal = 2_in;
 constexpr units::meter_t kFirstGoal = 1_in;
 constexpr units::meter_t kMinHeight = 0_in;
 }
+
 namespace Mechanism {
-constexpr units::volt_t kStaticVoltage{ 0.0 };
+constexpr units::volt_t kStaticVoltage { 0.0 };
 constexpr units::turn_t kGearRatio { 1.0 / 20.0 };
-constexpr units::meter_t kGearDiameter = units::inch_t{ 2 };
-constexpr units::turns_per_second_t kMaxSpeed = 10_t / 1_s;
-constexpr units::turns_per_second_squared_t kMaxAcceleration = 10_t / (1_s * 1_s);
+constexpr units::meter_t kGearDiameter = units::inch_t { 2 };
+constexpr units::turns_per_second_t kMaxSpeed { 10.0 };
+constexpr units::turns_per_second_squared_t kMaxAcceleration { 10.0 };
 constexpr units::unit_t<
-	units::compound_unit<units::meter,units::inverse<units::turn>>> kTurnsToMeters = (kGearDiameter / 2) / kGearRatio;
-constexpr units::meters_per_second_t kMaxSpeedInMeters = kMaxSpeed * kTurnsToMeters;
-constexpr units::meters_per_second_squared_t kMaxAccelerationInMeters = kMaxAcceleration * kTurnsToMeters;
+		units::compound_unit<units::meter, units::inverse<units::turn>>> kTurnsToMeters =
+		(kGearDiameter / 2) / kGearRatio;
+constexpr units::meters_per_second_t kMaxSpeedInMeters = kMaxSpeed
+		* kTurnsToMeters;
+constexpr units::meters_per_second_squared_t kMaxAccelerationInMeters =
+		kMaxAcceleration * kTurnsToMeters;
 }
+
 namespace DeviceProperties {
 // Default motor type used for REV spark max motors
 extern rev::spark::SparkMaxConfig& GetElevatorConfig();
@@ -198,4 +209,10 @@ constexpr int kBLAngleMotorId = 9;
 constexpr int kBRDriveMotorId = 10;
 //REV: Neo 550 Back Right Angle Motor ID
 constexpr int kBRAngleMotorId = 11;
+//REV: Neo 500
+constexpr int kElevatorDriverId = 12;
+//REV: Neo 500
+constexpr int kElevatorFollowId = 13;
+//REV: Neo 500
+constexpr int kDirectionMotorId = 14;
 }
