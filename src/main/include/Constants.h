@@ -122,8 +122,11 @@ constexpr units::radians_per_second_squared_t kMaxAngularAcceleration =
 
 namespace Arm {
 
-namespace Destinations {
-
+namespace Destination {
+constexpr units::turn_t kAllowableError { 0.1 };
+constexpr units::second_t kAllowableSwitchTime { 0.5 };
+constexpr units::turn_t kMinTurn { 0.0 };
+constexpr units::turn_t kMaxTurn { 1.0 };
 }
 
 namespace DeviceProperties {
@@ -137,10 +140,10 @@ constexpr bool kInvertEncoder = false;
 }
 
 namespace Mechanism {
-units::volt_t kStaticVoltage { 1.0 };
-units::turns_per_second_t kMaxAngularSpeed { 1.0 };
-units::turns_per_second_squared_t kMaxAngularAcceleration { 1.0 };
-units::scalar_t kGearRatio { 1.0 / 69.0 };
+constexpr units::volt_t kStaticVoltage { 1.0 };
+constexpr units::turns_per_second_t kMaxAngularSpeed { 1.0 };
+constexpr units::turns_per_second_squared_t kMaxAngularAcceleration { 1.0 };
+constexpr units::scalar_t kGearRatio { 1.0 / 69.0 };
 }
 }
 
