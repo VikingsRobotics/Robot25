@@ -94,11 +94,16 @@ rev::spark::SparkMaxConfig& GetSparkMaxConfig() {
 	config.closedLoop.SetFeedbackSensor(
 			rev::spark::ClosedLoopConfig::kPrimaryEncoder);
 
+	config.softLimit.ForwardSoftLimitEnabled(true);
+	config.softLimit.ForwardSoftLimit(Destination::kMaxTurn.value());
+	config.softLimit.ReverseSoftLimitEnabled(true);
+	config.softLimit.ReverseSoftLimit(Destination::kMinTurn.value());
+
 	// * SMART MOTION CLOSED-LOOP * //
 	config.closedLoop.MinOutput(0);
 	config.closedLoop.MaxOutput(std::numbers::pi * 2);
 	config.closedLoop.OutputRange(-1, 1);
-	config.closedLoop.Pidf(1.0, 0.0, 0.0, 0.0);
+	config.closedLoop.Pidf(0.5, 0.0, 0.0, 0.0);
 	// SMART MOTION CONFIGS
 	config.closedLoop.maxMotion.MaxVelocity(
 			Mechanism::kMaxAngularSpeed.value());
@@ -131,14 +136,16 @@ rev::spark::SparkMaxConfig& GetElevatorConfig() {
 	config.closedLoop.SetFeedbackSensor(
 			rev::spark::ClosedLoopConfig::FeedbackSensor::kPrimaryEncoder);
 
-	config.closedLoop.Pidf(0.1, 0, 0, 0.1);
+	config.closedLoop.Pidf(0.1, 0, 0, 0);
 	config.closedLoop.PositionWrappingEnabled(false);
 	config.closedLoop.OutputRange(-1, 1);
 
 	config.softLimit.ForwardSoftLimitEnabled(true);
-	config.softLimit.ForwardSoftLimit(10);
+	config.softLimit.ForwardSoftLimit(
+			(Destination::kMaxHeight / Mechanism::kTurnsToMeters).value());
 	config.softLimit.ReverseSoftLimitEnabled(true);
-	config.softLimit.ReverseSoftLimit(0);
+	config.softLimit.ReverseSoftLimit(
+			(Destination::kMinHeight / Mechanism::kTurnsToMeters).value());
 
 	config.closedLoop.maxMotion.MaxVelocity(Mechanism::kMaxSpeed.value());
 	config.closedLoop.maxMotion.MaxAcceleration(

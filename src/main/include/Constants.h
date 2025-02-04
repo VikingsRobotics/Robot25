@@ -122,11 +122,26 @@ constexpr units::radians_per_second_squared_t kMaxAngularAcceleration =
 
 namespace Arm {
 
+namespace TeleopOperator {
+//Debounce on different positions
+constexpr units::second_t kDebounce { 1.0 };
+//Minimum percent of controller distance before robot response
+constexpr double kArmDeadband = 0.15;
+}
+
 namespace Destination {
 constexpr units::turn_t kAllowableError { 0.1 };
 constexpr units::second_t kAllowableSwitchTime { 0.5 };
 constexpr units::turn_t kMinTurn { 0.0 };
-constexpr units::turn_t kMaxTurn { 1.0 };
+constexpr size_t kMinTurnIndex = 0;
+constexpr units::turn_t kMaxTurn { 0.5 };
+constexpr size_t kMaxTurnIndex = 1;
+constexpr units::turn_t kBottomTurn { 0.15 };
+constexpr size_t kBottomTurnIndex = 2;
+constexpr units::turn_t kMiddleTurn { 0.25 };
+constexpr size_t kMiddleTurnIndex = 3;
+constexpr units::turn_t kTopTurn { 0.4 };
+constexpr size_t kTopTurnIndex = 4;
 }
 
 namespace DeviceProperties {
@@ -150,16 +165,35 @@ constexpr units::scalar_t kGearRatio { 1.0 / 69.0 };
 
 namespace Elevator {
 
+namespace ControllerPorts {
+//USB ID for xbox controller for driver
+constexpr int kDriverControllerPort = 1;
+}
+
+namespace TeleopOperator {
+//Debounce on different positions
+constexpr units::second_t kDebounce { 1.0 };
+//Minimum percent of controller distance before robot response
+constexpr double kDriveDeadband = 0.15;
+}
+
 namespace Destination {
 constexpr units::meter_t kAllowableError { 0.1 };
 constexpr units::second_t kAllowableSwitchTime { 0.5 };
-constexpr units::meter_t kMaxHeight = 32_in;
-constexpr units::meter_t kCollectionHeight = 5_in;
-constexpr units::meter_t kFourthGoal = 4_in;
-constexpr units::meter_t kThirdGoal = 3_in;
-constexpr units::meter_t kSecondGoal = 2_in;
-constexpr units::meter_t kFirstGoal = 1_in;
+constexpr units::meter_t kMaxHeight = 26_in;
+constexpr size_t kMaxHeightIndex = 0;
+constexpr units::meter_t kCollectionHeight = 7_in;
+constexpr size_t kCollectionHeightIndex = 1;
+constexpr units::meter_t kFourthGoal = 23_in;
+constexpr size_t kForthGoalIndex = 2;
+constexpr units::meter_t kThirdGoal = 20_in;
+constexpr size_t kThirdGoalIndex = 3;
+constexpr units::meter_t kSecondGoal = 14_in;
+constexpr size_t kSecondGoalIndex = 4;
+constexpr units::meter_t kFirstGoal = 10_in;
+constexpr size_t kFirstGoalIndex = 5;
 constexpr units::meter_t kMinHeight = 0_in;
+constexpr size_t kMinHeightIndex = 6;
 }
 
 namespace Mechanism {

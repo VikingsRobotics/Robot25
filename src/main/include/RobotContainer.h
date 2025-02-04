@@ -14,6 +14,7 @@
 #include "commands/RotationCommand.h"
 
 #include <frc2/command/button/CommandJoystick.h>
+#include <frc2/command/button/CommandXboxController.h>
 
 class RobotContainer {
 public:
@@ -29,6 +30,7 @@ private:
 	ElevatorSubsystem elevatorSubsystem { };
 	ArmSubsystem armSubsystem { };
 	frc2::CommandJoystick joystick;
+	frc2::CommandXboxController xboxController;
 	std::vector<HeightCommand> destinationCommands;
 	std::vector<RotationCommand> rotationCommands;
 };

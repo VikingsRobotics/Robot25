@@ -14,15 +14,44 @@
 #include <frc2/command/Commands.h>
 
 RobotContainer::RobotContainer() : joystick {
-		Drive::ControllerPorts::kDriverControllerPort } {
+		Drive::ControllerPorts::kDriverControllerPort }, xboxController {
+		Elevator::ControllerPorts::kDriverControllerPort } {
 	swerveSubsystem.SetDefaultCommand(SwerveJoystickCommand { &swerveSubsystem,
 			joystick });
 
 	ConfigureBindings();
 }
 
+#define CommandBindIndex(controller,button,commandIndex) controller.##button##().Debounce(Elevator::TeleopOperator::kDebounce).OnTrue(HeightCommand{destinationCommands.at(commandIndex)}.ToPtr())
+
 void RobotContainer::ConfigureBindings() {
 	ConfigureDestination();
+	ConfigureRotation();
+
+	CommandBindIndex(xboxController, A, Elevator::Destination::kFirstGoalIndex);
+	CommandBindIndex(xboxController, B,
+			Elevator::Destination::kSecondGoalIndex);
+	CommandBindIndex(xboxController, X, Elevator::Destination::kThirdGoalIndex);
+	CommandBindIndex(xboxController, Y, Elevator::Destination::kForthGoalIndex);
+	CommandBindIndex(xboxController, RightBumper,
+			Elevator::Destination::kCollectionHeightIndex);
+
+	CommandBindIndex(xboxController, Back,
+			Elevator::Destination::kMaxHeightIndex);
+	CommandBindIndex(xboxController, Start,
+			Elevator::Destination::kMinHeightIndex);
+
+	frc::EventLoop *loop =
+			frc2::CommandScheduler::GetInstance().GetDefaultButtonLoop();
+	xboxController.GetHID().LeftTrigger(Arm::TeleopOperator::kArmDeadband, loop).Debounce(
+			Arm::TeleopOperator::kDebounce).CastTo<frc2::Trigger>().OnTrue(
+			RotationCommand { rotationCommands.at(
+					Arm::Destination::kMaxTurnIndex) }.ToPtr());
+	xboxController.GetHID().RightTrigger(Arm::TeleopOperator::kArmDeadband,
+			loop).Debounce(Arm::TeleopOperator::kDebounce).CastTo<frc2::Trigger>().OnTrue(
+			RotationCommand { rotationCommands.at(
+					Arm::Destination::kMinTurnIndex) }.ToPtr());
+
 }
 
 void RobotContainer::ConfigureDestination() {
@@ -44,7 +73,8 @@ void RobotContainer::ConfigureDestination() {
 
 void RobotContainer::ConfigureRotation() {
 	std::vector < units::turn_t > rotations = { Arm::Destination::kMinTurn,
-			Arm::Destination::kMaxTurn };
+			Arm::Destination::kMaxTurn, Arm::Destination::kBottomTurn,
+			Arm::Destination::kMiddleTurn, Arm::Destination::kTopTurn };
 
 	for (units::turn_t &rotation : rotations) {
 		rotationCommands.emplace_back(&armSubsystem, rotation,
