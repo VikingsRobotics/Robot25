@@ -13,46 +13,43 @@
 
 #include <frc2/command/Commands.h>
 
-RobotContainer::RobotContainer() : joystick {
-		Drive::ControllerPorts::kDriverControllerPort }, xboxController {
-		Elevator::ControllerPorts::kDriverControllerPort } {
+RobotContainer::RobotContainer() :
+#ifndef NO_SWERVE
+		joystick { Drive::ControllerPorts::kDriverControllerPort }
+#endif
+#if !defined(NO_SWERVE) && (!defined(NO_ELEVATOR_ARM)  || !(defined(NO_ARM) && defined(NO_ELEVATOR)))
+		,
+#endif
+#if !defined(NO_ELEVATOR_ARM)  || !(defined(NO_ARM) && defined(NO_ELEVATOR)) 
+		xboxController { Elevator::ControllerPorts::kDriverControllerPort }
+#endif 
+{
+#ifndef NO_SWERVE
 	swerveSubsystem.SetDefaultCommand(SwerveJoystickCommand { &swerveSubsystem,
 			joystick });
+#endif
+#ifndef NO_ELEVATOR
+	elevatorSubsystem.SetDefaultCommand(frc2::cmd::None());
+#endif
+#ifndef NO_ARM
+	armSubsystem.SetDefaultCommand(frc2::cmd::None());
+#endif
 
 	ConfigureBindings();
 }
 
-#define CommandBindIndex(controller,button,commandIndex) controller.##button##().Debounce(Elevator::TeleopOperator::kDebounce).OnTrue(HeightCommand{destinationCommands.at(commandIndex)}.ToPtr())
-
 void RobotContainer::ConfigureBindings() {
+#ifndef NO_ELEVATOR_HEIGHT_COMMAND
 	ConfigureDestination();
+	BindElevatorCommand();
+#endif
+#ifndef NO_ARM_ROTATION_COMMAND
 	ConfigureRotation();
-
-	CommandBindIndex(xboxController, A, Elevator::Destination::kFirstGoalIndex);
-	CommandBindIndex(xboxController, B,
-			Elevator::Destination::kSecondGoalIndex);
-	CommandBindIndex(xboxController, X, Elevator::Destination::kThirdGoalIndex);
-	CommandBindIndex(xboxController, Y, Elevator::Destination::kForthGoalIndex);
-	CommandBindIndex(xboxController, RightBumper,
-			Elevator::Destination::kCollectionHeightIndex);
-
-	CommandBindIndex(xboxController, Back,
-			Elevator::Destination::kMaxHeightIndex);
-	CommandBindIndex(xboxController, Start,
-			Elevator::Destination::kMinHeightIndex);
-
-	frc::EventLoop *loop =
-			frc2::CommandScheduler::GetInstance().GetDefaultButtonLoop();
-	xboxController.GetHID().LeftTrigger(Arm::TeleopOperator::kArmDeadband, loop).Debounce(
-			Arm::TeleopOperator::kDebounce).CastTo<frc2::Trigger>().OnTrue(
-			RotationCommand { rotationCommands.at(
-					Arm::Destination::kMaxTurnIndex) }.ToPtr());
-	xboxController.GetHID().RightTrigger(Arm::TeleopOperator::kArmDeadband,
-			loop).Debounce(Arm::TeleopOperator::kDebounce).CastTo<frc2::Trigger>().OnTrue(
-			RotationCommand { rotationCommands.at(
-					Arm::Destination::kMinTurnIndex) }.ToPtr());
-
+	BindArmCommand();
+#endif
 }
+
+#ifndef NO_ELEVATOR_HEIGHT_COMMAND
 
 void RobotContainer::ConfigureDestination() {
 	std::vector < units::meter_t > destinations =
@@ -71,6 +68,34 @@ void RobotContainer::ConfigureDestination() {
 	}
 }
 
+void RobotContainer::BindElevatorCommand() {
+	xboxController.A().Debounce(Elevator::TeleopOperator::kDebounce).OnTrue(
+			HeightCommand { destinationCommands.at(
+					Elevator::Destination::kFirstGoalIndex) }.ToPtr());
+	xboxController.B().Debounce(Elevator::TeleopOperator::kDebounce).OnTrue(
+			HeightCommand { destinationCommands.at(
+					Elevator::Destination::kSecondGoalIndex) }.ToPtr());
+	xboxController.X().Debounce(Elevator::TeleopOperator::kDebounce).OnTrue(
+			HeightCommand { destinationCommands.at(
+					Elevator::Destination::kThirdGoalIndex) }.ToPtr());
+	xboxController.Y().Debounce(Elevator::TeleopOperator::kDebounce).OnTrue(
+			HeightCommand { destinationCommands.at(
+					Elevator::Destination::kForthGoalIndex) }.ToPtr());
+	xboxController.RightBumper().Debounce(Elevator::TeleopOperator::kDebounce).OnTrue(
+			HeightCommand { destinationCommands.at(
+					Elevator::Destination::kCollectionHeightIndex) }.ToPtr());
+
+	xboxController.Back().Debounce(Elevator::TeleopOperator::kDebounce).OnTrue(
+			HeightCommand { destinationCommands.at(
+					Elevator::Destination::kMaxHeightIndex) }.ToPtr());
+	xboxController.Start().Debounce(Elevator::TeleopOperator::kDebounce).OnTrue(
+			HeightCommand { destinationCommands.at(
+					Elevator::Destination::kMinHeightIndex) }.ToPtr());
+}
+
+#endif
+#ifndef NO_ARM_ROTATION_COMMAND
+
 void RobotContainer::ConfigureRotation() {
 	std::vector < units::turn_t > rotations = { Arm::Destination::kMinTurn,
 			Arm::Destination::kMaxTurn, Arm::Destination::kBottomTurn,
@@ -82,6 +107,34 @@ void RobotContainer::ConfigureRotation() {
 				Arm::Destination::kAllowableError);
 	}
 }
+
+void RobotContainer::BindArmCommand() {
+	frc::EventLoop *loop =
+			frc2::CommandScheduler::GetInstance().GetDefaultButtonLoop();
+	xboxController.GetHID().LeftTrigger(Arm::TeleopOperator::kArmDeadband, loop).Debounce(
+			Arm::TeleopOperator::kDebounce).CastTo<frc2::Trigger>().OnTrue(
+			RotationCommand { rotationCommands.at(
+					Arm::Destination::kMaxTurnIndex) }.ToPtr());
+	xboxController.GetHID().RightTrigger(Arm::TeleopOperator::kArmDeadband,
+			loop).Debounce(Arm::TeleopOperator::kDebounce).CastTo<frc2::Trigger>().OnTrue(
+			RotationCommand { rotationCommands.at(
+					Arm::Destination::kMinTurnIndex) }.ToPtr());
+
+	xboxController.POVUp().Debounce(Arm::TeleopOperator::kDebounce).OnTrue(
+			RotationCommand { rotationCommands.at(
+					Arm::Destination::kTopTurnIndex) }.ToPtr());
+
+	xboxController.POVLeft().Debounce(Arm::TeleopOperator::kDebounce).OnTrue(
+			RotationCommand { rotationCommands.at(
+					Arm::Destination::kMiddleTurnIndex) }.ToPtr());
+
+	xboxController.POVDown().Debounce(Arm::TeleopOperator::kDebounce).OnTrue(
+			RotationCommand { rotationCommands.at(
+					Arm::Destination::kBottomTurnIndex) }.ToPtr());
+
+}
+
+#endif
 
 frc2::Command* RobotContainer::GetAutonomousCommand() {
 	return nullptr;

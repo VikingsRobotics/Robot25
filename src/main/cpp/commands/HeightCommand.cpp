@@ -1,4 +1,6 @@
 #include "commands/HeightCommand.h"
+#ifndef NO_ELEVATOR_HEIGHT_COMMAND
+
 #include "Constants.h"
 
 #include <units/math.h>
@@ -45,3 +47,5 @@ bool HeightCommand::IsFinished() {
 units::meter_t HeightCommand::GetDesiredHeight() {
 	return m_desiredHeight;
 }
+
+#endif

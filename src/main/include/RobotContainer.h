@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include "Disable.h"
+
 #include <frc2/command/Command.h>
 
 #include <vector>
@@ -24,13 +26,27 @@ public:
 
 private:
 	void ConfigureBindings();
+#ifndef NO_ELEVATOR_HEIGHT_COMMAND
 	void ConfigureDestination();
+	void BindElevatorCommand();
+	std::vector<HeightCommand> destinationCommands { };
+#endif
+#ifndef NO_ARM_ROTATION_COMMAND
 	void ConfigureRotation();
+	void BindArmCommand();
+	std::vector<RotationCommand> rotationCommands { };
+#endif
+#ifndef NO_SWERVE
 	SwerveSubsystem swerveSubsystem { };
-	ElevatorSubsystem elevatorSubsystem { };
-	ArmSubsystem armSubsystem { };
 	frc2::CommandJoystick joystick;
+#endif
+#ifndef NO_ELEVATOR
+	ElevatorSubsystem elevatorSubsystem { };
+#endif
+#ifndef NO_ARM
+	ArmSubsystem armSubsystem { };
+#endif
+#if !defined(NO_ELEVATOR_ARM)  || !(defined(NO_ARM) && defined(NO_ELEVATOR)) 
 	frc2::CommandXboxController xboxController;
-	std::vector<HeightCommand> destinationCommands;
-	std::vector<RotationCommand> rotationCommands;
+#endif
 };

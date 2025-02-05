@@ -1,6 +1,9 @@
 #pragma once
 
 #include "subsystems/ElevatorSubsystem.h"
+#include "Disable.h"
+
+#ifndef NO_ELEVATOR_HEIGHT_COMMAND
 
 #include <units/time.h>
 
@@ -29,3 +32,5 @@ private:
 	const units::meter_t m_allowedError;
 	frc2::Trigger m_limitSwitch;
 };
+
+#endif

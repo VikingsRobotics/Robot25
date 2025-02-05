@@ -3,6 +3,9 @@
 #pragma once
 
 #include "subsystems/ArmSubsystem.h"
+#include "Disable.h"
+
+#ifndef NO_ARM_ROTATION_COMMAND
 
 #include <units/angle.h>
 
@@ -31,3 +34,5 @@ private:
 	const units::turn_t m_allowedError;
 	frc2::Trigger m_limitSwitch;
 };
+
+#endif

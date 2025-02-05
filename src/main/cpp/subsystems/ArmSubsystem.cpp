@@ -1,4 +1,5 @@
 #include "subsystems/ArmSubsystem.h"
+#ifndef NO_ARM
 
 #include "Constants.h"
 
@@ -36,3 +37,5 @@ frc2::Trigger ArmSubsystem::LimiterTriggered() {
 						|| m_directionMotor.GetReverseLimitSwitch().Get();
 			});
 }
+
+#endif

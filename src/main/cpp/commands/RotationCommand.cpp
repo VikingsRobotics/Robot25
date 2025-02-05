@@ -1,4 +1,6 @@
 #include "commands/RotationCommand.h"
+#ifndef NO_ARM_ROTATION_COMMAND
+
 #include "Constants.h"
 
 #include <units/math.h>
@@ -54,3 +56,5 @@ bool RotationCommand::IsFinished() {
 units::turn_t RotationCommand::GetDesiredRotation() {
 	return m_desiredRotation;
 }
+
+#endif

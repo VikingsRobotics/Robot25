@@ -1,5 +1,8 @@
 #pragma once
 
+#include "Disable.h"
+#ifndef NO_SWERVE
+
 #include <units/angle.h>
 #include <units/velocity.h>
 
@@ -56,3 +59,5 @@ private:
 	std::function<units::angle::turn_t()> m_getTalonPosition;
 	std::function<units::angular_velocity::turns_per_second_t()> m_getTalonVelocity;
 };
+
+#endif

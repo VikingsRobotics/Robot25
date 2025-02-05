@@ -1,5 +1,8 @@
 #pragma once
 #include "subsystems/SwerveSubsystem.h"
+#include "Disable.h"
+
+#ifndef NO_SWERVE_CONTROLLER_COMMAND
 
 #include <frc2/command/CommandHelper.h>
 #include <frc2/command/Command.h>
@@ -36,3 +39,5 @@ private:
 	frc::SlewRateLimiter<units::scalar> m_limiterY;
 	frc::SlewRateLimiter<units::scalar> m_limiterA;
 };
+
+#endif

@@ -1,5 +1,8 @@
 #pragma once
 
+#include "Disable.h"
+#ifndef NO_ARM
+
 #include <units/angle.h>
 
 #include <rev/SparkMax.h>
@@ -28,3 +31,5 @@ private:
 	rev::spark::SparkClosedLoopController m_directionPID;
 	units::turn_t m_rotationalOffset;
 };
+
+#endif

@@ -159,7 +159,7 @@ constexpr units::volt_t kStaticVoltage { 1.0 };
 constexpr units::turn_t kRotationalOffset { 0.0 };
 constexpr units::turns_per_second_t kMaxAngularSpeed { 1.0 };
 constexpr units::turns_per_second_squared_t kMaxAngularAcceleration { 1.0 };
-constexpr units::scalar_t kGearRatio { 1.0 / 69.0 };
+constexpr units::scalar_t kGearRatio { 1.0 / 45.0 };
 }
 }
 

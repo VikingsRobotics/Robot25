@@ -1,4 +1,5 @@
 #include "subsystems/ElevatorSubsystem.h"
+#ifndef NO_ELEVATOR
 
 #include <frc/smartdashboard/SmartDashboard.h>
 
@@ -38,3 +39,5 @@ frc2::Trigger ElevatorSubsystem::LimiterTriggered() {
 						|| m_elevatorFollow.GetReverseLimitSwitch().Get();
 			});
 }
+
+#endif

@@ -1,5 +1,8 @@
 #pragma once
 
+#include "Disable.h"
+#ifndef NO_ELEVATOR
+
 #include <frc2/command/SubsystemBase.h>
 #include <frc2/command/button/Trigger.h>
 
@@ -28,3 +31,5 @@ private:
 	rev::spark::SparkClosedLoopController m_elevatorPID;
 	rev::spark::SparkMax m_elevatorFollow;
 };
+
+#endif

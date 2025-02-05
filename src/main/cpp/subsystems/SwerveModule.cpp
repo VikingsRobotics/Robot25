@@ -1,4 +1,6 @@
 #include "subsystems/SwerveModule.h"
+#ifndef NO_SWERVE
+
 #include "Constants.h"
 
 #include <frc/smartdashboard/SmartDashboard.h>
@@ -164,3 +166,5 @@ SwerveModule::Feedforward SwerveModule::CalculateFeedforward(
 	return Feedforward { units::newton_meter_t { 0 }, units::ampere_t { 0 },
 			units::volt_t { 0 } };
 }
+
+#endif
