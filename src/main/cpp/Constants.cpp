@@ -88,7 +88,7 @@ static rev::spark::SparkMaxConfig storedConfig { };
 rev::spark::SparkMaxConfig& GetSparkMaxConfig() {
 	rev::spark::SparkMaxConfig &config = storedConfig;
 
-	config.encoder.Inverted(kInvertEncoder);
+	//config.encoder.Inverted(kInvertEncoder);
 
 	config.closedLoop.PositionWrappingEnabled(true);
 	config.closedLoop.SetFeedbackSensor(
@@ -128,10 +128,10 @@ namespace DeviceProperties {
 static rev::spark::SparkMaxConfig storedElevatorConfig { };
 rev::spark::SparkMaxConfig& GetElevatorConfig() {
 	rev::spark::SparkMaxConfig &config = storedElevatorConfig;
-	config.encoder.PositionConversionFactor(
-			Mechanism::kGearRatio.value() * 2 * std::numbers::pi);
-	config.encoder.VelocityConversionFactor(
-			(Mechanism::kGearRatio.value() * 2 * std::numbers::pi) / 60);
+	//config.encoder.PositionConversionFactor(
+	//		Mechanism::kGearRatio.value() * 2 * std::numbers::pi);
+	//config.encoder.VelocityConversionFactor(
+	//		(Mechanism::kGearRatio.value() * 2 * std::numbers::pi) / 60);
 
 	config.closedLoop.SetFeedbackSensor(
 			rev::spark::ClosedLoopConfig::FeedbackSensor::kPrimaryEncoder);

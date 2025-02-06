@@ -28,7 +28,7 @@ public:
 private:
 	rev::spark::SparkMax m_directionMotor;
 	rev::spark::SparkRelativeEncoder m_directionEncoder;
-	rev::spark::SparkClosedLoopController m_directionPID;
+	rev::spark::SparkClosedLoopController &m_directionPID;
 	units::turn_t m_rotationalOffset;
 };
 

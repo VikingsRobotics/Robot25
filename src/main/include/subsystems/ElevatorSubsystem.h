@@ -28,7 +28,7 @@ public:
 private:
 	rev::spark::SparkMax m_elevatorDriver;
 	rev::spark::SparkRelativeEncoder m_driverEncoder;
-	rev::spark::SparkClosedLoopController m_elevatorPID;
+	rev::spark::SparkClosedLoopController &m_elevatorPID;
 	rev::spark::SparkMax m_elevatorFollow;
 };
 
