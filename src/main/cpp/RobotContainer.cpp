@@ -29,10 +29,14 @@ RobotContainer::RobotContainer() :
 			joystick });
 #endif
 #ifndef NO_ELEVATOR
-	elevatorSubsystem.SetDefaultCommand(frc2::cmd::None());
+	elevatorSubsystem.SetDefaultCommand(
+			frc2::cmd::Idle(frc2::Requirements { &elevatorSubsystem }).WithInterruptBehavior(
+					frc2::Command::InterruptionBehavior::kCancelSelf));
 #endif
 #ifndef NO_ARM
-	armSubsystem.SetDefaultCommand(frc2::cmd::None());
+	armSubsystem.SetDefaultCommand(
+			frc2::cmd::Idle(frc2::Requirements { &armSubsystem }).WithInterruptBehavior(
+					frc2::Command::InterruptionBehavior::kCancelSelf));
 #endif
 
 	ConfigureBindings();

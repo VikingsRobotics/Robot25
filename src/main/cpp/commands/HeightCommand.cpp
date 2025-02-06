@@ -23,7 +23,9 @@ void HeightCommand::Initialize() {
 			rev::spark::kSlot0, Elevator::Mechanism::kStaticVoltage.value());
 	if (error != rev::REVLibError::kOk) {
 		this->Cancel();
+		return;
 	}
+	frc::SmartDashboard::PutBoolean("Run Height", true);
 }
 
 void HeightCommand::Execute() {
@@ -33,6 +35,7 @@ void HeightCommand::Execute() {
 void HeightCommand::End(bool interrupted) {
 	m_subsystem->m_elevatorDriver.SetVoltage(
 			Elevator::Mechanism::kStaticVoltage);
+	frc::SmartDashboard::PutBoolean("Run Height", false);
 }
 
 bool HeightCommand::IsFinished() {

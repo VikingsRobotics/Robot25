@@ -21,6 +21,8 @@ ElevatorSubsystem::ElevatorSubsystem() : m_elevatorDriver {
 			rev::spark::SparkBase::ResetMode::kNoResetSafeParameters,
 			rev::spark::SparkBase::PersistMode::kPersistParameters);
 
+	m_driverEncoder.SetPosition(0);
+
 	frc::SmartDashboard::PutData(this);
 }
 
