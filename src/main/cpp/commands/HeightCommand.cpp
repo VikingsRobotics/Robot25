@@ -17,10 +17,12 @@ HeightCommand::HeightCommand(ElevatorSubsystem *const subsystem,
 
 void HeightCommand::Initialize() {
 	// Nothing (for now >:])
-	rev::REVLibError error = m_subsystem->m_elevatorPID.SetReference(
-			(m_desiredHeight / Elevator::Mechanism::kTurnsToMeters).value(),
-			rev::spark::SparkLowLevel::ControlType::kMAXMotionPositionControl,
-			rev::spark::kSlot0, Elevator::Mechanism::kStaticVoltage.value());
+	rev::REVLibError error =
+			m_subsystem->m_elevatorPID.SetReference(
+					(m_desiredHeight / Elevator::Mechanism::kDistanceToRotation).value(),
+					rev::spark::SparkLowLevel::ControlType::kMAXMotionPositionControl,
+					rev::spark::kSlot0,
+					Elevator::Mechanism::kStaticVoltage.value());
 	if (error != rev::REVLibError::kOk) {
 		this->Cancel();
 		return;
@@ -41,7 +43,7 @@ void HeightCommand::End(bool interrupted) {
 bool HeightCommand::IsFinished() {
 	units::meter_t currentHeight = units::turn_t {
 			m_subsystem->m_driverEncoder.GetPosition() }
-			* Elevator::Mechanism::kTurnsToMeters;
+			/ Elevator::Mechanism::kDistanceToRotation;
 	units::meter_t error = m_desiredHeight - currentHeight;
 	return m_limitSwitch.Debounce(m_stopOnLimitSeconds).Get()
 			|| units::math::abs(error) < m_allowedError;

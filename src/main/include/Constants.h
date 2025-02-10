@@ -77,9 +77,9 @@ constexpr units::inch_t kWheelBase = 30_in;
 // How wide the base of the robot is
 constexpr units::inch_t kTrackWidth = 30_in;
 // 990 motor teeth to 195 wheel teeth, converts motor rotations to wheel rotations
-constexpr units::turn_t kDriveGearRatio { 990.0 / 195.0 };
+constexpr units::scalar_t kDriveGearRatio { 990.0 / 195.0 };
 // 1 rot to 2 pi radians, converts motor rotations to radians
-constexpr units::turn_t kAngleGearRatio { 2 * std::numbers::pi };
+constexpr units::scalar_t kAngleGearRatio { 2 * std::numbers::pi };
 // Max 108 rotations per sec from driving motor, without gear ratios
 constexpr units::turns_per_second_t kDriveRps { 108 };
 // Wheel diameter in inches, 3
@@ -90,17 +90,17 @@ constexpr units::meter_t kWheelCircumference { kWheelDiameter * std::numbers::pi
 constexpr units::unit_t<
 		units::compound_unit<units::length::meters,
 				units::inverse<units::angle::turns>>> kWheelTurnsToMetersDistance {
-		kWheelCircumference / kDriveGearRatio };
+		kWheelCircumference / (units::turn_t { kDriveGearRatio.value() }) };
 // Min voltage required for driving motor to begin moving
 constexpr units::volt_t kStaticVoltage { 0.15 };
 // kV for feedforward, target rotation is multipled kV and added to velocity control
 constexpr units::volt_t kVelocityVoltage { 12 / kDriveRps.value() };
 // Max speed the wheel move, used to normialize swerve modules speeds to maintain control
 constexpr units::meters_per_second_t kPhysicalMoveMax { kDriveRps
-		* kWheelCircumference / kDriveGearRatio };
+		* kWheelCircumference / (units::turn_t { kDriveGearRatio.value() }) };
 // Nm divided by N resulting in meters of the newton force of the wheels
 constexpr units::meter_t kDriveMotorNewtonForce = (kWheelDiameter / 2)
-		/ kDriveGearRatio.value();
+		/ kDriveGearRatio;
 }
 
 namespace AutoSettings {
@@ -155,7 +155,7 @@ constexpr bool kInvertEncoder = false;
 }
 
 namespace Mechanism {
-constexpr units::volt_t kStaticVoltage { 1.0 };
+constexpr units::volt_t kStaticVoltage { 0.0 };
 constexpr units::turn_t kRotationalOffset { 0.0 };
 constexpr units::turns_per_second_t kMaxAngularSpeed { 1.0 };
 constexpr units::turns_per_second_squared_t kMaxAngularAcceleration { 1.0 };
@@ -172,7 +172,7 @@ constexpr int kDriverControllerPort = 1;
 
 namespace TeleopOperator {
 //Debounce on different positions
-constexpr units::second_t kDebounce { 1.0 };
+constexpr units::second_t kDebounce { 0.1 };
 //Minimum percent of controller distance before robot response
 constexpr double kDriveDeadband = 0.15;
 }
@@ -198,17 +198,15 @@ constexpr size_t kMinHeightIndex = 6;
 
 namespace Mechanism {
 constexpr units::volt_t kStaticVoltage { 0.0 };
-constexpr units::turn_t kGearRatio { 1.0 / 20.0 };
+constexpr units::scalar_t kGearRatio { 1.0 / 20.0 };
 constexpr units::meter_t kGearDiameter = units::inch_t { 2 };
-constexpr units::turns_per_second_t kMaxSpeed { 10.0 };
-constexpr units::turns_per_second_squared_t kMaxAcceleration { 10.0 };
 constexpr units::unit_t<
-		units::compound_unit<units::meter, units::inverse<units::turn>>> kTurnsToMeters =
-		(kGearDiameter / 2) / kGearRatio;
-constexpr units::meters_per_second_t kMaxSpeedInMeters = kMaxSpeed
-		* kTurnsToMeters;
-constexpr units::meters_per_second_squared_t kMaxAccelerationInMeters =
-		kMaxAcceleration * kTurnsToMeters;
+		units::compound_unit<units::turn, units::inverse<units::meter>>> kDistanceToRotation =
+		1_tr / (kGearDiameter * std::numbers::pi) * kGearRatio;
+// 2 feet per second
+constexpr units::meters_per_second_t kMaxSpeedInMeters = 2_fps;
+// 2 feet per second squared
+constexpr units::meters_per_second_squared_t kMaxAccelerationInMeters = 2_fps_sq;
 }
 
 namespace DeviceProperties {
@@ -247,9 +245,9 @@ constexpr int kBLAngleMotorId = 9;
 constexpr int kBRDriveMotorId = 10;
 //REV: Neo 550 Back Right Angle Motor ID
 constexpr int kBRAngleMotorId = 11;
-//REV: Neo 500
+//REV: Neo 500 opposite of light
 constexpr int kElevatorDriverId = 12;
-//REV: Neo 500
+//REV: Neo 500 by light
 constexpr int kElevatorFollowId = 13;
 //REV: Neo 500
 constexpr int kDirectionMotorId = 14;

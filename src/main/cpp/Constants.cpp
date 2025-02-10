@@ -136,20 +136,22 @@ rev::spark::SparkMaxConfig& GetElevatorConfig() {
 	config.closedLoop.SetFeedbackSensor(
 			rev::spark::ClosedLoopConfig::FeedbackSensor::kPrimaryEncoder);
 
-	config.closedLoop.Pidf(0.1, 0, 0, 0);
+	config.closedLoop.Pidf(0.7, 0, 0.3, 0);
 	config.closedLoop.PositionWrappingEnabled(false);
 	config.closedLoop.OutputRange(-1, 1);
 
 	config.softLimit.ForwardSoftLimitEnabled(true);
 	config.softLimit.ForwardSoftLimit(
-			(Destination::kMaxHeight / Mechanism::kTurnsToMeters).value());
+			(Destination::kMaxHeight / Mechanism::kDistanceToRotation).value());
 	config.softLimit.ReverseSoftLimitEnabled(true);
 	config.softLimit.ReverseSoftLimit(
-			(Destination::kMinHeight / Mechanism::kTurnsToMeters).value());
+			(Destination::kMinHeight / Mechanism::kDistanceToRotation).value());
 
-	config.closedLoop.maxMotion.MaxVelocity(Mechanism::kMaxSpeed.value());
+	config.closedLoop.maxMotion.MaxVelocity(
+			(Mechanism::kMaxSpeedInMeters * Mechanism::kDistanceToRotation).value());
 	config.closedLoop.maxMotion.MaxAcceleration(
-			Mechanism::kMaxAcceleration.value());
+			(Mechanism::kMaxAccelerationInMeters
+					* Mechanism::kDistanceToRotation).value());
 	config.closedLoop.maxMotion.PositionMode(
 			rev::spark::MAXMotionConfig::MAXMotionPositionMode::kMAXMotionTrapezoidal);
 	config.closedLoop.maxMotion.AllowedClosedLoopError(0);

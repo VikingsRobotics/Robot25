@@ -27,9 +27,10 @@ ElevatorSubsystem::ElevatorSubsystem() : m_elevatorDriver {
 }
 
 void ElevatorSubsystem::Periodic() {
-	frc::SmartDashboard::PutNumber("Elevator Chain Position (Meter)",
-			(units::turn_t { m_driverEncoder.GetPosition() }
-					* Elevator::Mechanism::kTurnsToMeters).value());
+	frc::SmartDashboard::PutNumber("Elevator Chain Position (Inch)",
+			units::inch_t(
+					units::turn_t { m_driverEncoder.GetPosition() }
+							/ Elevator::Mechanism::kDistanceToRotation).value());
 }
 
 frc2::Trigger ElevatorSubsystem::LimiterTriggered() {

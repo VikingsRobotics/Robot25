@@ -19,7 +19,7 @@ void RotationCommand::Initialize() {
 	// Nothing (for now >:])
 	rev::REVLibError error =
 			m_subsystem->m_directionPID.SetReference(
-					(m_desiredRotation * Arm::Mechanism::kGearRatio).value(),
+					(m_desiredRotation / Arm::Mechanism::kGearRatio).value(),
 					rev::spark::SparkLowLevel::ControlType::kMAXMotionPositionControl,
 					rev::spark::kSlot0,
 					(Arm::Mechanism::kStaticVoltage
@@ -40,7 +40,7 @@ void RotationCommand::End(bool interrupted) {
 	m_subsystem->m_directionMotor.SetVoltage(
 			Arm::Mechanism::kStaticVoltage
 					* units::math::cos(
-							(m_desiredRotation * Arm::Mechanism::kGearRatio)
+							(m_desiredRotation / Arm::Mechanism::kGearRatio)
 									+ m_subsystem->m_rotationalOffset).value());
 }
 
