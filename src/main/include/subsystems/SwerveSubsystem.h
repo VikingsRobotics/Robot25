@@ -1,6 +1,8 @@
 #pragma once
 
 #include "subsystems/SwerveModule.h"
+#ifndef NO_SWERVE
+
 #include "Constants.h"
 
 #include <vector>
@@ -77,3 +79,5 @@ private:
 
 	frc::Field2d m_field { };
 };
+
+#endif

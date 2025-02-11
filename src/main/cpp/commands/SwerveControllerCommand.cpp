@@ -1,4 +1,6 @@
 #include "commands/SwerveControllerCommand.h"
+#ifndef NO_SWERVE_CONTROLLER_COMMAND
+
 #include "Constants.h"
 
 #include <frc/kinematics/ChassisSpeeds.h>
@@ -139,3 +141,5 @@ void SwerveControllerCommand::End(bool interrupted) {
 bool SwerveControllerCommand::IsFinished() {
 	return false;
 }
+
+#endif

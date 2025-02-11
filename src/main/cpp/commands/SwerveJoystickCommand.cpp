@@ -1,4 +1,6 @@
 #include "commands/SwerveJoystickCommand.h"
+#ifndef NO_SWERVE_JOYSTICK_COMMAND
+
 #include "Constants.h"
 
 #include <frc/kinematics/ChassisSpeeds.h>
@@ -123,3 +125,5 @@ void SwerveJoystickCommand::End(bool interrupted) {
 bool SwerveJoystickCommand::IsFinished() {
 	return false;
 }
+
+#endif

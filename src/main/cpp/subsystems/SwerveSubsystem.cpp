@@ -1,4 +1,5 @@
 #include "subsystems/SwerveSubsystem.h"
+#ifndef NO_SWERVE
 
 #include <frc/smartdashboard/SmartDashboard.h>
 #include <frc/DriverStation.h>
@@ -181,3 +182,5 @@ void SwerveSubsystem::X() {
 	m_backRight.SetState(frc::SwerveModuleState { 0_mps, frc::Rotation2d {
 			45_deg } });
 }
+
+#endif
