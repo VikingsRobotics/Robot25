@@ -202,7 +202,7 @@ constexpr units::scalar_t kGearRatio { 1.0 / 20.0 };
 constexpr units::meter_t kGearDiameter = units::inch_t { 2 };
 constexpr units::unit_t<
 		units::compound_unit<units::turn, units::inverse<units::meter>>> kDistanceToRotation =
-		1_tr / (kGearDiameter * std::numbers::pi) * kGearRatio;
+		1_tr / (kGearDiameter * std::numbers::pi) / kGearRatio;
 // 2 feet per second
 constexpr units::meters_per_second_t kMaxSpeedInMeters = 2_fps;
 // 2 feet per second squared
