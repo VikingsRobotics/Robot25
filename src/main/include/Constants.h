@@ -103,6 +103,27 @@ constexpr units::meter_t kDriveMotorNewtonForce = (kWheelDiameter / 2)
 		/ kDriveGearRatio.value();
 }
 
+namespace SysId {
+using ramp_rate_t = units::unit_t<
+    units::compound_unit<units::volt, units::inverse<units::second>>>;
+namespace Translation {
+constexpr ramp_rate_t kRampRate{ 1.0 };
+constexpr units::volt_t kStepVoltage{ 7.0 };
+constexpr units::second_t kTimeout{ 10.0 };
+}
+namespace Rotation {
+constexpr ramp_rate_t kRampRate{ 1.0 };
+constexpr units::volt_t kStepVoltage{ 7.0 };
+constexpr units::second_t kTimeout{ 10.0 };
+}
+namespace Steer {
+constexpr ramp_rate_t kRampRate{ 1.0 };
+constexpr units::volt_t kStepVoltage{ 7.0 };
+constexpr units::second_t kTimeout{ 10.0 };
+}
+
+}
+
 namespace AutoSettings {
 //Translation PID Values (PathplannerLib)
 constexpr pathplanner::PIDConstants kTranslationPID { 1.0, 0.0, 0.0 };

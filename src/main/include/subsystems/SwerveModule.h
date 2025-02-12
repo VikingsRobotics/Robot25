@@ -34,7 +34,9 @@ public:
 	bool UsingMotionMagic();
 	void UseMotionMagic(bool enable);
 
+	friend struct SwerveSysIdRoutine;
 private:
+	void GotoRotation(units::radian_t angle);
 	struct Feedforward {
 		units::newton_meter_t torque;
 		units::ampere_t current;

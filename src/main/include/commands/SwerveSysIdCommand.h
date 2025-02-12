@@ -8,6 +8,13 @@
 #include <frc2/command/sysid/SysIdRoutine.h>
 #include <frc/sysid/SysIdRoutineLog.h>
 
+struct SwerveSysIdRoutine {
+    SwerveSysIdRoutine(SwerveSubsystem* subsystem);
+    frc2::sysid::SysIdRoutine sysIdRoutineTranslation;
+    frc2::sysid::SysIdRoutine sysIdRoutineRotation;
+    frc2::sysid::SysIdRoutine sysIdRoutineSteer;
+};
+
 class SwerveSysIdCommand : frc2::CommandHelper<frc2::Command,SwerveSysIdCommand> {
 public:
 
@@ -23,7 +30,7 @@ enum class SysIdAction : uint8_t {
     DynamicForward = 0b10,
     DynamicReverse = 0b11
 };
-    SwerveSysIdCommand(SwerveSubsystem* subsystem, SysIdType type);
+    SwerveSysIdCommand(SwerveSubsystem* subsystem, SysIdType type, SysIdAction defaultAction);
 
     void Initialize() override;
 
@@ -40,5 +47,5 @@ private:
 SwerveSubsystem* const m_subsystem;
 SysIdType const m_type;
 SysIdAction m_currentAction;
-frc2::sysid::SysIdRoutine m_sysIdRoutine;
+SwerveSysIdRoutine m_sysIdRoutines;
 };
