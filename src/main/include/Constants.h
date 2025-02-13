@@ -105,21 +105,24 @@ constexpr units::meter_t kDriveMotorNewtonForce = (kWheelDiameter / 2)
 
 namespace SysId {
 using ramp_rate_t = units::unit_t<
-    units::compound_unit<units::volt, units::inverse<units::second>>>;
+units::compound_unit<units::volt, units::inverse<units::second>>>;
 namespace Translation {
-constexpr ramp_rate_t kRampRate{ 1.0 };
-constexpr units::volt_t kStepVoltage{ 7.0 };
-constexpr units::second_t kTimeout{ 10.0 };
+constexpr ramp_rate_t kRampRate { 1.0 };
+constexpr units::volt_t kStepVoltage { 7.0 };
+constexpr units::second_t kTimeout { 10.0 };
 }
 namespace Rotation {
-constexpr ramp_rate_t kRampRate{ 1.0 };
-constexpr units::volt_t kStepVoltage{ 7.0 };
-constexpr units::second_t kTimeout{ 10.0 };
+constexpr units::radians_per_second_squared_t kRotationRate { std::numbers::pi
+		/ 6.0 };
+constexpr ramp_rate_t kRampRate = kRotationRate * (1_V * 1_s / 1_rad);
+constexpr units::radians_per_second_t kStepRotation { std::numbers::pi };
+constexpr units::volt_t kStepVoltage = kStepRotation * (1_V * 1_s / 1_rad);
+constexpr units::second_t kTimeout { 10.0 };
 }
 namespace Steer {
-constexpr ramp_rate_t kRampRate{ 1.0 };
-constexpr units::volt_t kStepVoltage{ 7.0 };
-constexpr units::second_t kTimeout{ 10.0 };
+constexpr ramp_rate_t kRampRate { 1.0 };
+constexpr units::volt_t kStepVoltage { 7.0 };
+constexpr units::second_t kTimeout { 10.0 };
 }
 
 }

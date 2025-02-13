@@ -166,14 +166,12 @@ SwerveModule::Feedforward SwerveModule::CalculateFeedforward(
 }
 
 void SwerveModule::GotoRotation(units::radian_t angle) {
-		if (m_useSmartMotionSparkMax) {
-		m_sparkLoopController.SetReference(
-				angle.value(),
+	if (m_useSmartMotionSparkMax) {
+		m_sparkLoopController.SetReference(angle.value(),
 				rev::spark::SparkLowLevel::ControlType::kMAXMotionPositionControl,
 				rev::spark::kSlot1);
 	} else {
-		m_sparkLoopController.SetReference(
-				angle.value(),
+		m_sparkLoopController.SetReference(angle.value(),
 				rev::spark::SparkLowLevel::ControlType::kPosition);
 	}
 }
