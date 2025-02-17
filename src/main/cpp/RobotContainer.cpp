@@ -56,7 +56,12 @@ void RobotContainer::ConfigureBindings() {
 	ConfigureRotation();
 	BindArmCommand();
 #endif
+#ifndef NO_SWERVE_SYSID_COMMAND
+	ConfigureSwerveSysId();
+#endif
 }
+
+#ifndef NO_SWERVE_SYSID_COMMAND
 
 void RobotContainer::ConfigureSwerveSysId() {
 	swerveSysIdTestMoveOnly.Set(false);
@@ -247,6 +252,7 @@ void RobotContainer::ConfigureSwerveSysId() {
 	}
 }
 
+#endif
 #ifndef NO_ELEVATOR_HEIGHT_COMMAND
 
 void RobotContainer::ConfigureDestination() {

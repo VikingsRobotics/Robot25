@@ -1,5 +1,9 @@
 #pragma once
 
+#include "Disable.h"
+
+#ifndef NO_SWERVE_SYSID_COMMAND
+
 #include "subsystems/SwerveSubsystem.h"
 
 #include <frc2/command/sysid/SysIdRoutine.h>
@@ -11,3 +15,4 @@ struct SwerveSysIdRoutine {
 	frc2::sysid::SysIdRoutine sysIdRoutineRotation;
 	frc2::sysid::SysIdRoutine sysIdRoutineSteer;
 };
+#endif

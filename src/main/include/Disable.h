@@ -25,6 +25,7 @@
     #define NO_SWERVE_JOYSTICK_COMMAND
     #define NO_SWERVE_CONTROLLER_COMMAND
     #define NO_SWERVE_AUTO_COMMAND
+    #define NO_SWERVE_SYSID_COMMAND
 #endif
 
 #if defined(NO_ELEVATOR)

@@ -25,15 +25,15 @@ public:
 
 	frc2::Command* GetAutonomousCommand();
 
-public:
-	std::vector<frc2::CommandPtr> SwerveSysId { };
-
 private:
 	void ConfigureBindings();
+#ifndef NO_SWERVE_SYSID_COMMAND
 	void ConfigureSwerveSysId();
 	frc::Alert swerveSysIdTestMoveOnly {
 			"Swerve System Identification Command can only be run in Test Mode",
 			frc::Alert::AlertType::kWarning };
+	std::vector<frc2::CommandPtr> SwerveSysId { };
+#endif
 #ifndef NO_ELEVATOR_HEIGHT_COMMAND
 	void ConfigureDestination();
 	void BindElevatorCommand();

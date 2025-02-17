@@ -1,5 +1,7 @@
 #include "commands/SwerveSysIdRoutine.h"
 
+#ifndef NO_SWERVE_SYSID_COMMAND
+
 #include "Constants.h"
 #include <frc2/command/Commands.h>
 
@@ -302,3 +304,4 @@ SwerveSysIdRoutine::SwerveSysIdRoutine(SwerveSubsystem *subsystem) : sysIdRoutin
 				subsystem, "Swerve-Steer" } } {
 
 }
+#endif
