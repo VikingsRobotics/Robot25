@@ -77,9 +77,9 @@ constexpr units::inch_t kWheelBase = 30_in;
 // How wide the base of the robot is
 constexpr units::inch_t kTrackWidth = 30_in;
 // 990 motor teeth to 195 wheel teeth, converts motor rotations to wheel rotations
-constexpr units::turn_t kDriveGearRatio { 990.0 / 195.0 };
+constexpr units::scalar_t kDriveGearRatio { 990.0 / 195.0 };
 // 1 rot to 2 pi radians, converts motor rotations to radians
-constexpr units::turn_t kAngleGearRatio { 2 * std::numbers::pi };
+constexpr units::scalar_t kAngleGearRatio { 2 * std::numbers::pi };
 // Max 108 rotations per sec from driving motor, without gear ratios
 constexpr units::turns_per_second_t kDriveRps { 108 };
 // Wheel diameter in inches, 3
@@ -90,17 +90,17 @@ constexpr units::meter_t kWheelCircumference { kWheelDiameter * std::numbers::pi
 constexpr units::unit_t<
 		units::compound_unit<units::length::meters,
 				units::inverse<units::angle::turns>>> kWheelTurnsToMetersDistance {
-		kWheelCircumference / kDriveGearRatio };
+		kWheelCircumference / (units::turn_t { kDriveGearRatio.value() }) };
 // Min voltage required for driving motor to begin moving
 constexpr units::volt_t kStaticVoltage { 0.15 };
 // kV for feedforward, target rotation is multipled kV and added to velocity control
 constexpr units::volt_t kVelocityVoltage { 12 / kDriveRps.value() };
 // Max speed the wheel move, used to normialize swerve modules speeds to maintain control
 constexpr units::meters_per_second_t kPhysicalMoveMax { kDriveRps
-		* kWheelCircumference / kDriveGearRatio };
+		* kWheelCircumference / (units::turn_t { kDriveGearRatio.value() }) };
 // Nm divided by N resulting in meters of the newton force of the wheels
 constexpr units::meter_t kDriveMotorNewtonForce = (kWheelDiameter / 2)
-		/ kDriveGearRatio.value();
+		/ kDriveGearRatio;
 }
 
 namespace SysId {
@@ -144,6 +144,106 @@ constexpr units::radians_per_second_squared_t kMaxAngularAcceleration =
 }
 }
 
+namespace Arm {
+
+namespace TeleopOperator {
+//Debounce on different positions
+constexpr units::second_t kDebounce { 1.0 };
+//Minimum percent of controller distance before robot response
+constexpr double kArmDeadband = 0.15;
+}
+
+namespace Destination {
+constexpr units::turn_t kAllowableError { 0.1 };
+constexpr units::second_t kAllowableSwitchTime { 0.5 };
+constexpr units::turn_t kMinTurn { 0.0 };
+constexpr size_t kMinTurnIndex = 0;
+constexpr units::turn_t kMaxTurn { 0.5 };
+constexpr size_t kMaxTurnIndex = 1;
+constexpr units::turn_t kBottomTurn { 0.15 };
+constexpr size_t kBottomTurnIndex = 2;
+constexpr units::turn_t kMiddleTurn { 0.25 };
+constexpr size_t kMiddleTurnIndex = 3;
+constexpr units::turn_t kTopTurn { 0.4 };
+constexpr size_t kTopTurnIndex = 4;
+}
+
+namespace DeviceProperties {
+// Default motor type used for REV spark max motors
+extern rev::spark::SparkMaxConfig& GetSparkMaxConfig();
+// Default motor type enum for REV spark max motors
+constexpr rev::spark::SparkLowLevel::MotorType kSparkMotorType =
+		rev::spark::SparkLowLevel::MotorType::kBrushless;
+// Invert absolute encoder to match direction of motor movement
+constexpr bool kInvertEncoder = false;
+}
+
+namespace Mechanism {
+constexpr units::volt_t kStaticVoltage { 0.0 };
+constexpr units::turn_t kRotationalOffset { 0.0 };
+constexpr units::turns_per_second_t kMaxAngularSpeed { 1.0 };
+constexpr units::turns_per_second_squared_t kMaxAngularAcceleration { 1.0 };
+constexpr units::scalar_t kGearRatio { 1.0 / 45.0 };
+}
+}
+
+namespace Elevator {
+
+namespace ControllerPorts {
+//USB ID for xbox controller for driver
+constexpr int kDriverControllerPort = 1;
+}
+
+namespace TeleopOperator {
+//Debounce on different positions
+constexpr units::second_t kDebounce { 0.1 };
+//Minimum percent of controller distance before robot response
+constexpr double kDriveDeadband = 0.15;
+}
+
+namespace Destination {
+constexpr units::meter_t kAllowableError { 0.1 };
+constexpr units::second_t kAllowableSwitchTime { 0.5 };
+constexpr units::meter_t kMaxHeight = 26_in;
+constexpr size_t kMaxHeightIndex = 0;
+constexpr units::meter_t kCollectionHeight = 7_in;
+constexpr size_t kCollectionHeightIndex = 1;
+constexpr units::meter_t kFourthGoal = 23_in;
+constexpr size_t kForthGoalIndex = 2;
+constexpr units::meter_t kThirdGoal = 20_in;
+constexpr size_t kThirdGoalIndex = 3;
+constexpr units::meter_t kSecondGoal = 14_in;
+constexpr size_t kSecondGoalIndex = 4;
+constexpr units::meter_t kFirstGoal = 10_in;
+constexpr size_t kFirstGoalIndex = 5;
+constexpr units::meter_t kMinHeight = 0_in;
+constexpr size_t kMinHeightIndex = 6;
+}
+
+namespace Mechanism {
+constexpr units::volt_t kStaticVoltage { 0.0 };
+constexpr units::scalar_t kGearRatio { 1.0 / 20.0 };
+constexpr units::meter_t kGearDiameter = units::inch_t { 2 };
+constexpr units::unit_t<
+		units::compound_unit<units::turn, units::inverse<units::meter>>> kDistanceToRotation =
+		1_tr / (kGearDiameter * std::numbers::pi) / kGearRatio;
+// 2 feet per second
+constexpr units::meters_per_second_t kMaxSpeedInMeters = 2_fps;
+// 2 feet per second squared
+constexpr units::meters_per_second_squared_t kMaxAccelerationInMeters = 2_fps_sq;
+}
+
+namespace DeviceProperties {
+// Default motor type used for REV spark max motors
+extern rev::spark::SparkMaxConfig& GetElevatorConfig();
+// Default motor type used for REV spark max motors
+extern rev::spark::SparkMaxConfig& GetFollowerConfig();
+// Default motor type enum for REV spark max motors
+constexpr rev::spark::SparkLowLevel::MotorType kSparkMotorType =
+		rev::spark::SparkLowLevel::MotorType::kBrushless;
+}
+}
+
 namespace DeviceIdentifier {
 //CTRE: CANBus Name for contructors of CRTE software classes
 constexpr ctre::phoenix6::CANBus kCANBus { "" };
@@ -169,4 +269,10 @@ constexpr int kBLAngleMotorId = 9;
 constexpr int kBRDriveMotorId = 10;
 //REV: Neo 550 Back Right Angle Motor ID
 constexpr int kBRAngleMotorId = 11;
+//REV: Neo 500 opposite of light
+constexpr int kElevatorDriverId = 12;
+//REV: Neo 500 by light
+constexpr int kElevatorFollowId = 13;
+//REV: Neo 500
+constexpr int kDirectionMotorId = 14;
 }

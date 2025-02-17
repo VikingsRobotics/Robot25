@@ -1,5 +1,8 @@
 #pragma once
 
+#include "Disable.h"
+#ifndef NO_SWERVE
+
 #include <units/angle.h>
 #include <units/velocity.h>
 
@@ -53,8 +56,10 @@ private:
 	rev::spark::SparkAbsoluteEncoder m_turningAbsoluteEncoder;
 	units::radian_t m_chassisAngularOffest;
 
-	rev::spark::SparkClosedLoopController m_sparkLoopController;
+	rev::spark::SparkClosedLoopController &m_sparkLoopController;
 
 	std::function<units::angle::turn_t()> m_getTalonPosition;
 	std::function<units::angular_velocity::turns_per_second_t()> m_getTalonVelocity;
 };
+
+#endif
