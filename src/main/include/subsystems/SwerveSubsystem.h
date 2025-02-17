@@ -54,6 +54,8 @@ public:
 	void Brake();
 
 	void X();
+
+	friend struct SwerveSysIdRoutine;
 private:
 	// Gryo used for odometry and for field centric control
 	ctre::phoenix6::hardware::Pigeon2 m_gryo { DeviceIdentifier::kGyroId,

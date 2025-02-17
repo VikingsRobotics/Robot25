@@ -166,5 +166,14 @@ SwerveModule::Feedforward SwerveModule::CalculateFeedforward(
 	return Feedforward { units::newton_meter_t { 0 }, units::ampere_t { 0 },
 			units::volt_t { 0 } };
 }
-
+void SwerveModule::GotoRotation(units::radian_t angle) {
+	if (m_useSmartMotionSparkMax) {
+		m_sparkLoopController.SetReference(angle.value(),
+				rev::spark::SparkLowLevel::ControlType::kMAXMotionPositionControl,
+				rev::spark::kSlot1);
+	} else {
+		m_sparkLoopController.SetReference(angle.value(),
+				rev::spark::SparkLowLevel::ControlType::kPosition);
+	}
+}
 #endif

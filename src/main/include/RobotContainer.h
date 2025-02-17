@@ -17,6 +17,7 @@
 
 #include <frc2/command/button/CommandJoystick.h>
 #include <frc2/command/button/CommandXboxController.h>
+#include <frc/Alert.h>
 
 class RobotContainer {
 public:
@@ -24,8 +25,15 @@ public:
 
 	frc2::Command* GetAutonomousCommand();
 
+public:
+	std::vector<frc2::CommandPtr> SwerveSysId { };
+
 private:
 	void ConfigureBindings();
+	void ConfigureSwerveSysId();
+	frc::Alert swerveSysIdTestMoveOnly {
+			"Swerve System Identification Command can only be run in Test Mode",
+			frc::Alert::AlertType::kWarning };
 #ifndef NO_ELEVATOR_HEIGHT_COMMAND
 	void ConfigureDestination();
 	void BindElevatorCommand();
