@@ -27,7 +27,7 @@ ElevatorSubsystem::ElevatorSubsystem() : m_elevatorDriver {
 }
 
 void ElevatorSubsystem::Periodic() {
-	frc::SmartDashboard::PutNumber("Elevator Chain Position (Inch)",
+	frc::SmartDashboard::PutNumber("Chain Pos (Inch)",
 			units::inch_t(
 					units::turn_t { m_driverEncoder.GetPosition() }
 							/ Elevator::Mechanism::kDistanceToRotation).value());

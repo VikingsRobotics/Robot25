@@ -73,7 +73,7 @@ void SwerveSubsystem::Periodic() {
 	m_odometry.Update(GetRotation2d(),
 			{ m_frontLeft.GetPosition(), m_frontRight.GetPosition(),
 					m_backLeft.GetPosition(), m_backRight.GetPosition() });
-	frc::SmartDashboard::PutNumber("Gyro Angle (deg)", GetHeading().value());
+	frc::SmartDashboard::PutNumber("Gyro (deg)", GetHeading().value());
 
 }
 

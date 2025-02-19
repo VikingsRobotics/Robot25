@@ -16,16 +16,16 @@ ArmSubsystem::ArmSubsystem() : m_directionMotor {
 			rev::spark::SparkBase::PersistMode::kPersistParameters);
 
 	SetName("Arm Subsystem");
-	frc::SmartDashboard::PutNumber("Arm Offset Position (Rotations)",
+	frc::SmartDashboard::PutNumber("Offset Pos (Rot)",
 			m_rotationalOffset.value());
 	frc::SmartDashboard::PutData(this);
 }
 
 void ArmSubsystem::Periodic() {
-	frc::SmartDashboard::PutNumber("Arm Full Position (Rotations)",
+	frc::SmartDashboard::PutNumber("Full Pos (Rot)",
 			((units::turn_t { m_directionEncoder.GetPosition() }
 					* Arm::Mechanism::kGearRatio) + m_rotationalOffset).value());
-	frc::SmartDashboard::PutNumber("Arm Current Position (Rotations)",
+	frc::SmartDashboard::PutNumber("Current Pos (Rot)",
 			(units::turn_t { m_directionEncoder.GetPosition() }
 					* Arm::Mechanism::kGearRatio).value());
 }
