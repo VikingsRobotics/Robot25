@@ -5,8 +5,6 @@
 
 #include <units/math.h>
 
-#include <frc/smartdashboard/SmartDashboard.h>
-
 RotationCommand::RotationCommand(ArmSubsystem *const subsystem,
 		units::turn_t desiredRotation, units::second_t switchTime,
 		units::turn_t allowedError = -1_tr) : m_subsystem { subsystem }, m_desiredRotation {

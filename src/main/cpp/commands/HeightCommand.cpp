@@ -5,8 +5,6 @@
 
 #include <units/math.h>
 
-#include <frc/smartdashboard/SmartDashboard.h>
-
 HeightCommand::HeightCommand(ElevatorSubsystem *const subsystem,
 		units::meter_t height, units::second_t switchTime,
 		units::meter_t allowedError = -1_m) : m_subsystem { subsystem }, m_desiredHeight {
@@ -27,7 +25,6 @@ void HeightCommand::Initialize() {
 		this->Cancel();
 		return;
 	}
-	frc::SmartDashboard::PutBoolean("Run Height", true);
 }
 
 void HeightCommand::Execute() {
@@ -37,7 +34,6 @@ void HeightCommand::Execute() {
 void HeightCommand::End(bool interrupted) {
 	m_subsystem->m_elevatorDriver.SetVoltage(
 			Elevator::Mechanism::kStaticVoltage);
-	frc::SmartDashboard::PutBoolean("Run Height", false);
 }
 
 bool HeightCommand::IsFinished() {
