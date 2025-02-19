@@ -247,9 +247,42 @@ void RobotContainer::ConfigureSwerveSysId() {
 
 	/* Publish Commands to Test Shuffleboard */
 
-	for (frc2::CommandPtr &cmd : SwerveSysId) {
-		frc::Shuffleboard::GetTab("Test").Add(*cmd.get());
+	// Create them before using them (so hopefully it works correctly)
+	frc::Shuffleboard::GetTab("Test").GetLayout("Translation",
+			frc::BuiltInLayouts::kList);
+	frc::Shuffleboard::GetTab("Test").GetLayout("Rotation",
+			frc::BuiltInLayouts::kList);
+	frc::Shuffleboard::GetTab("Test").GetLayout("Steer",
+			frc::BuiltInLayouts::kList);
+
+	// Publish them to the lists
+	for (size_t index = 0; index < SwerveSysId.size(); ++index) {
+		switch ((index / 4)) {
+		case 0:
+			frc::Shuffleboard::GetTab("Test").GetLayout("Translation",
+					frc::BuiltInLayouts::kList).Add(
+					*SwerveSysId.at(index).get()).WithWidget(
+					frc::BuiltInWidgets::kCommand);
+			break;
+		case 1:
+			frc::Shuffleboard::GetTab("Test").GetLayout("Rotation",
+					frc::BuiltInLayouts::kList).Add(
+					*SwerveSysId.at(index).get()).WithWidget(
+					frc::BuiltInWidgets::kCommand);
+			break;
+		case 2:
+			frc::Shuffleboard::GetTab("Test").GetLayout("Steer",
+					frc::BuiltInLayouts::kList).Add(
+					*SwerveSysId.at(index).get()).WithWidget(
+					frc::BuiltInWidgets::kCommand);
+		default:
+			break;
+		}
 	}
+
+	frc::Shuffleboard::GetTab("Test").Add("Default (Stop)",
+			*swerveSubsystem.GetDefaultCommand()).WithWidget(
+			frc::BuiltInWidgets::kCommand);
 }
 
 #endif
