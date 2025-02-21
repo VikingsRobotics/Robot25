@@ -17,7 +17,8 @@ SwerveSubsystem::SwerveSubsystem() : m_getGyroYaw { m_gryo.GetYaw().AsSupplier()
 		Drive::DeviceProperties::SystemControl::kDriveKinematics, frc::Rotation2d {
 				units::radian_t { 0 } }, { m_frontLeft.GetPosition(),
 				m_frontRight.GetPosition(), m_backLeft.GetPosition(),
-				m_backRight.GetPosition() } } {
+				m_backRight.GetPosition() } }, m_tagPos{ nt::NetworkTableInstance::GetDefault().GetTable("apriltags") },
+				m_tagsFound{ m_tagPos->GetIntegerArrayTopic("tags").Subscribe( std::array<const int64_t,1>{-1} ) } {
 	m_gryo.Reset();
 	SetName("Swerve Subsystem");
 
@@ -97,6 +98,9 @@ frc::Rotation2d SwerveSubsystem::GetRotation2d() {
 }
 
 frc::Pose2d SwerveSubsystem::GetPose2d() {
+	
+	VisionUpdate pose;
+	
 	return m_odometry.GetPose();
 }
 
