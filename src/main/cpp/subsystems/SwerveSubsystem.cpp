@@ -13,12 +13,11 @@
 #include <units/math.h>
 
 // @formatter:off 
-SwerveSubsystem::SwerveSubsystem() : m_getGyroYaw { m_gryo.GetYaw().AsSupplier() }, m_odometry {
-		Drive::DeviceProperties::SystemControl::kDriveKinematics, frc::Rotation2d {
-				units::radian_t { 0 } }, { m_frontLeft.GetPosition(),
-				m_frontRight.GetPosition(), m_backLeft.GetPosition(),
-				m_backRight.GetPosition() } }, m_tagPos{ nt::NetworkTableInstance::GetDefault().GetTable("apriltags") },
-				m_tagsFound{ m_tagPos->GetIntegerArrayTopic("tags").Subscribe( std::array<const int64_t,1>{-1} ) } {
+SwerveSubsystem::SwerveSubsystem() : m_getGyroYaw { m_gryo.GetYaw().AsSupplier() },
+			m_tagPos{ nt::NetworkTableInstance::GetDefault().GetTable("april-tag") },
+			m_tagsFound{ m_tagPos->GetIntegerArrayTopic("tags").Subscribe( std::array<const int64_t,1>{-1} ) }, 
+			m_tagsConfidence{ m_tagPos->GetDoubleArrayTopic("confidence").Subscribe( std::array<const double,1>{-1} ) }, 
+			m_tagsReady { m_tagPos->GetBooleanTopic("ready").GetEntry(false) } {
 	m_gryo.Reset();
 	SetName("Swerve Subsystem");
 
@@ -69,13 +68,30 @@ SwerveSubsystem::SwerveSubsystem() : m_getGyroYaw { m_gryo.GetYaw().AsSupplier()
 	frc::SmartDashboard::PutData(this);
 }
 // @formatter:on
+std::optional<frc::Pose2d> SwerveSubsystem::GetBestEstimate() {
+	frc::Pose2d bestGuess { };
+	std::vector<int64_t> tagIdFounds = m_tagsFound.Get();
+	std::vector<double> tagsConfidence = m_tagsConfidence.Get();
+	if( tagIdFounds.size() != tagsConfidence.size())
+	{
+		return std::nullopt;
+	}
+	return std::nullopt;
+}
+
 void SwerveSubsystem::Periodic() {
 	// Tracks robot position using the position of swerve modules and gryo rotation
-	m_odometry.Update(GetRotation2d(),
+	m_poseEstimator.Update(GetRotation2d(),
 			{ m_frontLeft.GetPosition(), m_frontRight.GetPosition(),
 					m_backLeft.GetPosition(), m_backRight.GetPosition() });
 	frc::SmartDashboard::PutNumber("Gyro (deg)", GetHeading().value());
 
+	if( m_tagsReady.Get(false) ) {
+		std::optional<frc::Pose2d> visionPose = GetBestEstimate();
+		if(visionPose.has_value())
+			{m_poseEstimator.AddVisionMeasurement(visionPose.value(),frc::Timer::GetTimestamp());}
+		m_tagsReady.Set(false);
+	}
 }
 
 void SwerveSubsystem::ZeroHeading() {
@@ -98,15 +114,12 @@ frc::Rotation2d SwerveSubsystem::GetRotation2d() {
 }
 
 frc::Pose2d SwerveSubsystem::GetPose2d() {
-	
-	VisionUpdate pose;
-	
-	return m_odometry.GetPose();
+	return m_poseEstimator.GetEstimatedPosition();
 }
 
 void SwerveSubsystem::ResetOdometry(frc::Pose2d pose) {
 	// Resets pose but still requires the current state of swerve module and gryo rotation
-	m_odometry.ResetPosition(GetRotation2d(),
+	m_poseEstimator.ResetPosition(GetRotation2d(),
 			{ m_frontLeft.GetPosition(), m_frontRight.GetPosition(),
 					m_backLeft.GetPosition(), m_backRight.GetPosition() },
 			pose);

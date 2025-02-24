@@ -6,6 +6,7 @@
 #include "Constants.h"
 
 #include <vector>
+#include <optional>
 
 #include <ctre/phoenix6/Pigeon2.hpp>
 
@@ -13,11 +14,13 @@
 
 #include <frc/kinematics/ChassisSpeeds.h>
 
-#include <frc/kinematics/SwerveDriveOdometry.h>
+#include <frc/estimator/SwerveDrivePoseEstimator.h>
 
 #include <networktables/NetworkTableEntry.h>
 #include <networktables/NetworkTableInstance.h>
 #include <networktables/IntegerArrayTopic.h>
+#include <networktables/DoubleArrayTopic.h>
+#include <networktables/BooleanTopic.h>
 
 #include <frc2/command/SubsystemBase.h>
 
@@ -59,28 +62,10 @@ public:
 
 	void X();
 
-	struct VisionUpdate {
-		// The vision-compensated pose estimate
-		frc::Pose2d visionPose;
-	
-		// The pose estimated based solely on odometry
-		frc::Pose2d odometryPose;
-	
-		/**
-		 * Returns the vision-compensated version of the pose. Specifically, changes
-		 * the pose from being relative to this record's odometry pose to being
-		 * relative to this record's vision pose.
-		 *
-		 * @param pose The pose to compensate.
-		 * @return The compensated pose.
-		 */
-		frc::Pose2d Compensate(const frc::Pose2d& pose) const {
-		auto delta = pose - odometryPose;
-		return visionPose + delta;
-		}
-	};
-
 	friend struct SwerveSysIdRoutine;
+private:
+	std::optional<frc::Pose2d> GetBestEstimate();
+
 private:
 	// Gryo used for odometry and for field centric control
 	ctre::phoenix6::hardware::Pigeon2 m_gryo { DeviceIdentifier::kGyroId,
@@ -102,10 +87,17 @@ private:
 			DeviceIdentifier::kBRAngleMotorId, units::radian_t {
 					std::numbers::pi / 2.0 } };
 	// Track the position of the robot using wheel position and gryo rotation
-	frc::SwerveDriveOdometry<4> m_odometry;
+	frc::SwerveDrivePoseEstimator<4> m_poseEstimator {
+			Drive::DeviceProperties::SystemControl::kDriveKinematics,
+			frc::Rotation2d { }, { m_frontLeft.GetPosition(),
+					m_frontRight.GetPosition(), m_backLeft.GetPosition(),
+					m_backRight.GetPosition() }, frc::Pose2d { }, { 0.1, 0.1,
+					0.1 }, { 0.1, 0.1, 0.1 } };
 
 	std::shared_ptr<nt::NetworkTable> m_tagPos;
 	nt::IntegerArraySubscriber m_tagsFound;
+	nt::DoubleArraySubscriber m_tagsConfidence;
+	nt::BooleanEntry m_tagsReady;
 
 	frc::Field2d m_field { };
 };
