@@ -64,7 +64,9 @@ public:
 
 	friend struct SwerveSysIdRoutine;
 private:
-	std::optional<frc::Pose2d> GetBestEstimate();
+	void AddBestEstimates();
+	void AddPoseSubscribers();
+	std::optional<frc::Pose2d> GetPose2dFromVisionTable(size_t index);
 
 private:
 	// Gryo used for odometry and for field centric control
@@ -94,7 +96,8 @@ private:
 					m_backRight.GetPosition() }, frc::Pose2d { }, { 0.1, 0.1,
 					0.1 }, { 0.1, 0.1, 0.1 } };
 
-	std::shared_ptr<nt::NetworkTable> m_tagPos;
+	std::shared_ptr<nt::NetworkTable> m_tagTable;
+	std::vector<nt::DoubleArraySubscriber> m_tagPoses { };
 	nt::IntegerArraySubscriber m_tagsFound;
 	nt::DoubleArraySubscriber m_tagsConfidence;
 	nt::BooleanEntry m_tagsReady;

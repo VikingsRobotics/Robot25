@@ -12,12 +12,14 @@
 
 #include <units/math.h>
 
+#include <fmt/format.h>
+
 // @formatter:off 
 SwerveSubsystem::SwerveSubsystem() : m_getGyroYaw { m_gryo.GetYaw().AsSupplier() },
-			m_tagPos{ nt::NetworkTableInstance::GetDefault().GetTable("april-tag") },
-			m_tagsFound{ m_tagPos->GetIntegerArrayTopic("tags").Subscribe( std::array<const int64_t,1>{-1} ) }, 
-			m_tagsConfidence{ m_tagPos->GetDoubleArrayTopic("confidence").Subscribe( std::array<const double,1>{-1} ) }, 
-			m_tagsReady { m_tagPos->GetBooleanTopic("ready").GetEntry(false) } {
+			m_tagTable{ nt::NetworkTableInstance::GetDefault().GetTable("april-tag") },
+			m_tagsFound{ m_tagTable->GetIntegerArrayTopic("tags").Subscribe( std::array<const int64_t,1>{-1} ) }, 
+			m_tagsConfidence{ m_tagTable->GetDoubleArrayTopic("confidence").Subscribe( std::array<const double,1>{-1} ) }, 
+			m_tagsReady { m_tagTable->GetBooleanTopic("ready").GetEntry(false) } {
 	m_gryo.Reset();
 	SetName("Swerve Subsystem");
 
@@ -65,18 +67,72 @@ SwerveSubsystem::SwerveSubsystem() : m_getGyroYaw { m_gryo.GetYaw().AsSupplier()
         m_field.GetObject("path")->SetPoses(poses);
     });
 
+	AddPoseSubscribers();
+
 	frc::SmartDashboard::PutData(this);
 }
 // @formatter:on
-std::optional<frc::Pose2d> SwerveSubsystem::GetBestEstimate() {
+void SwerveSubsystem::AddBestEstimates() {
 	frc::Pose2d bestGuess { };
-	std::vector<int64_t> tagIdFounds = m_tagsFound.Get();
+	std::vector < int64_t > tagIdFounds = m_tagsFound.Get();
 	std::vector<double> tagsConfidence = m_tagsConfidence.Get();
-	if( tagIdFounds.size() != tagsConfidence.size())
-	{
+	if (tagIdFounds.size() != tagsConfidence.size()) {
+		return;
+	}
+
+	frc::Pose2d currentEstimate = GetPose2d();
+
+	size_t index = 0;
+	while (index < tagIdFounds.size()) {
+		if (tagsConfidence.at(index) < Drive::Vision::requiredConfidence) {
+			tagsConfidence.erase(tagsConfidence.begin() + index);
+			tagIdFounds.erase(tagIdFounds.begin() + index);
+			continue;
+		}
+
+		std::optional < frc::Pose2d > possibleTag = GetPose2dFromVisionTable(
+				tagIdFounds.at(index));
+
+		if (!possibleTag.has_value()) {
+			continue;
+		}
+
+		frc::Pose2d tagEstimate = possibleTag.value();
+
+		if ((currentEstimate - tagEstimate).Translation().Norm()
+				< Drive::Vision::requiredDeltaDistance) {
+			m_poseEstimator.AddVisionMeasurement(tagEstimate,
+					frc::Timer::GetTimestamp());
+		}
+	}
+
+}
+
+void SwerveSubsystem::AddPoseSubscribers() {
+	m_tagPoses.reserve(Drive::Vision::numAprilTags);
+	for (size_t index = 0; index < Drive::Vision::numAprilTags; ++index) {
+		m_tagPoses.emplace_back(
+				m_tagTable->GetDoubleArrayTopic(fmt::format("pose_{}", index)));
+	}
+}
+
+std::optional<frc::Pose2d> SwerveSubsystem::GetPose2dFromVisionTable(
+		size_t index) {
+	/* Stored in the following format from 
+	 https://github.com/wpilibsuite/allwpilib/blob/main/wpilibcExamples/src/main/cpp/examples/AprilTagsVision/cpp/Robot.cpp 
+	 
+	 { x : double <-- meter_t, y: double <-- meter_t, z: double <-- meter_t 
+	 x : double <-- rotation_t, y : double <-- rotation_t, z : double <-- rotation_t }
+
+	 */
+	std::vector<double> tagDoubles = m_tagPoses.at(index).Get( { });
+	if (tagDoubles.size() != 6) {
 		return std::nullopt;
 	}
-	return std::nullopt;
+
+	return frc::Pose2d { units::meter_t { tagDoubles.at(0) }, units::meter_t {
+			tagDoubles.at(1) }, frc::Rotation2d { tagDoubles.at(4),
+			tagDoubles.at(5) } };
 }
 
 void SwerveSubsystem::Periodic() {
@@ -86,10 +142,8 @@ void SwerveSubsystem::Periodic() {
 					m_backLeft.GetPosition(), m_backRight.GetPosition() });
 	frc::SmartDashboard::PutNumber("Gyro (deg)", GetHeading().value());
 
-	if( m_tagsReady.Get(false) ) {
-		std::optional<frc::Pose2d> visionPose = GetBestEstimate();
-		if(visionPose.has_value())
-			{m_poseEstimator.AddVisionMeasurement(visionPose.value(),frc::Timer::GetTimestamp());}
+	if (m_tagsReady.Get(false)) {
+		AddBestEstimates();
 		m_tagsReady.Set(false);
 	}
 }

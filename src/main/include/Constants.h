@@ -127,6 +127,12 @@ constexpr units::second_t kTimeout { 10.0 };
 
 }
 
+namespace Vision {
+constexpr double requiredConfidence = 0.0;
+constexpr units::meter_t requiredDeltaDistance { 0.5 };
+constexpr size_t numAprilTags = 22;
+}
+
 namespace AutoSettings {
 //Translation PID Values (PathplannerLib)
 constexpr pathplanner::PIDConstants kTranslationPID { 1.0, 0.0, 0.0 };
