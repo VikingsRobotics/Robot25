@@ -73,7 +73,6 @@ SwerveSubsystem::SwerveSubsystem() : m_getGyroYaw { m_gryo.GetYaw().AsSupplier()
 }
 // @formatter:on
 void SwerveSubsystem::AddBestEstimates() {
-	frc::Pose2d bestGuess { };
 	std::vector < int64_t > tagIdFounds = m_tagsFound.Get();
 	std::vector<double> tagsConfidence = m_tagsConfidence.Get();
 	if (tagIdFounds.size() != tagsConfidence.size()) {
