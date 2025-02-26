@@ -112,7 +112,8 @@ void SwerveSubsystem::AddPoseSubscribers() {
 	m_tagPoses.reserve(Drive::Vision::numAprilTags);
 	for (size_t index = 0; index < Drive::Vision::numAprilTags; ++index) {
 		m_tagPoses.emplace_back(
-				m_tagTable->GetDoubleArrayTopic(fmt::format("pose_{}", index)));
+				m_tagTable->GetDoubleArrayTopic(fmt::format("pose_{}", index)).Subscribe(
+						std::array<const double, 1> { -1 }));
 	}
 }
 
