@@ -92,7 +92,7 @@ void SwerveSubsystem::AddBestEstimates() {
 		}
 
 		std::optional < frc::Pose2d > possibleTag = GetPose2dFromVisionTable(
-				tagIdFounds.at(index));
+				tagIdFounds.at(index++));
 
 		if (!possibleTag.has_value()) {
 			continue;
