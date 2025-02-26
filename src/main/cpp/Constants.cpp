@@ -69,7 +69,7 @@ ctre::phoenix6::configs::TalonFXConfiguration GetTalonFXConfig() {
 }
 
 namespace SystemControl {
-const frc::SwerveDriveKinematics<4> kDriveKinematics { frc::Translation2d {
+frc::SwerveDriveKinematics<4> kDriveKinematics { frc::Translation2d {
 		+Mechanism::kWheelBase / 2, +Mechanism::kTrackWidth / 2 },
 		frc::Translation2d { +Mechanism::kWheelBase / 2, -Mechanism::kTrackWidth
 				/ 2 }, frc::Translation2d { -Mechanism::kWheelBase / 2,

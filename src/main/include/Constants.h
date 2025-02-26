@@ -67,7 +67,7 @@ constexpr rev::spark::SparkLowLevel::MotorType kSparkMotorType =
 constexpr bool kInvertEncoder = true;
 namespace SystemControl {
 //Swerve Kinematics (in cpp)
-extern const frc::SwerveDriveKinematics<4> kDriveKinematics;
+extern frc::SwerveDriveKinematics<4> kDriveKinematics;
 }
 }
 

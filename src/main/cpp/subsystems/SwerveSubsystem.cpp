@@ -81,6 +81,7 @@ void SwerveSubsystem::AddBestEstimates() {
 	}
 
 	frc::Pose2d currentEstimate = GetPose2d();
+	units::second_t currentTimestamp = frc::Timer::GetTimestamp();
 
 	size_t index = 0;
 	while (index < tagIdFounds.size()) {
@@ -102,7 +103,7 @@ void SwerveSubsystem::AddBestEstimates() {
 		if ((currentEstimate - tagEstimate).Translation().Norm()
 				< Drive::Vision::requiredDeltaDistance) {
 			m_poseEstimator.AddVisionMeasurement(tagEstimate,
-					frc::Timer::GetTimestamp());
+					currentTimestamp);
 		}
 	}
 
