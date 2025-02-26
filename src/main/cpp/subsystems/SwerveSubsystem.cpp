@@ -102,8 +102,7 @@ void SwerveSubsystem::AddBestEstimates() {
 
 		if ((currentEstimate - tagEstimate).Translation().Norm()
 				< Drive::Vision::requiredDeltaDistance) {
-			m_poseEstimator.AddVisionMeasurement(tagEstimate,
-					currentTimestamp);
+			m_poseEstimator.AddVisionMeasurement(tagEstimate, currentTimestamp);
 		}
 	}
 
