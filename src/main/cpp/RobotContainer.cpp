@@ -18,17 +18,9 @@
 
 #include <frc2/command/Commands.h>
 
-RobotContainer::RobotContainer() :
-#ifndef NO_SWERVE
-		joystick { Drive::ControllerPorts::kDriverControllerPort }
-#endif
-#if !defined(NO_SWERVE) && (!defined(NO_ELEVATOR_ARM)  || !(defined(NO_ARM) && defined(NO_ELEVATOR)))
-		,
-#endif
-#if !defined(NO_ELEVATOR_ARM)  || !(defined(NO_ARM) && defined(NO_ELEVATOR)) 
-		xboxController { Elevator::ControllerPorts::kDriverControllerPort }
-#endif 
-{
+RobotContainer::RobotContainer() : joystick {
+		Drive::ControllerPorts::kDriverControllerPort }, xboxController {
+		Elevator::ControllerPorts::kDriverControllerPort } {
 #ifndef NO_SWERVE
 	swerveSubsystem.SetDefaultCommand(SwerveJoystickCommand { &swerveSubsystem,
 			joystick });

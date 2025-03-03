@@ -46,7 +46,6 @@ private:
 #endif
 #ifndef NO_SWERVE
 	SwerveSubsystem swerveSubsystem { };
-	frc2::CommandJoystick joystick;
 #endif
 #ifndef NO_ELEVATOR
 	ElevatorSubsystem elevatorSubsystem { };
@@ -54,7 +53,6 @@ private:
 #ifndef NO_ARM
 	ArmSubsystem armSubsystem { };
 #endif
-#if !defined(NO_ELEVATOR_ARM)  || !(defined(NO_ARM) && defined(NO_ELEVATOR)) 
-	frc2::CommandXboxController xboxController;
-#endif
+	[[maybe_unused]] frc2::CommandJoystick joystick;
+	[[maybe_unused]] frc2::CommandXboxController xboxController;
 };
