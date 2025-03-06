@@ -281,4 +281,6 @@ constexpr int kElevatorDriverId = 12;
 constexpr int kElevatorFollowId = 13;
 //REV: Neo 500
 constexpr int kDirectionMotorId = 14;
+//TalonSFX
+constexpr int kRepellerWheelId = 15;
 }

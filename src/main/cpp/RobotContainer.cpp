@@ -29,6 +29,7 @@ RobotContainer::RobotContainer() : joystick {
 	elevatorSubsystem.SetDefaultCommand(
 			frc2::cmd::Idle(frc2::Requirements { &elevatorSubsystem }).WithInterruptBehavior(
 					frc2::Command::InterruptionBehavior::kCancelSelf));
+	repellerSubsystem.SetDefaultCommand(repellerSubsystem.Stall());
 #endif
 #ifndef NO_ARM
 	armSubsystem.SetDefaultCommand(

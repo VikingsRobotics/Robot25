@@ -12,6 +12,7 @@
 
 #include "subsystems/SwerveSubsystem.h"
 #include "subsystems/ElevatorSubsystem.h"
+#include "subsystems/RepellerSubsystem.h"
 #include "commands/HeightCommand.h"
 #include "commands/RotationCommand.h"
 
@@ -49,6 +50,7 @@ private:
 #endif
 #ifndef NO_ELEVATOR
 	ElevatorSubsystem elevatorSubsystem { };
+	RepellerSubsystem repellerSubsystem { };
 #endif
 #ifndef NO_ARM
 	ArmSubsystem armSubsystem { };
