@@ -5,7 +5,7 @@
 
 #include <frc/kinematics/ChassisSpeeds.h>
 
-#include <frc/smartdashboard/SmartDashboard.h>
+#include <frc/shuffleboard/Shuffleboard.h>
 
 #include <frc2/command/RunCommand.h>
 
@@ -16,6 +16,14 @@ SwerveJoystickCommand::SwerveJoystickCommand(SwerveSubsystem *const subsystem,
 		Drive::TeleopOperator::kLimiter } {
 	AddRequirements (m_subsystem);
 	SetName("Swerve Joystick Command");
+
+	frc::ShuffleboardTab& smart = frc::Shuffleboard::GetTab("SmartDashboard");
+	frc::ShuffleboardLayout& layout = smart.GetLayout("Swerve",frc::BuiltInLayouts::kList);
+
+	layout.AddNumber("Throttle", [&]()-> double { return (-m_joystick.GetRawAxis(3) + 1) / 2; });
+	layout.AddBoolean("Field Centric", [&]()-> bool { return m_fieldCentric; });
+	layout.AddBoolean("Stored Throttle", [&]()-> bool { return false; });
+	layout.AddBoolean("Precision Mode", [&]()-> bool { return m_precision; });
 }
 
 void SwerveJoystickCommand::Initialize() {
@@ -37,11 +45,6 @@ void SwerveJoystickCommand::Execute() {
 	if (m_joystick.GetRawButtonPressed(5)) {
 		m_subsystem->ZeroHeading();
 	}
-
-	frc::SmartDashboard::PutNumber("Throttle", throttle);
-	frc::SmartDashboard::PutBoolean("Field Centric", m_fieldCentric);
-	frc::SmartDashboard::PutBoolean("Stored Throttle", false);
-	frc::SmartDashboard::PutBoolean("Precision Mode", m_precision);
 	if (m_joystick.GetRawButton(1)) {
 		m_subsystem->Brake();
 		return;
