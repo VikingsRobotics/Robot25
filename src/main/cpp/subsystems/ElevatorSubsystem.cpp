@@ -2,7 +2,7 @@
 #ifndef NO_ELEVATOR
 
 #include <frc/smartdashboard/SmartDashboard.h>
-
+#include <frc/shuffleboard/Shuffleboard.h>
 #include "Constants.h"
 
 ElevatorSubsystem::ElevatorSubsystem() : m_elevatorDriver {
@@ -12,7 +12,6 @@ ElevatorSubsystem::ElevatorSubsystem() : m_elevatorDriver {
 		m_elevatorDriver.GetClosedLoopController() }, m_elevatorFollow {
 		DeviceIdentifier::kElevatorFollowId,
 		Elevator::DeviceProperties::kSparkMotorType } {
-	SetName("Elevator Subsystem");
 
 	m_elevatorDriver.Configure(Elevator::DeviceProperties::GetElevatorConfig(),
 			rev::spark::SparkBase::ResetMode::kNoResetSafeParameters,
@@ -23,14 +22,21 @@ ElevatorSubsystem::ElevatorSubsystem() : m_elevatorDriver {
 
 	m_driverEncoder.SetPosition(0);
 
+	frc::ShuffleboardTab &smart = frc::Shuffleboard::GetTab("SmartDashboard");
+	frc::ShuffleboardLayout &layout = smart.GetLayout("Elevator",
+			frc::BuiltInLayouts::kList);
+	layout.AddNumber("Chain Pos (Inch)",
+			[&]() -> double {
+				return units::inch_t(
+						units::turn_t { m_driverEncoder.GetPosition() }
+								/ Elevator::Mechanism::kDistanceToRotation).value();
+			});
+
+	SetName("Elevator Subsystem");
 	frc::SmartDashboard::PutData(this);
 }
 
 void ElevatorSubsystem::Periodic() {
-	frc::SmartDashboard::PutNumber("Chain Pos (Inch)",
-			units::inch_t(
-					units::turn_t { m_driverEncoder.GetPosition() }
-							/ Elevator::Mechanism::kDistanceToRotation).value());
 }
 
 frc2::Trigger ElevatorSubsystem::LimiterTriggered() {

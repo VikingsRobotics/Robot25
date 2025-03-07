@@ -18,13 +18,22 @@ SwerveControllerCommand::SwerveControllerCommand(
 	AddRequirements (m_subsystem);
 	SetName("Swerve Xbox Controller Command");
 
-	frc::ShuffleboardTab& smart = frc::Shuffleboard::GetTab("SmartDashboard");
-	frc::ShuffleboardLayout& layout = smart.GetLayout("Swerve",frc::BuiltInLayouts::kList);
+	frc::ShuffleboardTab &smart = frc::Shuffleboard::GetTab("SmartDashboard");
+	frc::ShuffleboardLayout &layout = smart.GetLayout("Swerve",
+			frc::BuiltInLayouts::kList);
 
-	layout.AddNumber("Throttle", [&]()-> double { return m_internalThrottle; });
-	layout.AddBoolean("Field Centric", [&]()-> bool { return m_fieldCentric; });
-	layout.AddBoolean("Stored Throttle", [&]()-> bool { return m_storedThrottle; });
-	layout.AddBoolean("Precision Mode", [&]()-> bool { return m_precision; });
+	layout.AddNumber("Throttle", [&]() -> double {
+		return m_internalThrottle;
+	});
+	layout.AddBoolean("Field Centric", [&]() -> bool {
+		return m_fieldCentric;
+	});
+	layout.AddBoolean("Stored Throttle", [&]() -> bool {
+		return m_storedThrottle;
+	});
+	layout.AddBoolean("Precision Mode", [&]() -> bool {
+		return m_precision;
+	});
 }
 
 void SwerveControllerCommand::Initialize() {
@@ -54,8 +63,7 @@ void SwerveControllerCommand::Execute() {
 		m_subsystem->Brake();
 		m_controller.SetRumble(frc::GenericHID::RumbleType::kBothRumble, 0.2);
 		return;
-	}
-	else
+	} else
 		m_controller.SetRumble(frc::GenericHID::RumbleType::kBothRumble, 0.0);
 
 	double controllerX = m_limiterX.Calculate(

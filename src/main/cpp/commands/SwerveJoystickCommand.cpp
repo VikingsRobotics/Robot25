@@ -17,13 +17,22 @@ SwerveJoystickCommand::SwerveJoystickCommand(SwerveSubsystem *const subsystem,
 	AddRequirements (m_subsystem);
 	SetName("Swerve Joystick Command");
 
-	frc::ShuffleboardTab& smart = frc::Shuffleboard::GetTab("SmartDashboard");
-	frc::ShuffleboardLayout& layout = smart.GetLayout("Swerve",frc::BuiltInLayouts::kList);
+	frc::ShuffleboardTab &smart = frc::Shuffleboard::GetTab("SmartDashboard");
+	frc::ShuffleboardLayout &layout = smart.GetLayout("Swerve",
+			frc::BuiltInLayouts::kList);
 
-	layout.AddNumber("Throttle", [&]()-> double { return (-m_joystick.GetRawAxis(3) + 1) / 2; });
-	layout.AddBoolean("Field Centric", [&]()-> bool { return m_fieldCentric; });
-	layout.AddBoolean("Stored Throttle", [&]()-> bool { return false; });
-	layout.AddBoolean("Precision Mode", [&]()-> bool { return m_precision; });
+	layout.AddNumber("Throttle", [&]() -> double {
+		return (-m_joystick.GetRawAxis(3) + 1) / 2;
+	});
+	layout.AddBoolean("Field Centric", [&]() -> bool {
+		return m_fieldCentric;
+	});
+	layout.AddBoolean("Stored Throttle", [&]() -> bool {
+		return false;
+	});
+	layout.AddBoolean("Precision Mode", [&]() -> bool {
+		return m_precision;
+	});
 }
 
 void SwerveJoystickCommand::Initialize() {

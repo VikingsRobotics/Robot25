@@ -21,6 +21,7 @@ public:
 
 private:
 	ctre::phoenix::motorcontrol::can::TalonSRX m_wheel;
+	double m_speed = 0.0;
 };
 
 #endif

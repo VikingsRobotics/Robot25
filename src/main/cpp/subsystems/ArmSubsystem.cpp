@@ -4,6 +4,7 @@
 #include "Constants.h"
 
 #include <frc/smartdashboard/SmartDashboard.h>
+#include <frc/shuffleboard/Shuffleboard.h>
 
 ArmSubsystem::ArmSubsystem() : m_directionMotor {
 		DeviceIdentifier::kDirectionMotorId,
@@ -15,19 +16,28 @@ ArmSubsystem::ArmSubsystem() : m_directionMotor {
 			rev::spark::SparkBase::ResetMode::kNoResetSafeParameters,
 			rev::spark::SparkBase::PersistMode::kPersistParameters);
 
+	frc::ShuffleboardTab &smart = frc::Shuffleboard::GetTab("SmartDashboard");
+	frc::ShuffleboardLayout &layout = smart.GetLayout("Arm",
+			frc::BuiltInLayouts::kList);
+	layout.AddNumber("Offset Pos (Rot)", [&]() -> double {
+		return m_rotationalOffset.value();
+	});
+	layout.AddNumber("Full Pos (Rot)",
+			[&]() -> double {
+				return ((units::turn_t { m_directionEncoder.GetPosition() }
+						* Arm::Mechanism::kGearRatio) + m_rotationalOffset).value();
+			});
+	layout.AddNumber("Current Pos (Rot)",
+			[&]() -> double {
+				return (units::turn_t { m_directionEncoder.GetPosition() }
+						* Arm::Mechanism::kGearRatio).value();
+			});
+
 	SetName("Arm Subsystem");
-	frc::SmartDashboard::PutNumber("Offset Pos (Rot)",
-			m_rotationalOffset.value());
 	frc::SmartDashboard::PutData(this);
 }
 
 void ArmSubsystem::Periodic() {
-	frc::SmartDashboard::PutNumber("Full Pos (Rot)",
-			((units::turn_t { m_directionEncoder.GetPosition() }
-					* Arm::Mechanism::kGearRatio) + m_rotationalOffset).value());
-	frc::SmartDashboard::PutNumber("Current Pos (Rot)",
-			(units::turn_t { m_directionEncoder.GetPosition() }
-					* Arm::Mechanism::kGearRatio).value());
 }
 
 frc2::Trigger ArmSubsystem::LimiterTriggered() {

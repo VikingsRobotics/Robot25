@@ -2,6 +2,7 @@
 #ifndef NO_SWERVE
 
 #include <frc/smartdashboard/SmartDashboard.h>
+#include <frc/shuffleboard/Shuffleboard.h>
 #include <frc/DriverStation.h>
 
 #include <pathplanner/lib/auto/AutoBuilder.h>
@@ -68,6 +69,10 @@ SwerveSubsystem::SwerveSubsystem() : m_getGyroYaw { m_gryo.GetYaw().AsSupplier()
     });
 
 	AddPoseSubscribers();
+
+	frc::ShuffleboardTab& smart = frc::Shuffleboard::GetTab("SmartDashboard");
+	frc::ShuffleboardLayout& layout = smart.GetLayout("Swerve",frc::BuiltInLayouts::kList);
+	layout.AddNumber("Gyro (deg)",[&]() -> double { return GetHeading().value(); });
 
 	frc::SmartDashboard::PutData(this);
 }
@@ -140,7 +145,6 @@ void SwerveSubsystem::Periodic() {
 	m_poseEstimator.Update(GetRotation2d(),
 			{ m_frontLeft.GetPosition(), m_frontRight.GetPosition(),
 					m_backLeft.GetPosition(), m_backRight.GetPosition() });
-	frc::SmartDashboard::PutNumber("Gyro (deg)", GetHeading().value());
 
 	if (m_tagsReady.Get(false)) {
 		AddBestEstimates();
