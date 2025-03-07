@@ -55,6 +55,8 @@ private:
 #ifndef NO_ARM
 	ArmSubsystem armSubsystem { };
 #endif
-	[[maybe_unused]] frc2::CommandJoystick joystick;
-	[[maybe_unused]] frc2::CommandXboxController xboxController;
+	/* [[maybe_unused]] */
+	frc2::CommandJoystick joystick;
+	/* [[maybe_unused]] */
+	frc2::CommandXboxController xboxController;
 };
