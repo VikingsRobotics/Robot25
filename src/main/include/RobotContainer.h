@@ -10,6 +10,9 @@
 
 #include <vector>
 
+#include <pathplanner/lib/auto/AutoBuilder.h>
+#include <pathplanner/lib/auto/NamedCommands.h>
+
 #include "subsystems/SwerveSubsystem.h"
 #include "subsystems/ElevatorSubsystem.h"
 #include "subsystems/RepellerSubsystem.h"
@@ -47,6 +50,7 @@ private:
 #endif
 #ifndef NO_SWERVE
 	SwerveSubsystem swerveSubsystem { };
+	frc::SendableChooser<frc2::Command*> autoChooser { };
 #endif
 #ifndef NO_ELEVATOR
 	ElevatorSubsystem elevatorSubsystem { };

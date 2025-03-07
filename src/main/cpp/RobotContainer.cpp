@@ -52,6 +52,10 @@ void RobotContainer::ConfigureBindings() {
 #ifndef NO_SWERVE_SYSID_COMMAND
 	ConfigureSwerveSysId();
 #endif
+#ifndef NO_SWERVE
+	autoChooser = pathplanner::AutoBuilder::buildAutoChooser();
+	frc::SmartDashboard::PutData (&autoChooser);
+#endif
 }
 
 #ifndef NO_SWERVE_SYSID_COMMAND
@@ -367,5 +371,9 @@ void RobotContainer::BindArmCommand() {
 #endif
 
 frc2::Command* RobotContainer::GetAutonomousCommand() {
+#ifdef NO_SWERVE
 	return nullptr;
+#else
+	return autoChooser.GetSelected();
+#endif
 }
