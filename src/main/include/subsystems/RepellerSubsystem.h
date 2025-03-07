@@ -7,6 +7,8 @@
 #include <frc2/command/CommandPtr.h>
 #include <ctre/phoenix/motorcontrol/can/TalonSRX.h>
 
+/* Dedicated to the smell that grease and OTHER THINGS make */
+
 class RepellerSubsystem: public frc2::SubsystemBase {
 public:
 	RepellerSubsystem();
