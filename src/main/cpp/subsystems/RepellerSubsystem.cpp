@@ -10,12 +10,13 @@
 RepellerSubsystem::RepellerSubsystem() : m_wheel {
 		DeviceIdentifier::kRepellerWheelId } {
 
-			
 	frc::ShuffleboardTab &smart = frc::Shuffleboard::GetTab("SmartDashboard");
 	frc::ShuffleboardLayout &layout = smart.GetLayout("Elevator",
 			frc::BuiltInLayouts::kList);
 
-	layout.AddNumber("Wheel Spd", [&]() -> double { return m_speed; });
+	layout.AddNumber("Wheel Spd", [&]() -> double {
+		return m_speed;
+	});
 
 	SetName("Elev Wheel Subsystem");
 	frc::SmartDashboard::PutData(this);
