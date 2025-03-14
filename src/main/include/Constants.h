@@ -128,9 +128,9 @@ constexpr units::second_t kTimeout { 10.0 };
 }
 
 namespace Vision {
-constexpr double requiredConfidence = 0.0;
+constexpr float requiredConfidence = 0.0;
 constexpr units::meter_t requiredDeltaDistance { 0.5 };
-constexpr size_t numAprilTags = 22;
+constexpr size_t numAprilTags = 23;
 }
 
 namespace AutoSettings {
