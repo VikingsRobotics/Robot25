@@ -148,6 +148,29 @@ constexpr units::radians_per_second_t kMaxAngularSpeed = 3.0_rad_per_s;
 constexpr units::radians_per_second_squared_t kMaxAngularAcceleration =
 		5.0_rad_per_s_sq;
 }
+
+// Converting java to C++
+// Source: https://github.com/ElectroBunny/BetaBot2025/blob/develop/src/main/java/frc/robot/commands/AlignToReefTagRelative.java
+namespace Align {
+// Source: https://github.com/ElectroBunny/BetaBot2025/blob/develop/src/main/java/frc/robot/Constants.java
+namespace System {
+constexpr double kXTranslationP = 0.33;
+constexpr double kYTranslationP = 0.33;
+constexpr double kRotationP = 0.33;
+}
+namespace Location {
+constexpr units::meter_t kXTranslationEndpoint = -0.34_m;
+constexpr units::meter_t kXTranslationThreshold = 0.02_m;
+constexpr units::meter_t kYTranslationEndpoint = 0.16_m;
+constexpr units::meter_t kYTranslationThreshold = 0.02_m;
+constexpr units::radian_t kRotationEndpoint = 0_rad;
+constexpr units::radian_t kRotationThreshold = 1_deg;
+}
+namespace Time {
+constexpr units::second_t kTagOutOfViewTime = 1_s;
+constexpr units::second_t kPoseValidation = 0.3_s;
+}
+}
 }
 
 namespace Arm {
