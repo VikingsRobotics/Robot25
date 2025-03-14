@@ -16,6 +16,7 @@
 #include "subsystems/SwerveSubsystem.h"
 #include "subsystems/ElevatorSubsystem.h"
 #include "subsystems/RepellerSubsystem.h"
+#include "subsystems/RollerSubsystem.h"
 #include "commands/HeightCommand.h"
 #include "commands/RotationCommand.h"
 
@@ -58,6 +59,9 @@ private:
 #endif
 #ifndef NO_ARM
 	ArmSubsystem armSubsystem { };
+#endif
+#ifndef NO_ROLLER
+	RollerSubsystem rollerSubsystem { };
 #endif
 	/* [[maybe_unused]] */
 	frc2::CommandJoystick joystick;

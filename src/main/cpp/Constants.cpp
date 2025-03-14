@@ -173,3 +173,14 @@ rev::spark::SparkMaxConfig& GetFollowerConfig() {
 
 }
 }
+
+namespace Roller {
+namespace DeviceProperties {
+static rev::spark::SparkMaxConfig motorConfig { };
+rev::spark::SparkMaxConfig& GetMotorConfig() {
+	rev::spark::SparkMaxConfig &config = motorConfig;
+
+	return config;
+}
+}
+}

@@ -36,6 +36,11 @@ RobotContainer::RobotContainer() : joystick {
 			frc2::cmd::Idle(frc2::Requirements { &armSubsystem }).WithInterruptBehavior(
 					frc2::Command::InterruptionBehavior::kCancelSelf));
 #endif
+#ifndef NO_ROLLER
+	rollerSubsystem.SetDefaultCommand(
+			frc2::cmd::Idle(frc2::Requirements { &rollerSubsystem }).WithInterruptBehavior(
+					frc2::Command::InterruptionBehavior::kCancelSelf));
+#endif
 
 	ConfigureBindings();
 }

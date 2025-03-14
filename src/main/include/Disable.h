@@ -9,6 +9,7 @@
 /* Disable part of elevator */
 //#define NO_ELEVATOR 1
 //#define NO_ARM 1
+//#define NO_ROLLER 1
 /* Compound define expansion */
 #if defined(NO_ELEVATOR_ARM) || NO_ELEVATOR_ARM == 1
     #if !defined(NO_ELEVATOR)
@@ -35,4 +36,8 @@
 
 #if defined(NO_ARM)
     #define NO_ARM_ROTATION_COMMAND
+#endif
+
+#if defined(NO_ROLLER)
+    
 #endif
