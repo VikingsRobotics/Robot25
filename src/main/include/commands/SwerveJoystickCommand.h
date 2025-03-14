@@ -1,9 +1,10 @@
 #pragma once
 
-#include "subsystems/SwerveSubsystem.h"
 #include "Disable.h"
 
 #ifndef NO_SWERVE_JOYSTICK_COMMAND
+
+#include "subsystems/SwerveSubsystem.h"
 
 #include <frc2/command/CommandHelper.h>
 #include <frc2/command/Command.h>
