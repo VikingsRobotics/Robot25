@@ -283,7 +283,8 @@ extern rev::spark::SparkMaxConfig& GetMotorConfig();
 constexpr rev::spark::SparkLowLevel::MotorType kSparkMotorType =
 		rev::spark::SparkLowLevel::MotorType::kBrushed;
 // Pneumatics Hub Type
-constexpr frc::PneumaticsModuleType kModuleType = frc::PneumaticsModuleType::REVPH;
+constexpr frc::PneumaticsModuleType kModuleType =
+		frc::PneumaticsModuleType::REVPH;
 }
 namespace SolenoidId {
 constexpr int kForwardChannelId = 0;

@@ -13,25 +13,25 @@
 
 class RollerSubsystem: public frc2::SubsystemBase {
 public:
-    RollerSubsystem();
+	RollerSubsystem();
 	RollerSubsystem(RollerSubsystem &rhs) = delete;
 	RollerSubsystem& operator=(RollerSubsystem &rhs) = delete;
 	RollerSubsystem(RollerSubsystem &&rhs) = delete;
 	RollerSubsystem& operator=(RollerSubsystem &&rhs) = delete;
 
-    void Periodic() override;
+	void Periodic() override;
 
-    void PutRollerDown();
-    void PutRollerUp();
+	void PutRollerDown();
+	void PutRollerUp();
 
-    bool IsRollerDown();
-    bool IsRollerUp();
+	bool IsRollerDown();
+	bool IsRollerUp();
 
-    void SetRollerWheel(double speed);
-    double GetRollerWheelSpeed();
+	void SetRollerWheel(double speed);
+	double GetRollerWheelSpeed();
 private:
-    rev::spark::SparkMax m_rollerWheel;
-    frc::DoubleSolenoid m_solenoid;
+	rev::spark::SparkMax m_rollerWheel;
+	frc::DoubleSolenoid m_solenoid;
 };
 
 #endif
