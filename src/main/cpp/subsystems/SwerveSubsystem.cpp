@@ -84,7 +84,7 @@ void SwerveSubsystem::AddBestEstimates() {
 	frc::Pose2d currentEstimate = GetPose2d();
 	units::second_t currentTimestamp = frc::Timer::GetTimestamp();
 
-	std::vector<AprilTagWithConfidence>& const tags = m_foundTags;
+	std::vector < AprilTagWithConfidence > &tags = m_foundTags;
 	for (size_t index = 0; index < tags.size(); ++index) {
 		if (tags.at(index).confidence < Drive::Vision::requiredConfidence) {
 			continue;
@@ -258,7 +258,7 @@ std::vector<frc::AprilTag> SwerveSubsystem::GetValidEstimatedAprilTags() {
 	frc::Pose2d currentEstimate = GetPose2d();
 	ProtectAprilTagNetwork();
 	m_tagsAreReady.load(std::memory_order::acquire);
-	std::vector < AprilTagWithConfidence >& const tags = m_foundTags;
+	std::vector < AprilTagWithConfidence > &tags = m_foundTags;
 
 	for (size_t index = 0; index < tags.size(); ++index) {
 		if (tags.at(index).confidence < Drive::Vision::requiredConfidence) {
@@ -285,7 +285,7 @@ std::vector<frc::AprilTag> SwerveSubsystem::GetValidAprilTags() {
 	frc::Pose2d currentEstimate = GetPose2d();
 	ProtectAprilTagNetwork();
 	m_tagsAreReady.load(std::memory_order::acquire);
-	std::vector < AprilTagWithConfidence >& const tags = m_foundTags;
+	std::vector < AprilTagWithConfidence > &tags = m_foundTags;
 
 	for (size_t index = 0; index < tags.size(); ++index) {
 		if (tags.at(index).confidence < Drive::Vision::requiredConfidence) {

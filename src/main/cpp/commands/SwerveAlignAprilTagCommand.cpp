@@ -42,14 +42,23 @@ void SwerveAlignAprilTagCommand::Execute() {
 				.omega = 0_rad_per_s });
 		return;
 	}
-	m_lostTag.Reset();
 
 	frc::Pose2d target = m_subsystem->GetPose2d();
-	target =
-			target.RelativeTo(
-					m_subsystem->fieldLayout.GetTagPose(m_tagId).value_or(
-							target).ToPose2d());
+	{
+		std::optional < frc::Pose3d > possiblePose =
+				m_subsystem->fieldLayout.GetTagPose(m_tagId);
+		if (!possiblePose.has_value()) {
+			m_subsystem->Drive(frc::ChassisSpeeds { .vx = 0_mps, .vy = 0_mps,
+					.omega = 0_rad_per_s });
+			return;
+		}
 
+		target =
+				target.RelativeTo(
+						m_subsystem->fieldLayout.GetTagPose(m_tagId).value().ToPose2d());
+	}
+
+	m_lostTag.Reset();
 	m_subsystem->Drive(
 			frc::ChassisSpeeds { .vx = units::meters_per_second_t {
 					m_xTranslationController.Calculate(target.X().value()) },
