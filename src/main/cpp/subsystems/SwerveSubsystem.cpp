@@ -257,7 +257,8 @@ std::vector<frc::AprilTag> SwerveSubsystem::GetValidEstimatedAprilTags() {
 	std::vector < frc::AprilTag > finishedTags;
 	frc::Pose2d currentEstimate = GetPose2d();
 	ProtectAprilTagNetwork();
-	m_tagsAreReady.load(std::memory_order::acquire);
+	// We just want to sync so we ignore the value
+	void(m_tagsAreReady.load(std::memory_order::acquire));
 	std::vector < AprilTagWithConfidence > &tags = m_foundTags;
 
 	for (size_t index = 0; index < tags.size(); ++index) {
@@ -284,7 +285,8 @@ std::vector<frc::AprilTag> SwerveSubsystem::GetValidAprilTags() {
 	std::vector < frc::AprilTag > finishedTags;
 	frc::Pose2d currentEstimate = GetPose2d();
 	ProtectAprilTagNetwork();
-	m_tagsAreReady.load(std::memory_order::acquire);
+	// We just want to sync so we ignore the value
+	void(m_tagsAreReady.load(std::memory_order::acquire));
 	std::vector < AprilTagWithConfidence > &tags = m_foundTags;
 
 	for (size_t index = 0; index < tags.size(); ++index) {
