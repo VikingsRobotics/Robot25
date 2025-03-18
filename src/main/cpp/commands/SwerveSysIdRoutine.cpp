@@ -114,14 +114,14 @@ SwerveSysIdRoutine::SwerveSysIdRoutine(SwerveSubsystem *subsystem) : sysIdRoutin
 			subsystem->m_frontLeft.GotoRotation(135_deg);
 			subsystem->m_frontLeft.m_drivingTalonFx.SetVoltage(apply);
 
-			subsystem->m_frontLeft.GotoRotation(45_deg);
-			subsystem->m_frontLeft.m_drivingTalonFx.SetVoltage(apply);
+			subsystem->m_frontRight.GotoRotation(45_deg);
+			subsystem->m_frontRight.m_drivingTalonFx.SetVoltage(apply);
 
 			subsystem->m_backLeft.GotoRotation(225_deg);
-			subsystem->m_frontLeft.m_drivingTalonFx.SetVoltage(apply);
+			subsystem->m_backLeft.m_drivingTalonFx.SetVoltage(apply);
 
-			subsystem->m_frontLeft.GotoRotation(315_deg);
-			subsystem->m_frontLeft.m_drivingTalonFx.SetVoltage(apply);
+			subsystem->m_backRight.GotoRotation(315_deg);
+			subsystem->m_backRight.m_drivingTalonFx.SetVoltage(apply);
 		}
 				,
 				[&](frc::sysid::SysIdRoutineLog *logger) {

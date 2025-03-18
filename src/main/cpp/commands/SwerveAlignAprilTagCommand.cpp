@@ -79,6 +79,9 @@ void SwerveAlignAprilTagCommand::Execute() {
 void SwerveAlignAprilTagCommand::End(bool interrupted) {
 	m_subsystem->Drive(frc::ChassisSpeeds { .vx = 0_mps, .vy = 0_mps, .omega =
 			0_rad_per_s });
+	m_xTranslationController.Reset();
+	m_yTranslationController.Reset();
+	m_rotationController.Reset();
 }
 
 bool SwerveAlignAprilTagCommand::IsFinished() {
