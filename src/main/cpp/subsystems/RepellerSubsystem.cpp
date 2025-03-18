@@ -22,7 +22,7 @@ RepellerSubsystem::RepellerSubsystem() : m_wheel {
 	frc::SmartDashboard::PutData(this);
 }
 
-void RollerSubsystem::Periodic() {
+void RepellerSubsystem::Periodic() {
 
 }
 
