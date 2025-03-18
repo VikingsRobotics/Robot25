@@ -7,7 +7,7 @@
 #include <frc2/command/SubsystemBase.h>
 #include <frc2/command/CommandPtr.h>
 
-#include <rev/SparkMax.h>
+#include <ctre/phoenix/motorcontrol/can/TalonSRX.h>
 
 #include <frc/DoubleSolenoid.h>
 
@@ -30,7 +30,7 @@ public:
 	void SetRollerWheel(double speed);
 	double GetRollerWheelSpeed();
 private:
-	rev::spark::SparkMax m_rollerWheel;
+	ctre::phoenix::motorcontrol::can::TalonSRX m_rollerWheel;
 	frc::DoubleSolenoid m_solenoid;
 };
 

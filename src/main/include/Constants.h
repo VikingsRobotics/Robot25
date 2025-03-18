@@ -277,11 +277,6 @@ constexpr rev::spark::SparkLowLevel::MotorType kSparkMotorType =
 
 namespace Roller {
 namespace DeviceProperties {
-// Default motor type used for REV spark max motors
-extern rev::spark::SparkMaxConfig& GetMotorConfig();
-// Default motor type enum for REV spark max motors
-constexpr rev::spark::SparkLowLevel::MotorType kSparkMotorType =
-		rev::spark::SparkLowLevel::MotorType::kBrushed;
 // Pneumatics Hub Type
 constexpr frc::PneumaticsModuleType kModuleType =
 		frc::PneumaticsModuleType::REVPH;
@@ -326,6 +321,6 @@ constexpr int kElevatorFollowId = 13;
 constexpr int kDirectionMotorId = 14;
 //TalonSFX
 constexpr int kRepellerWheelId = 15;
-//SparkMAX
+//TalonSFX
 constexpr int kRollerWheelId = 16;
 }

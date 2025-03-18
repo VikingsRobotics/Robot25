@@ -6,18 +6,13 @@
 #include <frc/smartdashboard/SmartDashboard.h>
 
 RollerSubsystem::RollerSubsystem() : m_rollerWheel {
-		DeviceIdentifier::kRollerWheelId,
-		Roller::DeviceProperties::kSparkMotorType }, m_solenoid {
+		DeviceIdentifier::kRollerWheelId }, m_solenoid {
 		DeviceIdentifier::kPneumaticHubId,
 		Roller::DeviceProperties::kModuleType,
 		Roller::SolenoidId::kForwardChannelId,
 		Roller::SolenoidId::kReverseChannelId } {
-	m_rollerWheel.Configure(Roller::DeviceProperties::GetMotorConfig(),
-			rev::spark::SparkBase::ResetMode::kNoResetSafeParameters,
-			rev::spark::SparkBase::PersistMode::kPersistParameters);
-
 	SetRollerWheel(0.0);
-	PutRollerDown();
+	//PutRollerDown();
 
 	SetName("Roller Subsystem");
 	frc::SmartDashboard::PutData(this);
@@ -44,11 +39,11 @@ bool RollerSubsystem::IsRollerUp() {
 }
 
 void RollerSubsystem::SetRollerWheel(double speed) {
-	m_rollerWheel.Set(speed);
+	m_rollerWheel.Set(ctre::phoenix::motorcontrol::ControlMode::PercentOutput,speed);
 }
 
 double RollerSubsystem::GetRollerWheelSpeed() {
-	return m_rollerWheel.Get();
+	return m_rollerWheel.GetMotorOutputPercent();
 }
 
 #endif
