@@ -39,7 +39,8 @@ bool RollerSubsystem::IsRollerUp() {
 }
 
 void RollerSubsystem::SetRollerWheel(double speed) {
-	m_rollerWheel.Set(ctre::phoenix::motorcontrol::ControlMode::PercentOutput,speed);
+	m_rollerWheel.Set(ctre::phoenix::motorcontrol::ControlMode::PercentOutput,
+			speed);
 }
 
 double RollerSubsystem::GetRollerWheelSpeed() {
