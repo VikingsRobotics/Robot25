@@ -5,7 +5,6 @@
 #ifndef NO_ROLLER
 
 #include <frc2/command/SubsystemBase.h>
-#include <frc2/command/CommandPtr.h>
 
 #include <ctre/phoenix/motorcontrol/can/TalonSRX.h>
 

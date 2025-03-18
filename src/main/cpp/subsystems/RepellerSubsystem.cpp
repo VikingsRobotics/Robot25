@@ -22,26 +22,12 @@ RepellerSubsystem::RepellerSubsystem() : m_wheel {
 	frc::SmartDashboard::PutData(this);
 }
 
-frc2::CommandPtr RepellerSubsystem::Forward() {
-	return frc2::RunCommand { [&]() -> void {
-		m_wheel.Set(ctre::phoenix::motorcontrol::ControlMode::PercentOutput, 1);
-		m_speed = 1.0;
-	}, { this } }.ToPtr();
+void RepellerSubsystem::SetRepellerWheel(double speed) {
+	m_wheel.Set(ctre::phoenix::motorcontrol::ControlMode::PercentOutput, speed);
 }
 
-frc2::CommandPtr RepellerSubsystem::Backward() {
-	return frc2::RunCommand { [&]() -> void {
-		m_wheel.Set(ctre::phoenix::motorcontrol::ControlMode::PercentOutput,
-				-1);
-		m_speed = -1.0;
-	}, { this } }.ToPtr();
-}
-
-frc2::CommandPtr RepellerSubsystem::Stall() {
-	return frc2::RunCommand { [&]() -> void {
-		m_wheel.Set(ctre::phoenix::motorcontrol::ControlMode::PercentOutput, 0);
-		m_speed = 0.0;
-	}, { this } }.ToPtr();
+double GetRepellerWheelSpeed() {
+	return m_wheel.GetMotorOutputPercent();
 }
 
 #endif
