@@ -4,6 +4,7 @@
 
 #include "Constants.h"
 #include <frc/smartdashboard/SmartDashboard.h>
+#include <frc/shuffleboard/Shuffleboard.h>
 
 RollerSubsystem::RollerSubsystem() : m_rollerWheel {
 		DeviceIdentifier::kRollerWheelId }, m_solenoid {
@@ -13,6 +14,17 @@ RollerSubsystem::RollerSubsystem() : m_rollerWheel {
 		Roller::SolenoidId::kReverseChannelId } {
 	SetRollerWheel(0.0);
 	//PutRollerDown();
+
+	frc::ShuffleboardTab &smart = frc::Shuffleboard::GetTab("SmartDashboard");
+	frc::ShuffleboardLayout &layout = smart.GetLayout("Roller",
+			frc::BuiltInLayouts::kList);
+
+	layout.AddNumber("Wheel Spd", [&]() -> double {
+		return m_rollerWheel.GetMotorOutputPercent();
+	});
+	layout.AddBoolean("Solenoid Down", [&]() -> double {
+		return m_solenoid.Get() == frc::DoubleSolenoid::Value::kForward;
+	});
 
 	SetName("Roller Subsystem");
 	frc::SmartDashboard::PutData(this);

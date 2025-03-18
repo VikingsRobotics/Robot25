@@ -16,6 +16,8 @@ public:
 	RepellerSubsystem(RepellerSubsystem &&rhs) = delete;
 	RepellerSubsystem& operator=(RepellerSubsystem &&rhs) = delete;
 
+	void Periodic() override;
+
 	void SetRepellerWheel(double speed);
 	double GetRepellerWheelSpeed();
 

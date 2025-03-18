@@ -15,18 +15,22 @@ RepellerSubsystem::RepellerSubsystem() : m_wheel {
 			frc::BuiltInLayouts::kList);
 
 	layout.AddNumber("Wheel Spd", [&]() -> double {
-		return m_speed;
+		return m_wheel.GetMotorOutputPercent();
 	});
 
 	SetName("Elev Wheel Subsystem");
 	frc::SmartDashboard::PutData(this);
 }
 
+void RollerSubsystem::Periodic() {
+
+}
+
 void RepellerSubsystem::SetRepellerWheel(double speed) {
 	m_wheel.Set(ctre::phoenix::motorcontrol::ControlMode::PercentOutput, speed);
 }
 
-double GetRepellerWheelSpeed() {
+double RepellerSubsystem::GetRepellerWheelSpeed() {
 	return m_wheel.GetMotorOutputPercent();
 }
 
