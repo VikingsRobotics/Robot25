@@ -39,5 +39,7 @@
 #endif
 
 #if defined(NO_ROLLER)
-    
+
 #endif
+
+#define NO_SWERVE_ALIGN_APRILTAG_COMMAND

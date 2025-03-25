@@ -4,7 +4,7 @@
 #ifndef NO_ELEVATOR
 
 #include <frc2/command/SubsystemBase.h>
-#include <ctre/phoenix/motorcontrol/can/TalonSRX.h>
+#include <ctre/phoenix/motorcontrol/can/VictorSPX.h>
 
 /* Dedicated to the smell that grease and OTHER THINGS make */
 
@@ -22,7 +22,7 @@ public:
 	double GetRepellerWheelSpeed();
 
 private:
-	ctre::phoenix::motorcontrol::can::TalonSRX m_wheel;
+	ctre::phoenix::motorcontrol::can::VictorSPX m_wheel;
 };
 
 #endif

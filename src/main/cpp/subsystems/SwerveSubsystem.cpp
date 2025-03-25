@@ -19,11 +19,7 @@
 #include <fmt/format.h>
 
 // @formatter:off 
-SwerveSubsystem::SwerveSubsystem() : m_getGyroYaw { m_gryo.GetYaw().AsSupplier() },
-			m_tagTable{ nt::NetworkTableInstance::GetDefault().GetTable("april-tag") },
-			m_tagsFound{ m_tagTable->GetIntegerArrayTopic("tags").Subscribe( std::array<const int64_t,1>{-1} ) }, 
-			m_tagsConfidence{ m_tagTable->GetFloatArrayTopic("confidence").Subscribe( std::array<const float,1>{-1} ) }, 
-			m_tagsReady { m_tagTable->GetBooleanTopic("ready").GetEntry(false) } {
+SwerveSubsystem::SwerveSubsystem() : m_getGyroYaw { m_gryo.GetYaw().AsSupplier() } {
 	m_gryo.Reset();
 	SetName("Swerve Subsystem");
 
@@ -71,8 +67,6 @@ SwerveSubsystem::SwerveSubsystem() : m_getGyroYaw { m_gryo.GetYaw().AsSupplier()
         m_field.GetObject("path")->SetPoses(poses);
     });
 
-	AddPoseSubscribers();
-
 	frc::ShuffleboardTab& smart = frc::Shuffleboard::GetTab("SmartDashboard");
 	frc::ShuffleboardLayout& layout = smart.GetLayout("Swerve",frc::BuiltInLayouts::kList);
 	layout.AddNumber("Gyro (deg)",[&]() -> double { return GetHeading().value(); });
@@ -80,71 +74,12 @@ SwerveSubsystem::SwerveSubsystem() : m_getGyroYaw { m_gryo.GetYaw().AsSupplier()
 	frc::SmartDashboard::PutData(this);
 }
 // @formatter:on
-void SwerveSubsystem::AddBestEstimates() {
-	frc::Pose2d currentEstimate = GetPose2d();
-	units::second_t currentTimestamp = frc::Timer::GetTimestamp();
-
-	std::vector < AprilTagWithConfidence > &tags = m_foundTags;
-	for (size_t index = 0; index < tags.size(); ++index) {
-		if (tags.at(index).confidence < Drive::Vision::requiredConfidence) {
-			continue;
-		}
-
-		if ((tags.at(index).tag.pose.X() > fieldLayout.GetFieldLength())
-				|| (tags.at(index).tag.pose.X() < 0_m)
-				|| (tags.at(index).tag.pose.Y() > fieldLayout.GetFieldWidth())
-				|| (tags.at(index).tag.pose.Y() < 0_m)) {
-			continue;
-		}
-
-		if ((currentEstimate - tags.at(index).tag.pose.ToPose2d()).Translation().Norm()
-				< Drive::Vision::requiredDeltaDistance) {
-			m_poseEstimator.AddVisionMeasurement(
-					tags.at(index).tag.pose.ToPose2d(), currentTimestamp);
-		}
-	}
-
-}
-
-void SwerveSubsystem::AddPoseSubscribers() {
-	m_tagPoses.reserve(Drive::Vision::numAprilTags);
-	for (size_t index = 0; index < Drive::Vision::numAprilTags; ++index) {
-		m_tagPoses.emplace_back(
-				m_tagTable->GetDoubleArrayTopic(fmt::format("pose_{}", index)).Subscribe(
-						std::array<const double, 1> { -1 }));
-	}
-	m_foundTags.reserve(Drive::Vision::numAprilTags);
-}
-
-constexpr frc::Pose3d SwerveSubsystem::GetPose3dFromVisionTable(
-		std::span<double, 6> dataPoints) {
-	/* Stored in the following format from 
-	 https://github.com/wpilibsuite/allwpilib/blob/main/wpilibcExamples/src/main/cpp/examples/AprilTagsVision/cpp/Robot.cpp 
-	 
-	 {	x : double <-- meter_t, 	y: double <-- meter_t, 		z: double <-- meter_t 
-	 x : double <-- rotation_t, 	y : double <-- rotation_t, 	z : double <-- rotation_t }
-	 */
-
-	return frc::Pose3d { units::meter_t { dataPoints[0] }, units::meter_t {
-			dataPoints[1] }, units::meter_t { dataPoints[2] },
-			frc::Rotation3d { units::radian_t { dataPoints[3] },
-					units::radian_t { dataPoints[4] }, units::radian_t {
-							dataPoints[5] } } };
-}
 
 void SwerveSubsystem::Periodic() {
 	// Tracks robot position using the position of swerve modules and gryo rotation
 	m_poseEstimator.Update(GetRotation2d(),
 			{ m_frontLeft.GetPosition(), m_frontRight.GetPosition(),
 					m_backLeft.GetPosition(), m_backRight.GetPosition() });
-
-	ProtectAprilTagNetwork();
-	bool value = true;
-	if (m_tagsAreReady.compare_exchange_strong(value, false,
-			std::memory_order::acq_rel, std::memory_order::acquire)) {
-		m_tagsReady.Set(false);
-		AddBestEstimates();
-	}
 }
 
 void SwerveSubsystem::ZeroHeading() {
@@ -251,107 +186,6 @@ void SwerveSubsystem::X() {
 			-45_deg } });
 	m_backRight.SetState(frc::SwerveModuleState { 0_mps, frc::Rotation2d {
 			45_deg } });
-}
-
-std::vector<frc::AprilTag> SwerveSubsystem::GetValidEstimatedAprilTags() {
-	std::vector < frc::AprilTag > finishedTags;
-	frc::Pose2d currentEstimate = GetPose2d();
-	ProtectAprilTagNetwork();
-	// We just want to sync so we ignore the value
-	void(m_tagsAreReady.load(std::memory_order::acquire));
-	std::vector < AprilTagWithConfidence > &tags = m_foundTags;
-
-	for (size_t index = 0; index < tags.size(); ++index) {
-		if (tags.at(index).confidence < Drive::Vision::requiredConfidence) {
-			continue;
-		}
-
-		if ((tags.at(index).tag.pose.X() > fieldLayout.GetFieldLength())
-				|| (tags.at(index).tag.pose.X() < 0_m)
-				|| (tags.at(index).tag.pose.Y() > fieldLayout.GetFieldWidth())
-				|| (tags.at(index).tag.pose.Y() < 0_m)) {
-			continue;
-		}
-
-		if ((currentEstimate - tags.at(index).tag.pose.ToPose2d()).Translation().Norm()
-				< Drive::Vision::requiredDeltaDistance) {
-			finishedTags.push_back(tags.at(index).tag);
-		}
-	}
-	return finishedTags;
-}
-
-std::vector<frc::AprilTag> SwerveSubsystem::GetValidAprilTags() {
-	std::vector < frc::AprilTag > finishedTags;
-	frc::Pose2d currentEstimate = GetPose2d();
-	ProtectAprilTagNetwork();
-	// We just want to sync so we ignore the value
-	void(m_tagsAreReady.load(std::memory_order::acquire));
-	std::vector < AprilTagWithConfidence > &tags = m_foundTags;
-
-	for (size_t index = 0; index < tags.size(); ++index) {
-		if (tags.at(index).confidence < Drive::Vision::requiredConfidence) {
-			continue;
-		}
-
-		if ((tags.at(index).tag.pose.X() > fieldLayout.GetFieldLength())
-				|| (tags.at(index).tag.pose.X() < 0_m)
-				|| (tags.at(index).tag.pose.Y() > fieldLayout.GetFieldWidth())
-				|| (tags.at(index).tag.pose.Y() < 0_m)) {
-			continue;
-		}
-
-		if ((currentEstimate - tags.at(index).tag.pose.ToPose2d()).Translation().Norm()
-				< Drive::Vision::requiredDeltaDistance) {
-			std::optional < frc::Pose3d > locatation = fieldLayout.GetTagPose(
-					tags.at(index).tag.ID);
-			if (!locatation.has_value()) {
-				continue;
-			}
-			finishedTags.emplace_back(
-					frc::AprilTag { .ID = tags.at(index).tag.ID, .pose =
-							locatation.value() });
-		}
-	}
-	return finishedTags;
-}
-
-void SwerveSubsystem::ProtectAprilTagNetwork() {
-	std::vector < int64_t > tagIdFounds = m_tagsFound.Get();
-	std::vector<float> tagsConfidence = m_tagsConfidence.Get();
-
-	m_foundTags.clear();
-
-	if (tagIdFounds.size() == tagsConfidence.size()) {
-		for (size_t i = 0; i < tagIdFounds.size(); ++i) {
-			std::vector<double> poseData = m_tagPoses.at(tagIdFounds.at(i)).Get(
-					{ });
-			if (poseData.size() != 6) {
-				continue;
-			}
-			m_foundTags.emplace_back(
-					AprilTagWithConfidence { .tag = frc::AprilTag { .ID =
-							static_cast<int>(tagIdFounds.at(i)), .pose =
-							GetPose3dFromVisionTable(std::span<double, 6> {
-									poseData.data(), 6 }) }, .confidence =
-							tagsConfidence.at(i) });
-		}
-	}
-
-	m_tagsAreReady.store(m_tagsReady.Get(false), std::memory_order::release);
-}
-
-bool SwerveSubsystem::IsAprilTagInView(int id) {
-	if (id < 0) {
-		return false;
-	}
-	std::vector<AprilTagWithConfidence>::const_iterator isFound = std::find_if(
-			m_foundTags.cbegin(), m_foundTags.cend(),
-			[id](const AprilTagWithConfidence &val) {
-				return val.tag.ID == id;
-			});
-
-	return isFound != m_foundTags.end();
 }
 
 #endif

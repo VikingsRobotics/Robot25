@@ -16,19 +16,6 @@
 
 #include <frc/estimator/SwerveDrivePoseEstimator.h>
 
-#include <networktables/NetworkTableEntry.h>
-#include <networktables/NetworkTableInstance.h>
-#include <networktables/IntegerArrayTopic.h>
-#include <networktables/DoubleArrayTopic.h>
-#include <networktables/FloatArrayTopic.h>
-#include <networktables/BooleanTopic.h>
-
-#include <frc/apriltag/AprilTag.h>
-#include <frc/apriltag/AprilTagFields.h>
-#include <frc/apriltag/AprilTagFieldLayout.h>
-
-#include <atomic>
-
 #include <frc2/command/SubsystemBase.h>
 
 class SwerveSubsystem: public frc2::SubsystemBase {
@@ -69,22 +56,7 @@ public:
 
 	void X();
 
-	std::vector<frc::AprilTag> GetValidEstimatedAprilTags();
-	std::vector<frc::AprilTag> GetValidAprilTags();
-	bool IsAprilTagInView(int id);
-
-	inline static const frc::AprilTagFieldLayout fieldLayout {
-			frc::AprilTagFieldLayout::LoadField(
-					frc::AprilTagField::k2025ReefscapeAndyMark) };
-
 	friend struct SwerveSysIdRoutine;
-private:
-	void ProtectAprilTagNetwork();
-	void AddBestEstimates();
-	void AddPoseSubscribers();
-	constexpr frc::Pose3d GetPose3dFromVisionTable(
-			std::span<double, 6> dataPoints);
-
 private:
 	// Gryo used for odometry and for field centric control
 	ctre::phoenix6::hardware::Pigeon2 m_gryo { DeviceIdentifier::kGyroId,
@@ -112,23 +84,6 @@ private:
 					m_frontRight.GetPosition(), m_backLeft.GetPosition(),
 					m_backRight.GetPosition() }, frc::Pose2d { }, { 0.1, 0.1,
 					0.1 }, { 0.1, 0.1, 0.1 } };
-
-	/* Providers for the network tables */
-	std::shared_ptr<nt::NetworkTable> m_tagTable;
-	std::vector<nt::DoubleArraySubscriber> m_tagPoses { };
-	nt::IntegerArraySubscriber m_tagsFound;
-	nt::FloatArraySubscriber m_tagsConfidence;
-	nt::BooleanEntry m_tagsReady;
-
-	/* Current cached values so no data races */
-	std::atomic<bool> m_tagsAreReady = false;
-	struct AprilTagWithConfidence {
-		frc::AprilTag tag;
-		float confidence;
-	};
-	/* DO NOT EDIT THIS VALUE OUTSIDE ProtectNetworkTable */
-	std::vector<AprilTagWithConfidence> m_foundTags;
-
 	frc::Field2d m_field { };
 };
 

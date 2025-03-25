@@ -136,7 +136,7 @@ rev::spark::SparkMaxConfig& GetElevatorConfig() {
 	config.closedLoop.SetFeedbackSensor(
 			rev::spark::ClosedLoopConfig::FeedbackSensor::kPrimaryEncoder);
 
-	config.closedLoop.Pidf(0.7, 0, 0.3, 0);
+	config.closedLoop.Pidf(5, 0, 0, 0);
 	config.closedLoop.PositionWrappingEnabled(false);
 	config.closedLoop.OutputRange(-1, 1);
 

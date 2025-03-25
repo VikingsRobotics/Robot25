@@ -130,9 +130,9 @@ constexpr units::second_t kTimeout { 10.0 };
 }
 
 namespace Vision {
-constexpr float requiredConfidence = 0.0;
-constexpr units::meter_t requiredDeltaDistance { 0.5 };
-constexpr size_t numAprilTags = 23;
+constexpr float kRequiredConfidence = 0.0;
+constexpr units::meter_t kRequiredDeltaDistance { 0.5 };
+constexpr size_t kNumAprilTags = 22;
 }
 
 namespace AutoSettings {
@@ -188,15 +188,10 @@ namespace Destination {
 constexpr units::turn_t kAllowableError { 0.1 };
 constexpr units::second_t kAllowableSwitchTime { 0.5 };
 constexpr units::turn_t kMinTurn { 0.0 };
-constexpr size_t kMinTurnIndex = 0;
 constexpr units::turn_t kMaxTurn { 0.5 };
-constexpr size_t kMaxTurnIndex = 1;
 constexpr units::turn_t kBottomTurn { 0.15 };
-constexpr size_t kBottomTurnIndex = 2;
 constexpr units::turn_t kMiddleTurn { 0.25 };
-constexpr size_t kMiddleTurnIndex = 3;
 constexpr units::turn_t kTopTurn { 0.4 };
-constexpr size_t kTopTurnIndex = 4;
 }
 
 namespace DeviceProperties {
@@ -236,32 +231,25 @@ namespace Destination {
 constexpr units::meter_t kAllowableError { 0.1 };
 constexpr units::second_t kAllowableSwitchTime { 0.5 };
 constexpr units::meter_t kMaxHeight = 26_in;
-constexpr size_t kMaxHeightIndex = 0;
 constexpr units::meter_t kCollectionHeight = 7_in;
-constexpr size_t kCollectionHeightIndex = 1;
 constexpr units::meter_t kFourthGoal = 23_in;
-constexpr size_t kForthGoalIndex = 2;
 constexpr units::meter_t kThirdGoal = 20_in;
-constexpr size_t kThirdGoalIndex = 3;
 constexpr units::meter_t kSecondGoal = 14_in;
-constexpr size_t kSecondGoalIndex = 4;
 constexpr units::meter_t kFirstGoal = 10_in;
-constexpr size_t kFirstGoalIndex = 5;
 constexpr units::meter_t kMinHeight = 0_in;
-constexpr size_t kMinHeightIndex = 6;
 }
 
 namespace Mechanism {
 constexpr units::volt_t kStaticVoltage { 0.0 };
-constexpr units::scalar_t kGearRatio { 1.0 / 20.0 };
+constexpr units::scalar_t kGearRatio { 20.0 };
 constexpr units::meter_t kGearDiameter = units::inch_t { 2 };
 constexpr units::unit_t<
 		units::compound_unit<units::turn, units::inverse<units::meter>>> kDistanceToRotation =
-		1_tr / (kGearDiameter * std::numbers::pi) / kGearRatio;
+		(1_tr * kGearRatio) / (kGearDiameter * std::numbers::pi);
 // 2 feet per second
-constexpr units::meters_per_second_t kMaxSpeedInMeters = 2_fps;
+constexpr units::meters_per_second_t kMaxSpeedInMeters = 10000_fps;
 // 2 feet per second squared
-constexpr units::meters_per_second_squared_t kMaxAccelerationInMeters = 2_fps_sq;
+constexpr units::meters_per_second_squared_t kMaxAccelerationInMeters = 10000_fps_sq;
 }
 
 namespace DeviceProperties {
@@ -279,7 +267,7 @@ namespace Roller {
 namespace DeviceProperties {
 // Pneumatics Hub Type
 constexpr frc::PneumaticsModuleType kModuleType =
-		frc::PneumaticsModuleType::REVPH;
+		frc::PneumaticsModuleType::CTREPCM;
 }
 namespace SolenoidId {
 constexpr int kForwardChannelId = 0;
@@ -291,10 +279,10 @@ constexpr int kReverseChannelId = 1;
 namespace DeviceIdentifier {
 //CTRE: CANBus Name for contructors of CRTE software classes
 constexpr ctre::phoenix6::CANBus kCANBus { "" };
-//REV: PDH
+//CTRE: PDH
 constexpr int kPDHId = 1;
 //REV: Pneumatic Hub
-constexpr int kPneumaticHubId = 2;
+constexpr int kPneumaticHubId = 0;
 //CTRE: CANBus Pigeon2 ID
 constexpr int kGyroId = 3;
 //CTRE: Falcon 500 Front Left Motor ID
@@ -319,8 +307,8 @@ constexpr int kElevatorDriverId = 12;
 constexpr int kElevatorFollowId = 13;
 //REV: Neo 500
 constexpr int kDirectionMotorId = 14;
-//TalonSFX
+//VictorSPX
 constexpr int kRepellerWheelId = 15;
-//TalonSFX
+//TalonSRX
 constexpr int kRollerWheelId = 16;
 }

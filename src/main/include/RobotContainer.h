@@ -40,12 +40,10 @@ private:
 	std::vector<frc2::CommandPtr> SwerveSysId { };
 #endif
 #ifndef NO_ELEVATOR_HEIGHT_COMMAND
-	void ConfigureDestination();
 	void BindElevatorCommand();
 	std::vector<HeightCommand> destinationCommands { };
 #endif
 #ifndef NO_ARM_ROTATION_COMMAND
-	void ConfigureRotation();
 	void BindArmCommand();
 	std::vector<RotationCommand> rotationCommands { };
 #endif
