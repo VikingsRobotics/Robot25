@@ -292,34 +292,41 @@ void RobotContainer::ConfigureSwerveSysId() {
 
 void RobotContainer::BindElevatorCommand() {
 	xboxController.A().Debounce(Elevator::TeleopOperator::kDebounce).OnTrue(
-			HeightCommand { &elevatorSubsystem, Elevator::Destination::kFirstGoal,
-				Elevator::Destination::kAllowableSwitchTime,
-				Elevator::Destination::kAllowableError }.ToPtr());
+			HeightCommand { &elevatorSubsystem,
+					Elevator::Destination::kFirstGoal,
+					Elevator::Destination::kAllowableSwitchTime,
+					Elevator::Destination::kAllowableError }.ToPtr());
 	xboxController.B().Debounce(Elevator::TeleopOperator::kDebounce).OnTrue(
-			HeightCommand { &elevatorSubsystem, Elevator::Destination::kSecondGoal,
-				Elevator::Destination::kAllowableSwitchTime,
-				Elevator::Destination::kAllowableError }.ToPtr());
+			HeightCommand { &elevatorSubsystem,
+					Elevator::Destination::kSecondGoal,
+					Elevator::Destination::kAllowableSwitchTime,
+					Elevator::Destination::kAllowableError }.ToPtr());
 	xboxController.X().Debounce(Elevator::TeleopOperator::kDebounce).OnTrue(
-			HeightCommand { &elevatorSubsystem, Elevator::Destination::kThirdGoal,
-				Elevator::Destination::kAllowableSwitchTime,
-				Elevator::Destination::kAllowableError }.ToPtr());
+			HeightCommand { &elevatorSubsystem,
+					Elevator::Destination::kThirdGoal,
+					Elevator::Destination::kAllowableSwitchTime,
+					Elevator::Destination::kAllowableError }.ToPtr());
 	xboxController.Y().Debounce(Elevator::TeleopOperator::kDebounce).OnTrue(
-			HeightCommand { &elevatorSubsystem, Elevator::Destination::kFourthGoal,
-				Elevator::Destination::kAllowableSwitchTime,
-				Elevator::Destination::kAllowableError }.ToPtr());
+			HeightCommand { &elevatorSubsystem,
+					Elevator::Destination::kFourthGoal,
+					Elevator::Destination::kAllowableSwitchTime,
+					Elevator::Destination::kAllowableError }.ToPtr());
 	xboxController.RightBumper().Debounce(Elevator::TeleopOperator::kDebounce).OnTrue(
-			HeightCommand { &elevatorSubsystem, Elevator::Destination::kCollectionHeight,
-				Elevator::Destination::kAllowableSwitchTime,
-				Elevator::Destination::kAllowableError }.ToPtr());
+			HeightCommand { &elevatorSubsystem,
+					Elevator::Destination::kCollectionHeight,
+					Elevator::Destination::kAllowableSwitchTime,
+					Elevator::Destination::kAllowableError }.ToPtr());
 
 	xboxController.Back().Debounce(Elevator::TeleopOperator::kDebounce).OnTrue(
-			HeightCommand { &elevatorSubsystem, Elevator::Destination::kMaxHeight,
-				Elevator::Destination::kAllowableSwitchTime,
-				Elevator::Destination::kAllowableError }.ToPtr());
+			HeightCommand { &elevatorSubsystem,
+					Elevator::Destination::kMaxHeight,
+					Elevator::Destination::kAllowableSwitchTime,
+					Elevator::Destination::kAllowableError }.ToPtr());
 	xboxController.Start().Debounce(Elevator::TeleopOperator::kDebounce).OnTrue(
-			HeightCommand { &elevatorSubsystem, Elevator::Destination::kMinHeight,
-				Elevator::Destination::kAllowableSwitchTime,
-				Elevator::Destination::kAllowableError }.ToPtr());
+			HeightCommand { &elevatorSubsystem,
+					Elevator::Destination::kMinHeight,
+					Elevator::Destination::kAllowableSwitchTime,
+					Elevator::Destination::kAllowableError }.ToPtr());
 }
 
 #endif
@@ -331,28 +338,28 @@ void RobotContainer::BindArmCommand() {
 	xboxController.GetHID().LeftTrigger(Arm::TeleopOperator::kArmDeadband, loop).Debounce(
 			Arm::TeleopOperator::kDebounce).CastTo<frc2::Trigger>().OnTrue(
 			RotationCommand { &armSubsystem, Arm::Destination::kMaxTurn,
-				Arm::Destination::kAllowableSwitchTime,
-				Arm::Destination::kAllowableError }.ToPtr());
+					Arm::Destination::kAllowableSwitchTime,
+					Arm::Destination::kAllowableError }.ToPtr());
 	xboxController.GetHID().RightTrigger(Arm::TeleopOperator::kArmDeadband,
 			loop).Debounce(Arm::TeleopOperator::kDebounce).CastTo<frc2::Trigger>().OnTrue(
 			RotationCommand { &armSubsystem, Arm::Destination::kMinTurn,
-				Arm::Destination::kAllowableSwitchTime,
-				Arm::Destination::kAllowableError }.ToPtr());
+					Arm::Destination::kAllowableSwitchTime,
+					Arm::Destination::kAllowableError }.ToPtr());
 
 	xboxController.POVUp().Debounce(Arm::TeleopOperator::kDebounce).OnTrue(
 			RotationCommand { &armSubsystem, Arm::Destination::kTopTurn,
-				Arm::Destination::kAllowableSwitchTime,
-				Arm::Destination::kAllowableError }.ToPtr());
+					Arm::Destination::kAllowableSwitchTime,
+					Arm::Destination::kAllowableError }.ToPtr());
 
 	xboxController.POVLeft().Debounce(Arm::TeleopOperator::kDebounce).OnTrue(
 			RotationCommand { &armSubsystem, Arm::Destination::kMiddleTurn,
-				Arm::Destination::kAllowableSwitchTime,
-				Arm::Destination::kAllowableError }.ToPtr());
+					Arm::Destination::kAllowableSwitchTime,
+					Arm::Destination::kAllowableError }.ToPtr());
 
 	xboxController.POVDown().Debounce(Arm::TeleopOperator::kDebounce).OnTrue(
 			RotationCommand { &armSubsystem, Arm::Destination::kBottomTurn,
-				Arm::Destination::kAllowableSwitchTime,
-				Arm::Destination::kAllowableError }.ToPtr());
+					Arm::Destination::kAllowableSwitchTime,
+					Arm::Destination::kAllowableError }.ToPtr());
 
 }
 

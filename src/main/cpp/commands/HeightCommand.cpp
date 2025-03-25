@@ -17,7 +17,7 @@ void HeightCommand::Initialize() {
 	// Nothing (for now >:])
 	rev::REVLibError error =
 			m_subsystem->m_elevatorPID.SetReference(
-					(m_desiredHeight / Elevator::Mechanism::kDistanceToRotation).value(),
+					(m_desiredHeight * Elevator::Mechanism::kDistanceToRotation).value(),
 					rev::spark::SparkLowLevel::ControlType::kMAXMotionPositionControl,
 					rev::spark::kSlot0,
 					Elevator::Mechanism::kStaticVoltage.value());

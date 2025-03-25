@@ -74,7 +74,6 @@ SwerveSubsystem::SwerveSubsystem() : m_getGyroYaw { m_gryo.GetYaw().AsSupplier()
 	frc::SmartDashboard::PutData(this);
 }
 // @formatter:on
-
 void SwerveSubsystem::Periodic() {
 	// Tracks robot position using the position of swerve modules and gryo rotation
 	m_poseEstimator.Update(GetRotation2d(),
