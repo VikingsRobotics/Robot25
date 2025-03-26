@@ -2,7 +2,7 @@
 
 #ifndef NO_VISION
 
-#include <endian.h>
+#include <wpi/Endian.h>
 
 VisionProvider::VisionProvider() : m_tagTable {
 		nt::NetworkTableInstance::GetDefault().GetTable("april-tag") }, m_tag {
@@ -103,13 +103,12 @@ bool VisionProvider::IsAprilTagInView(int id) {
 }
 
 void VisionProvider::ProcessData(std::span<const uint8_t> data, bool forced) {
+	using namespace wpi::support::endian;
 	uint8_t numOfAprilTag = data[0];
 	uint8_t flags = data[1];
 	constexpr uint8_t VALID = 0b10000000;
 	constexpr uint8_t TIMES = 0b01111111;
-	// unused
-	/*uint16_t unused = static_cast<uint16_t>(be16toh(
-	 *reinterpret_cast<uint16_t*>(data[2])));*/
+	// unused (16 bits)
 
 	if (!forced
 			&& (!(flags & VALID) || numOfAprilTag == 0
@@ -124,47 +123,29 @@ void VisionProvider::ProcessData(std::span<const uint8_t> data, bool forced) {
 	std::fill(std::begin(m_foundTags), std::end(m_foundTags),
 			AprilTagWithConfidence { .confidence = 0, .tag = AprilTagTransform {
 					.ID = 0, .relativePose = frc::Transform3d { } } });
+	const void *at = static_cast<const void*>(data.data() + 4);
 
 	for (size_t index = 0; index < numOfAprilTag; ++index) {
-		m_foundTags[static_cast<uint32_t>(be32toh(
-				*reinterpret_cast<uint32_t*>(data[8 + 56 * index])))] =
-				AprilTagWithConfidence {
-						.confidence =
-								*reinterpret_cast<float*>(be32toh(
-										*reinterpret_cast<uint32_t*>(data[4
-												+ 56 * index]))),
-						.tag =
-								AprilTagTransform {
-										.ID =
-												*reinterpret_cast<int*>(be32toh(
-														*reinterpret_cast<uint32_t*>(data[8
-																+ 56 * index]))),
-										.relativePose =
-												DecodeData(
-														*reinterpret_cast<double*>(be64toh(
-																*reinterpret_cast<uint64_t*>(data[12
-																		+ 56
-																				* index]))),
-														*reinterpret_cast<double*>(be64toh(
-																*reinterpret_cast<uint64_t*>(data[20
-																		+ 56
-																				* index]))),
-														*reinterpret_cast<double*>(be64toh(
-																*reinterpret_cast<uint64_t*>(data[28
-																		+ 56
-																				* index]))),
-														*reinterpret_cast<double*>(be64toh(
-																*reinterpret_cast<uint64_t*>(data[36
-																		+ 56
-																				* index]))),
-														*reinterpret_cast<double*>(be64toh(
-																*reinterpret_cast<uint64_t*>(data[44
-																		+ 56
-																				* index]))),
-														*reinterpret_cast<double*>(be64toh(
-																*reinterpret_cast<uint64_t*>(data[52
-																		+ 56
-																				* index])))) } };
+		m_foundTags[static_cast<size_t>(read32be(at + (4 + 56 * index)))] =
+				AprilTagWithConfidence { .confidence =
+						*reinterpret_cast<float*>(read32be(
+								at + (0 + 56 * index))), .tag =
+						AprilTagTransform { .ID =
+								*reinterpret_cast<int*>(read64be(
+										at + (4 + 56 * index))), .relativePose =
+								DecodeData(
+										*reinterpret_cast<double*>(read64be(
+												at + (8 + 56 * index))),
+										*reinterpret_cast<double*>(read64be(
+												at + (16 + 56 * index))),
+										*reinterpret_cast<double*>(read64be(
+												at + (24 + 56 * index))),
+										*reinterpret_cast<double*>(read64be(
+												at + (32 + 56 * index))),
+										*reinterpret_cast<double*>(read64be(
+												at + (40 + 56 * index))),
+										*reinterpret_cast<double*>(read64be(
+												at + (48 + 56 * index)))) } };
 	}
 	if (friended_swerveFunction)
 		friended_swerveFunction();
