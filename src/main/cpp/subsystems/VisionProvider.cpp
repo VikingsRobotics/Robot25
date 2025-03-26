@@ -2,6 +2,8 @@
 
 #ifndef NO_VISION
 
+#include <endian.h>
+
 VisionProvider::VisionProvider() : m_tagTable {
 		nt::NetworkTableInstance::GetDefault().GetTable("april-tag") }, m_tag {
 		m_tagTable->GetRawTopic("tag").Subscribe("AprilTagWithConfidence",
@@ -36,7 +38,7 @@ std::vector<VisionProvider::AprilTagTransform> VisionProvider::GetValidRelativeA
 	std::scoped_lock lock { mutex };
 	std::vector<AprilTagWithConfidence> aprilTags(std::begin (m_foundTags),
 			std::end (m_foundTags));
-	std::remove_if(aprilTags.begin(), aprilTags.end(),
+	std::erase_if(aprilTags,
 			[requiredConfidenced](const AprilTagWithConfidence &tag) {
 				return tag.confidence > requiredConfidenced || tag.tag.ID == 0;
 			});
@@ -56,7 +58,7 @@ std::vector<frc::AprilTag> VisionProvider::GetValidAprilTags(
 	std::scoped_lock lock { mutex };
 	std::vector<AprilTagWithConfidence> aprilTags(std::begin (m_foundTags),
 			std::end (m_foundTags));
-	std::remove_if(aprilTags.begin(), aprilTags.end(),
+	std::erase_if(aprilTags,
 			[requiredConfidenced](const AprilTagWithConfidence &tag) {
 				return tag.confidence > requiredConfidenced || tag.tag.ID == 0;
 			});
@@ -72,10 +74,9 @@ std::vector<frc::AprilTag> VisionProvider::GetValidAprilTags(
 											frc::AprilTag { .ID = 0, .pose =
 													frc::Pose3d { } };
 			});
-	std::remove_if(aprilTagPositions.begin(), aprilTagPositions.end(),
-			[](const frc::AprilTag &tag) {
-				return tag.ID == 0;
-			});
+	std::erase_if(aprilTagPositions, [](const frc::AprilTag &tag) {
+		return tag.ID == 0;
+	});
 
 	return aprilTagPositions;
 }
