@@ -17,6 +17,8 @@
 #include <ctre/phoenix6/configs/Configs.hpp>
 #include <ctre/phoenix6/core/CoreTalonFX.hpp>
 
+#include <frc/geometry/Transform3d.h>
+
 #include <rev/SparkMax.h>
 #include <rev/config/SparkMaxConfig.h>
 #include <rev/config/ClosedLoopConfig.h>
