@@ -66,7 +66,7 @@ std::vector<frc::AprilTag> VisionProvider::GetValidAprilTags(
 	std::vector < frc::AprilTag > aprilTagPositions;
 	std::transform(aprilTags.begin(), aprilTags.end(),
 			aprilTagPositions.begin(),
-			[this](const AprilTagWithConfidence &input) -> frc::AprilTag {
+			[](const AprilTagWithConfidence &input) -> frc::AprilTag {
 				std::optional < frc::Pose3d > pose = fieldLayout.GetTagPose(
 						input.tag.ID);
 				return pose.has_value() ? frc::AprilTag { .ID = input.tag.ID,
@@ -127,25 +127,49 @@ void VisionProvider::ProcessData(std::span<const uint8_t> data, bool forced) {
 
 	for (size_t index = 0; index < numOfAprilTag; ++index) {
 		m_foundTags[static_cast<size_t>(read32be(at + (4 + 56 * index)))] =
-				AprilTagWithConfidence { .confidence =
-						*reinterpret_cast<float*>(read32be(
-								at + (0 + 56 * index))), .tag =
-						AprilTagTransform { .ID =
-								*reinterpret_cast<int*>(read64be(
-										at + (4 + 56 * index))), .relativePose =
-								DecodeData(
-										*reinterpret_cast<double*>(read64be(
-												at + (8 + 56 * index))),
-										*reinterpret_cast<double*>(read64be(
-												at + (16 + 56 * index))),
-										*reinterpret_cast<double*>(read64be(
-												at + (24 + 56 * index))),
-										*reinterpret_cast<double*>(read64be(
-												at + (32 + 56 * index))),
-										*reinterpret_cast<double*>(read64be(
-												at + (40 + 56 * index))),
-										*reinterpret_cast<double*>(read64be(
-												at + (48 + 56 * index)))) } };
+				AprilTagWithConfidence { .confidence = std::bit_cast<float>(
+						read32be(at + (0 + 56 * index))),
+						.tag =
+								AprilTagTransform { .ID = std::bit_cast<int>(
+										read32be(at + (4 + 56 * index))),
+										.relativePose =
+												DecodeData(
+														std::bit_cast<double>(
+																read64be(
+																		at
+																				+ (8
+																						+ 56
+																								* index))),
+														std::bit_cast<double>(
+																read64be(
+																		at
+																				+ (16
+																						+ 56
+																								* index))),
+														std::bit_cast<double>(
+																read64be(
+																		at
+																				+ (24
+																						+ 56
+																								* index))),
+														std::bit_cast<double>(
+																read64be(
+																		at
+																				+ (32
+																						+ 56
+																								* index))),
+														std::bit_cast<double>(
+																read64be(
+																		at
+																				+ (40
+																						+ 56
+																								* index))),
+														std::bit_cast<double>(
+																read64be(
+																		at
+																				+ (48
+																						+ 56
+																								* index)))) } };
 	}
 	if (friended_swerveFunction)
 		friended_swerveFunction();
