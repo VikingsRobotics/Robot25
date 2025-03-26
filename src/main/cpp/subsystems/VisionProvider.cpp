@@ -164,7 +164,7 @@ void VisionProvider::ProcessData(std::span<const uint8_t> data, bool forced) {
 																		+ 56
 																				* index])))) } };
 	}
-	if(friended_swerveFunction)
+	if (friended_swerveFunction)
 		friended_swerveFunction();
 	m_lastRead.Reset();
 }
