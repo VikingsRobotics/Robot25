@@ -123,7 +123,7 @@ void VisionProvider::ProcessData(std::span<const uint8_t> data, bool forced) {
 	std::fill(std::begin(m_foundTags), std::end(m_foundTags),
 			AprilTagWithConfidence { .confidence = 0, .tag = AprilTagTransform {
 					.ID = 0, .relativePose = frc::Transform3d { } } });
-	const void *at = static_cast<const void*>(data.data() + 4);
+	const uint8_t *at = data.data() + 4;
 
 	for (size_t index = 0; index < numOfAprilTag; ++index) {
 		m_foundTags[static_cast<size_t>(read32be(at + (4 + 56 * index)))] =
