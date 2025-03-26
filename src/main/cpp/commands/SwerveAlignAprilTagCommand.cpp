@@ -3,6 +3,7 @@
 #ifndef NO_SWERVE_ALIGN_APRILTAG_COMMAND
 
 #include "Constants.h"
+#include "subsystems/VisionProvider.h"
 
 SwerveAlignAprilTagCommand::SwerveAlignAprilTagCommand(
 		SwerveSubsystem *const subsystem, bool rightReef) : m_subsystem {
@@ -34,10 +35,14 @@ void SwerveAlignAprilTagCommand::Initialize() {
 	m_poseReady.Reset();
 
 	m_tagId = FindClosestTagId();
+	if (m_tagId <= 0) {
+		this->Cancel();
+	}
 }
 
 void SwerveAlignAprilTagCommand::Execute() {
-	if (!m_subsystem->IsAprilTagInView(m_tagId)) {
+	m_subsystem->visionSystem->ForcedProcess();
+	if (!m_subsystem->visionSystem->IsAprilTagInView(m_tagId)) {
 		m_subsystem->Drive(frc::ChassisSpeeds { .vx = 0_mps, .vy = 0_mps,
 				.omega = 0_rad_per_s });
 		return;
@@ -45,17 +50,23 @@ void SwerveAlignAprilTagCommand::Execute() {
 
 	frc::Pose2d target = m_subsystem->GetPose2d();
 	{
-		std::optional < frc::Pose3d > possiblePose =
-				m_subsystem->fieldLayout.GetTagPose(m_tagId);
-		if (!possiblePose.has_value()) {
+		std::optional < VisionProvider::AprilTagWithConfidence > aprilTag =
+				m_subsystem->visionSystem->GetRelativeAprilTag(m_tagId);
+		if (!aprilTag.has_value()) {
+			m_subsystem->Drive(frc::ChassisSpeeds { .vx = 0_mps, .vy = 0_mps,
+					.omega = 0_rad_per_s });
+			return;
+		} else if (aprilTag.value().confidence
+				< Drive::Vision::kRequiredConfidence) {
 			m_subsystem->Drive(frc::ChassisSpeeds { .vx = 0_mps, .vy = 0_mps,
 					.omega = 0_rad_per_s });
 			return;
 		}
 
 		target =
-				target.RelativeTo(
-						m_subsystem->fieldLayout.GetTagPose(m_tagId).value().ToPose2d());
+				frc::Pose2d {
+						aprilTag.value().tag.relativePose.Translation().ToTranslation2d(),
+						aprilTag.value().tag.relativePose.Rotation().ToRotation2d() };
 	}
 
 	m_lostTag.Reset();
@@ -90,17 +101,20 @@ bool SwerveAlignAprilTagCommand::IsFinished() {
 }
 
 int SwerveAlignAprilTagCommand::FindClosestTagId() {
-	std::vector < frc::AprilTag > aprils = m_subsystem->GetValidAprilTags();
+	if (!m_subsystem->visionSystem) {
+		return -1;
+	}
+	m_subsystem->visionSystem->ForcedProcess();
+	std::vector < VisionProvider::AprilTagTransform > aprils =
+			m_subsystem->visionSystem->GetValidRelativeAprilTags(
+					Drive::Vision::kRequiredConfidence);
 	if (aprils.size() == 0) {
 		return -1;
 	}
-	frc::AprilTag closest = aprils.at(0);
-	frc::Pose2d robotPos = m_subsystem->GetPose2d();
-	for (const frc::AprilTag &tag : aprils) {
-		if (robotPos.Translation().Distance(
-				closest.pose.ToPose2d().Translation())
-				< robotPos.Translation().Distance(
-						tag.pose.ToPose2d().Translation())) {
+	VisionProvider::AprilTagTransform closest = aprils[0];
+	for (const VisionProvider::AprilTagTransform &tag : aprils) {
+		if (tag.relativePose.Translation().Norm()
+				< closest.relativePose.Translation().Norm()) {
 			closest = tag;
 		}
 	}

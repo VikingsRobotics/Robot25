@@ -18,6 +18,8 @@
 
 #include <frc2/command/SubsystemBase.h>
 
+class VisionProvider;
+
 class SwerveSubsystem: public frc2::SubsystemBase {
 public:
 	SwerveSubsystem();
@@ -25,6 +27,7 @@ public:
 	SwerveSubsystem& operator=(SwerveSubsystem &rhs) = delete;
 	SwerveSubsystem(SwerveSubsystem &&rhs) = delete;
 	SwerveSubsystem& operator=(SwerveSubsystem &&rhs) = delete;
+	~SwerveSubsystem();
 
 	void Periodic() override;
 
@@ -56,7 +59,14 @@ public:
 
 	void X();
 
+	VisionProvider *visionSystem = nullptr;
+
 	friend struct SwerveSysIdRoutine;
+	friend class VisionProvider;
+	friend class RobotContainer;
+private:
+	void AddBestEstimates();
+	void NotifyVisionSystemConnection();
 private:
 	// Gryo used for odometry and for field centric control
 	ctre::phoenix6::hardware::Pigeon2 m_gryo { DeviceIdentifier::kGyroId,

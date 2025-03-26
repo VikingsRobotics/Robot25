@@ -17,6 +17,7 @@
 #include "subsystems/ElevatorSubsystem.h"
 #include "subsystems/RepellerSubsystem.h"
 #include "subsystems/RollerSubsystem.h"
+#include "subsystems/VisionProvider.h"
 #include "commands/HeightCommand.h"
 #include "commands/RotationCommand.h"
 
@@ -46,6 +47,9 @@ private:
 #ifndef NO_ARM_ROTATION_COMMAND
 	void BindArmCommand();
 	std::vector<RotationCommand> rotationCommands { };
+#endif
+#ifndef NO_VISION
+	VisionProvider visionProvider { };
 #endif
 #ifndef NO_SWERVE
 	SwerveSubsystem swerveSubsystem { };

@@ -1,6 +1,10 @@
 #include "subsystems/SwerveSubsystem.h"
 #ifndef NO_SWERVE
 
+#include "subsystems/VisionProvider.h"
+
+#include <frc/ComputerVisionUtil.h>
+
 #include <frc/smartdashboard/SmartDashboard.h>
 #include <frc/shuffleboard/Shuffleboard.h>
 #include <frc/DriverStation.h>
@@ -74,6 +78,37 @@ SwerveSubsystem::SwerveSubsystem() : m_getGyroYaw { m_gryo.GetYaw().AsSupplier()
 	frc::SmartDashboard::PutData(this);
 }
 // @formatter:on
+void SwerveSubsystem::AddBestEstimates() {
+	frc::Pose2d currentEstimate = GetPose2d();
+	units::second_t currentTimestamp = frc::Timer::GetTimestamp();
+
+	std::vector < VisionProvider::AprilTagTransform > tags =
+			visionSystem->GetValidRelativeAprilTags(
+					Drive::Vision::kRequiredConfidence);
+	for (size_t index = 0; index < tags.size(); ++index) {
+		std::optional < frc::Pose3d > aprilPose =
+				visionSystem->fieldLayout.GetTagPose(tags.at(index).ID);
+
+		if (!aprilPose.has_value()) {
+			continue;
+		}
+
+		frc::Pose3d pose = frc::ObjectToRobotPose(aprilPose.value(),
+				tags.at(index).relativePose,
+				Drive::Vision::kCameraMountingPosition);
+
+		m_poseEstimator.AddVisionMeasurement(pose.ToPose2d(), currentTimestamp);
+	}
+}
+
+void SwerveSubsystem::NotifyVisionSystemConnection() {
+	if (visionSystem) {
+		visionSystem->friended_swerveFunction = [this]() {
+			AddBestEstimates();
+		};
+	}
+}
+
 void SwerveSubsystem::Periodic() {
 	// Tracks robot position using the position of swerve modules and gryo rotation
 	m_poseEstimator.Update(GetRotation2d(),
@@ -187,4 +222,11 @@ void SwerveSubsystem::X() {
 			45_deg } });
 }
 
+SwerveSubsystem::~SwerveSubsystem() {
+	if (visionSystem) {
+		visionSystem->friended_swerveFunction = []() -> void {
+			return;
+		};
+	}
+}
 #endif
