@@ -106,8 +106,9 @@ void VisionProvider::ProcessData(std::span<const uint8_t> data, bool forced) {
 	uint8_t flags = data[1];
 	constexpr uint8_t VALID = 0b10000000;
 	constexpr uint8_t TIMES = 0b01111111;
-	uint16_t unused = static_cast<uint16_t>(be16toh(
-			*reinterpret_cast<uint16_t*>(data[2])));
+	// unused
+	/*uint16_t unused = static_cast<uint16_t>(be16toh(
+	 *reinterpret_cast<uint16_t*>(data[2])));*/
 
 	if (!forced
 			&& (!(flags & VALID) || numOfAprilTag == 0

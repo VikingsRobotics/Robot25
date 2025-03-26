@@ -79,7 +79,6 @@ SwerveSubsystem::SwerveSubsystem() : m_getGyroYaw { m_gryo.GetYaw().AsSupplier()
 }
 // @formatter:on
 void SwerveSubsystem::AddBestEstimates() {
-	frc::Pose2d currentEstimate = GetPose2d();
 	units::second_t currentTimestamp = frc::Timer::GetTimestamp();
 
 	std::vector < VisionProvider::AprilTagTransform > tags =
@@ -90,6 +89,9 @@ void SwerveSubsystem::AddBestEstimates() {
 				visionSystem->fieldLayout.GetTagPose(tags.at(index).ID);
 
 		if (!aprilPose.has_value()) {
+			continue;
+		} else if (aprilPose.value().Translation().Norm()
+				> Drive::Vision::kRequiredDeltaDistance) {
 			continue;
 		}
 
