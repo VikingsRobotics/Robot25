@@ -137,8 +137,8 @@ constexpr uint8_t kProcessDataOnNth = 8;
 constexpr float kRequiredConfidence = 0.0;
 constexpr units::meter_t kRequiredDeltaDistance { 0.5 };
 constexpr size_t kNumAprilTags = 22;
-constexpr frc::Transform3d kCameraMountingPosition { frc::Translation3d { 0_m,
-		15_in, 3_in }, frc::Rotation3d { 0_rad, 0_rad, 0_rad } };
+constexpr frc::Transform3d kCameraMountingPosition { frc::Translation3d { 14.5_in,
+		0_in, 16_in }, frc::Rotation3d { 0_rad, 5_deg, 0_rad } };
 }
 
 namespace AutoSettings {
