@@ -132,6 +132,7 @@ constexpr units::second_t kTimeout { 10.0 };
 }
 
 namespace Vision {
+/* rPi code at https://github.com/VikingsRobotics/PiVision */
 constexpr units::second_t kProcessDataEvery = 0.5_s;
 constexpr uint8_t kProcessDataOnNth = 8;
 constexpr float kRequiredConfidence = 0.0;
