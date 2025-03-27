@@ -23,7 +23,7 @@ void RotationCommand::Initialize() {
 					(Arm::Mechanism::kStaticVoltage
 							* units::math::cos(
 									(m_desiredRotation
-											* Arm::Mechanism::kGearRatio)
+											/ Arm::Mechanism::kGearRatio)
 											+ m_subsystem->m_rotationalOffset)).value());
 	if (error != rev::REVLibError::kOk) {
 		this->Cancel();

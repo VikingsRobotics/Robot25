@@ -136,16 +136,16 @@ rev::spark::SparkMaxConfig& GetElevatorConfig() {
 	config.closedLoop.SetFeedbackSensor(
 			rev::spark::ClosedLoopConfig::FeedbackSensor::kPrimaryEncoder);
 
-	config.closedLoop.Pidf(5, 0, 0, 0);
+	config.closedLoop.Pidf(1, 0, 0, 0);
 	config.closedLoop.PositionWrappingEnabled(false);
 	config.closedLoop.OutputRange(-1, 1);
 
 	config.softLimit.ForwardSoftLimitEnabled(true);
 	config.softLimit.ForwardSoftLimit(
-			(Destination::kMaxHeight / Mechanism::kDistanceToRotation).value());
+			(Destination::kMaxHeight * Mechanism::kDistanceToRotation).value());
 	config.softLimit.ReverseSoftLimitEnabled(true);
 	config.softLimit.ReverseSoftLimit(
-			(Destination::kMinHeight / Mechanism::kDistanceToRotation).value());
+			(Destination::kMinHeight * Mechanism::kDistanceToRotation).value());
 
 	config.closedLoop.maxMotion.MaxVelocity(
 			(Mechanism::kMaxSpeedInMeters * Mechanism::kDistanceToRotation).value());
