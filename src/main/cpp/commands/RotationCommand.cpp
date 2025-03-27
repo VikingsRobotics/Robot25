@@ -11,6 +11,7 @@ RotationCommand::RotationCommand(ArmSubsystem *const subsystem,
 		desiredRotation }, m_stopOnLimitSeconds { switchTime }, m_allowedError {
 		allowedError }, m_limitSwitch { subsystem->LimiterTriggered() } {
 	AddRequirements(subsystem);
+	SetName("Rotation Command");
 }
 
 void RotationCommand::Initialize() {

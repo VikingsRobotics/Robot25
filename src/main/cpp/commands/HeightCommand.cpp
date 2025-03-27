@@ -11,6 +11,7 @@ HeightCommand::HeightCommand(ElevatorSubsystem *const subsystem,
 		height }, m_stopOnLimitSeconds { switchTime }, m_allowedError {
 		allowedError }, m_limitSwitch { subsystem->LimiterTriggered() } {
 	AddRequirements(subsystem);
+	SetName("Height Command");
 }
 
 void HeightCommand::Initialize() {
