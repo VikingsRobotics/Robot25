@@ -168,11 +168,9 @@ constexpr double kYTranslationP = 0.33;
 constexpr double kRotationP = 0.33;
 }
 namespace Location {
-constexpr units::meter_t kXTranslationEndpoint = -0.34_m;
-constexpr units::meter_t kXTranslationThreshold = 0.02_m;
-constexpr units::meter_t kYTranslationEndpoint = 0.16_m;
-constexpr units::meter_t kYTranslationThreshold = 0.02_m;
-constexpr units::radian_t kRotationEndpoint = 0_rad;
+constexpr frc::Transform2d kAprilTagTransform { frc::Translation2d { -0.34_m,
+		0.16_m }, frc::Rotation2d { 0_deg } };
+constexpr units::meter_t kTranslationThreshold = 0.02_m;
 constexpr units::radian_t kRotationThreshold = 1_deg;
 }
 namespace Time {
@@ -250,7 +248,7 @@ namespace Mechanism {
 constexpr units::volt_t kStaticVoltage { 0.0 };
 constexpr units::scalar_t kGearRatio { 1 / 20.0 };
 constexpr units::meter_t kGearDiameter = units::inch_t { 1.80 };
-// 20 turns / 2*pi inchs
+// 20 turns / diameter*pi inchs
 constexpr units::unit_t<
 		units::compound_unit<units::turn, units::inverse<units::meter>>> kDistanceToRotation =
 		(1_tr) / (kGearDiameter * std::numbers::pi * kGearRatio);

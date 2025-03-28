@@ -17,17 +17,17 @@ SwerveAlignAprilTagCommand::SwerveAlignAprilTagCommand(
 
 void SwerveAlignAprilTagCommand::Initialize() {
 	m_xTranslationController.SetSetpoint(
-			Drive::Align::Location::kXTranslationEndpoint.value());
+			Drive::Align::Location::kAprilTagTransform.X().value());
 	m_xTranslationController.SetTolerance(
-			Drive::Align::Location::kXTranslationThreshold.value());
+			Drive::Align::Location::kTranslationThreshold.value());
 
 	m_yTranslationController.SetSetpoint(
-			Drive::Align::Location::kYTranslationEndpoint.value());
+			Drive::Align::Location::kAprilTagTransform.Y().value());
 	m_yTranslationController.SetTolerance(
-			Drive::Align::Location::kYTranslationThreshold.value());
+			Drive::Align::Location::kTranslationThreshold.value());
 
 	m_rotationController.SetSetpoint(
-			Drive::Align::Location::kRotationEndpoint.value());
+			Drive::Align::Location::kAprilTagTransform.Rotation().Radians().value());
 	m_rotationController.SetTolerance(
 			Drive::Align::Location::kRotationThreshold.value());
 
@@ -48,7 +48,7 @@ void SwerveAlignAprilTagCommand::Execute() {
 		return;
 	}
 
-	frc::Pose2d target = m_subsystem->GetPose2d();
+	frc::Pose2d target { };
 	{
 		std::optional < VisionProvider::AprilTagWithConfidence > aprilTag =
 				m_subsystem->visionSystem->GetRelativeAprilTag(m_tagId);
