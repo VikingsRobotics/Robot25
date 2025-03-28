@@ -1,7 +1,16 @@
 #include "subsystems/SwerveSubsystem.h"
+#ifndef NO_SWERVE
+
+#include "subsystems/VisionProvider.h"
+
+#include <frc/ComputerVisionUtil.h>
 
 #include <frc/smartdashboard/SmartDashboard.h>
+#include <frc/shuffleboard/Shuffleboard.h>
 #include <frc/DriverStation.h>
+
+#include <frc/apriltag/AprilTagFields.h>
+#include <frc/apriltag/AprilTagFieldLayout.h>
 
 #include <pathplanner/lib/auto/AutoBuilder.h>
 #include <pathplanner/lib/util/FlippingUtil.h>
@@ -11,12 +20,10 @@
 
 #include <units/math.h>
 
+#include <fmt/format.h>
+
 // @formatter:off 
-SwerveSubsystem::SwerveSubsystem() : m_getGyroYaw { m_gryo.GetYaw().AsSupplier() }, m_odometry {
-		Drive::DeviceProperties::SystemControl::kDriveKinematics, frc::Rotation2d {
-				units::radian_t { 0 } }, { m_frontLeft.GetPosition(),
-				m_frontRight.GetPosition(), m_backLeft.GetPosition(),
-				m_backRight.GetPosition() } } {
+SwerveSubsystem::SwerveSubsystem() : m_getGyroYaw { m_gryo.GetYaw().AsSupplier() } {
 	m_gryo.Reset();
 	SetName("Swerve Subsystem");
 
@@ -64,16 +71,51 @@ SwerveSubsystem::SwerveSubsystem() : m_getGyroYaw { m_gryo.GetYaw().AsSupplier()
         m_field.GetObject("path")->SetPoses(poses);
     });
 
+	frc::ShuffleboardTab& smart = frc::Shuffleboard::GetTab("SmartDashboard");
+	frc::ShuffleboardLayout& layout = smart.GetLayout("Swerve",frc::BuiltInLayouts::kList);
+	layout.AddNumber("Gyro (deg)",[&]() -> double { return GetHeading().value(); });
+
 	frc::SmartDashboard::PutData(this);
 }
 // @formatter:on
+void SwerveSubsystem::AddBestEstimates() {
+	units::second_t currentTimestamp = frc::Timer::GetTimestamp();
+
+	std::vector < VisionProvider::AprilTagTransform > tags =
+			visionSystem->GetValidRelativeAprilTags(
+					Drive::Vision::kRequiredConfidence);
+	for (size_t index = 0; index < tags.size(); ++index) {
+		std::optional < frc::Pose3d > aprilPose =
+				visionSystem->fieldLayout.GetTagPose(tags.at(index).ID);
+
+		if (!aprilPose.has_value()) {
+			continue;
+		} else if (aprilPose.value().Translation().Norm()
+				> Drive::Vision::kRequiredDeltaDistance) {
+			continue;
+		}
+
+		frc::Pose3d pose = frc::ObjectToRobotPose(aprilPose.value(),
+				tags.at(index).relativePose,
+				Drive::Vision::kCameraMountingPosition);
+
+		m_poseEstimator.AddVisionMeasurement(pose.ToPose2d(), currentTimestamp);
+	}
+}
+
+void SwerveSubsystem::NotifyVisionSystemConnection() {
+	if (visionSystem) {
+		visionSystem->friended_swerveFunction = [this]() {
+			AddBestEstimates();
+		};
+	}
+}
+
 void SwerveSubsystem::Periodic() {
 	// Tracks robot position using the position of swerve modules and gryo rotation
-	m_odometry.Update(GetRotation2d(),
+	m_poseEstimator.Update(GetRotation2d(),
 			{ m_frontLeft.GetPosition(), m_frontRight.GetPosition(),
 					m_backLeft.GetPosition(), m_backRight.GetPosition() });
-	frc::SmartDashboard::PutNumber("Gyro Angle (deg)", GetHeading().value());
-
 }
 
 void SwerveSubsystem::ZeroHeading() {
@@ -96,12 +138,12 @@ frc::Rotation2d SwerveSubsystem::GetRotation2d() {
 }
 
 frc::Pose2d SwerveSubsystem::GetPose2d() {
-	return m_odometry.GetPose();
+	return m_poseEstimator.GetEstimatedPosition();
 }
 
 void SwerveSubsystem::ResetOdometry(frc::Pose2d pose) {
 	// Resets pose but still requires the current state of swerve module and gryo rotation
-	m_odometry.ResetPosition(GetRotation2d(),
+	m_poseEstimator.ResetPosition(GetRotation2d(),
 			{ m_frontLeft.GetPosition(), m_frontRight.GetPosition(),
 					m_backLeft.GetPosition(), m_backRight.GetPosition() },
 			pose);
@@ -181,3 +223,12 @@ void SwerveSubsystem::X() {
 	m_backRight.SetState(frc::SwerveModuleState { 0_mps, frc::Rotation2d {
 			45_deg } });
 }
+
+SwerveSubsystem::~SwerveSubsystem() {
+	if (visionSystem) {
+		visionSystem->friended_swerveFunction = []() -> void {
+			return;
+		};
+	}
+}
+#endif

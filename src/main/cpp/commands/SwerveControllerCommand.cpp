@@ -1,9 +1,11 @@
 #include "commands/SwerveControllerCommand.h"
+#ifndef NO_SWERVE_CONTROLLER_COMMAND
+
 #include "Constants.h"
 
 #include <frc/kinematics/ChassisSpeeds.h>
 
-#include <frc/smartdashboard/SmartDashboard.h>
+#include <frc/shuffleboard/Shuffleboard.h>
 
 #include <frc2/command/RunCommand.h>
 
@@ -15,6 +17,23 @@ SwerveControllerCommand::SwerveControllerCommand(
 		Drive::TeleopOperator::kLimiter } {
 	AddRequirements (m_subsystem);
 	SetName("Swerve Xbox Controller Command");
+
+	frc::ShuffleboardTab &smart = frc::Shuffleboard::GetTab("SmartDashboard");
+	frc::ShuffleboardLayout &layout = smart.GetLayout("Swerve",
+			frc::BuiltInLayouts::kList);
+
+	layout.AddNumber("Throttle", [&]() -> double {
+		return m_internalThrottle;
+	});
+	layout.AddBoolean("Field Centric", [&]() -> bool {
+		return m_fieldCentric;
+	});
+	layout.AddBoolean("Stored Throttle", [&]() -> bool {
+		return m_storedThrottle;
+	});
+	layout.AddBoolean("Precision Mode", [&]() -> bool {
+		return m_precision;
+	});
 }
 
 void SwerveControllerCommand::Initialize() {
@@ -40,16 +59,12 @@ void SwerveControllerCommand::Execute() {
 	if (m_controller.GetBackButtonPressed()) {
 		m_subsystem->ZeroHeading();
 	}
-	frc::SmartDashboard::PutNumber("Throttle", m_internalThrottle);
-	frc::SmartDashboard::PutBoolean("Field Centric", m_fieldCentric);
-	frc::SmartDashboard::PutBoolean("Stored Throttle", m_storedThrottle);
-	frc::SmartDashboard::PutBoolean("Precision Mode", m_precision);
 	if (m_controller.GetLeftBumperButton()) {
 		m_subsystem->Brake();
 		m_controller.SetRumble(frc::GenericHID::RumbleType::kBothRumble, 0.2);
 		return;
-	}
-	m_controller.SetRumble(frc::GenericHID::RumbleType::kBothRumble, 0.2);
+	} else
+		m_controller.SetRumble(frc::GenericHID::RumbleType::kBothRumble, 0.0);
 
 	double controllerX = m_limiterX.Calculate(
 			m_controller.GetRawAxis(frc::XboxController::Axis::kLeftX));
@@ -139,3 +154,5 @@ void SwerveControllerCommand::End(bool interrupted) {
 bool SwerveControllerCommand::IsFinished() {
 	return false;
 }
+
+#endif
