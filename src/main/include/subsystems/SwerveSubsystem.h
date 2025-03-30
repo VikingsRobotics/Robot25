@@ -18,7 +18,7 @@
 
 #include <frc2/command/SubsystemBase.h>
 
-class VisionProvider;
+#include "subsystems/VisionProvider.h"
 
 class SwerveSubsystem: public frc2::SubsystemBase {
 public:

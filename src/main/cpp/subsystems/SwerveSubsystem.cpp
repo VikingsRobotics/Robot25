@@ -1,8 +1,6 @@
 #include "subsystems/SwerveSubsystem.h"
 #ifndef NO_SWERVE
 
-#include "subsystems/VisionProvider.h"
-
 #include <frc/ComputerVisionUtil.h>
 
 #include <frc/smartdashboard/SmartDashboard.h>

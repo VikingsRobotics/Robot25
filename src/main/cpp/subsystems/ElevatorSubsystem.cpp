@@ -60,7 +60,7 @@ void ElevatorSubsystem::RunDistance(units::meter_t distance,
 
 void ElevatorSubsystem::RunRotation(units::turn_t rotation,
 		units::volt_t staticVolt) {
-	RunRotation(rotation / Elevator::Mechanism::kGearRatio, staticVolt);
+	RunRawRotation(rotation / Elevator::Mechanism::kGearRatio, staticVolt);
 }
 
 void ElevatorSubsystem::RunRawRotation(units::turn_t rotation,

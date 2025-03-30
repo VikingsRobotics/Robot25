@@ -4,6 +4,8 @@
 #ifndef NO_ARM
 
 #include <units/angle.h>
+#include <units/length.h>
+#include <units/voltage.h>
 
 #include <rev/SparkMax.h>
 
