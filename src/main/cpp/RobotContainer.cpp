@@ -367,7 +367,7 @@ void RobotContainer::BindArmCommand() {
 
 #endif
 
-void PrintDisabledSystems() {
+void RobotContainer::PrintDisabledSystems() {
 #ifdef NO_SWERVE
 	frc::SmartDashboard::PutBoolean("Disabled Swerve",true);
 #else
