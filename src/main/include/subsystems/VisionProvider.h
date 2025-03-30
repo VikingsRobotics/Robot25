@@ -21,11 +21,19 @@
 
 #include <atomic>
 
+class SwerveSubsystem;
+
 class VisionProvider {
 private:
 	static frc::AprilTagFieldLayout GetLayout();
 public:
+
+#ifdef NO_SWERVE
 	VisionProvider();
+#else
+	VisionProvider(SwerveSubsystem &odomentryCallback);
+#endif
+	~VisionProvider();
 
 	struct AprilTagTransform {
 		int ID;
@@ -37,7 +45,7 @@ public:
 		AprilTagTransform tag;
 	};
 
-	void ForcedProcess();
+	bool ForcedProcess();
 	std::vector<AprilTagTransform> GetValidRelativeAprilTags(
 			float requiredConfidenced);
 	std::optional<AprilTagWithConfidence> GetRelativeAprilTag(int ID);
@@ -68,13 +76,14 @@ private:
 
 	std::array<uint8_t, 4> defaultPack { 0, 0, 0, 0 };
 
-	wpi::mutex mutex;
+	//Needs to be recursive since it calls GetValidRelativeAprilTags from ProcessData
+	wpi::recursive_mutex mutex;
 	NT_Listener valueChange;
+	bool m_lastValid = false;
 
-	std::function<void(void)> friended_swerveFunction { []() -> void {
-		return;
-	} };
-	friend class SwerveSubsystem;
+#ifndef NO_SWERVE
+	SwerveSubsystem &m_swerveSubsystem;
+#endif
 private:
 	constexpr frc::Transform3d DecodeData(double tx, double ty, double tz,
 			double rx, double ry, double rz);

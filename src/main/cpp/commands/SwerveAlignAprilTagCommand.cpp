@@ -6,31 +6,29 @@
 #include "subsystems/VisionProvider.h"
 
 SwerveAlignAprilTagCommand::SwerveAlignAprilTagCommand(
-		SwerveSubsystem *const subsystem, bool rightReef) : m_subsystem {
-		subsystem }, m_rightReef { rightReef }, m_xTranslationController {
-		Drive::Align::System::kXTranslationP, 0, 0 }, m_yTranslationController {
-		Drive::Align::System::kYTranslationP, 0, 0 }, m_rotationController {
-		Drive::Align::System::kRotationP, 0, 0 } {
+		SwerveSubsystem *const subsystem, VisionProvider *const vision,
+		frc::Transform2d aprilOffset, frc::Transform2d tolerance,
+		double translationP, double translationI, double translationD,
+		double rotationP, double rotationI, double rotationD) : m_subsystem {
+		subsystem }, m_vision { vision }, m_xTranslationController {
+		translationP, translationI, translationD }, m_yTranslationController {
+		translationP, translationI, translationD }, m_rotationController {
+		rotationP, rotationI, rotationD } {
+
+	m_xTranslationController.SetSetpoint(aprilOffset.X().value());
+	m_xTranslationController.SetTolerance(tolerance.X().value());
+
+	m_yTranslationController.SetSetpoint(aprilOffset.Y().value());
+	m_yTranslationController.SetTolerance(tolerance.Y().value());
+
+	m_rotationController.SetSetpoint(aprilOffset.Rotation().Radians().value());
+	m_rotationController.SetTolerance(tolerance.Rotation().Radians().value());
+
 	AddRequirements(subsystem);
 	SetName("Swerve Vision Alignment Command");
 }
 
 void SwerveAlignAprilTagCommand::Initialize() {
-	m_xTranslationController.SetSetpoint(
-			Drive::Align::Location::kAprilTagTransform.X().value());
-	m_xTranslationController.SetTolerance(
-			Drive::Align::Location::kTranslationThreshold.value());
-
-	m_yTranslationController.SetSetpoint(
-			Drive::Align::Location::kAprilTagTransform.Y().value());
-	m_yTranslationController.SetTolerance(
-			Drive::Align::Location::kTranslationThreshold.value());
-
-	m_rotationController.SetSetpoint(
-			Drive::Align::Location::kAprilTagTransform.Rotation().Radians().value());
-	m_rotationController.SetTolerance(
-			Drive::Align::Location::kRotationThreshold.value());
-
 	m_lostTag.Reset();
 	m_poseReady.Reset();
 
@@ -41,8 +39,7 @@ void SwerveAlignAprilTagCommand::Initialize() {
 }
 
 void SwerveAlignAprilTagCommand::Execute() {
-	m_subsystem->visionSystem->ForcedProcess();
-	if (!m_subsystem->visionSystem->IsAprilTagInView(m_tagId)) {
+	if (!m_vision->ForcedProcess() || !m_vision->IsAprilTagInView(m_tagId)) {
 		m_subsystem->Drive(frc::ChassisSpeeds { .vx = 0_mps, .vy = 0_mps,
 				.omega = 0_rad_per_s });
 		return;
@@ -51,13 +48,10 @@ void SwerveAlignAprilTagCommand::Execute() {
 	frc::Pose2d target { };
 	{
 		std::optional < VisionProvider::AprilTagWithConfidence > aprilTag =
-				m_subsystem->visionSystem->GetRelativeAprilTag(m_tagId);
-		if (!aprilTag.has_value()) {
-			m_subsystem->Drive(frc::ChassisSpeeds { .vx = 0_mps, .vy = 0_mps,
-					.omega = 0_rad_per_s });
-			return;
-		} else if (aprilTag.value().confidence
-				< Drive::Vision::kRequiredConfidence) {
+				m_vision->GetRelativeAprilTag(m_tagId);
+		if (!aprilTag.has_value()
+				|| aprilTag.value().confidence
+						< Drive::Vision::kRequiredConfidence) {
 			m_subsystem->Drive(frc::ChassisSpeeds { .vx = 0_mps, .vy = 0_mps,
 					.omega = 0_rad_per_s });
 			return;
@@ -101,12 +95,11 @@ bool SwerveAlignAprilTagCommand::IsFinished() {
 }
 
 int SwerveAlignAprilTagCommand::FindClosestTagId() {
-	if (!m_subsystem->visionSystem) {
+	if (!m_vision->ForcedProcess()) {
 		return -1;
 	}
-	m_subsystem->visionSystem->ForcedProcess();
 	std::vector < VisionProvider::AprilTagTransform > aprils =
-			m_subsystem->visionSystem->GetValidRelativeAprilTags(
+			m_vision->GetValidRelativeAprilTags(
 					Drive::Vision::kRequiredConfidence);
 	if (aprils.size() == 0) {
 		return -1;

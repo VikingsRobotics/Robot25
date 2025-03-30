@@ -49,12 +49,16 @@ private:
 	void BindArmCommand();
 	std::vector<RotationCommand> rotationCommands { };
 #endif
-#ifndef NO_VISION
-	VisionProvider visionProvider { };
-#endif
 #ifndef NO_SWERVE
 	SwerveSubsystem swerveSubsystem { };
 	frc::SendableChooser<frc2::Command*> autoChooser { };
+#endif
+#ifndef NO_VISION
+#ifdef NO_SWERVE
+	VisionProvider visionProvider { };
+#else
+	VisionProvider visionProvider { swerveSubsystem };
+#endif
 #endif
 #ifndef NO_ELEVATOR
 	ElevatorSubsystem elevatorSubsystem { };

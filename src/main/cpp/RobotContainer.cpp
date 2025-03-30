@@ -6,6 +6,7 @@
 
 #include "Constants.h"
 
+#include "commands/SwerveAlignAprilTagCommand.h"
 #include "commands/SwerveControllerCommand.h"
 #include "commands/SwerveJoystickCommand.h"
 #include "commands/SwerveSysIdRoutine.h"
@@ -24,11 +25,6 @@ RobotContainer::RobotContainer() : joystick {
 #ifndef NO_SWERVE
 	swerveSubsystem.SetDefaultCommand(SwerveJoystickCommand { &swerveSubsystem,
 			joystick });
-#ifndef NO_VISION
-	swerveSubsystem.visionSystem = &visionProvider;
-	swerveSubsystem.NotifyVisionSystemConnection();
-#endif
-
 #endif
 #ifndef NO_ELEVATOR
 	elevatorSubsystem.SetDefaultCommand(

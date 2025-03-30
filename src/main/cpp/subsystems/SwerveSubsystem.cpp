@@ -70,23 +70,18 @@ SwerveSubsystem::SwerveSubsystem() : m_getGyroYaw { m_gryo.GetYaw().AsSupplier()
         // Do whatever you want with the poses here
         m_field.GetObject("path")->SetPoses(poses);
     });
-
-	frc::ShuffleboardTab& smart = frc::Shuffleboard::GetTab("SmartDashboard");
-	frc::ShuffleboardLayout& layout = smart.GetLayout("Swerve",frc::BuiltInLayouts::kList);
-	layout.AddNumber("Gyro (deg)",[&]() -> double { return GetHeading().value(); });
-
+	
+	frc::SmartDashboard::PutBoolean("Swerve Vision", false);
 	frc::SmartDashboard::PutData(this);
 }
 // @formatter:on
-void SwerveSubsystem::AddBestEstimates() {
+void SwerveSubsystem::AddBestEstimates(const VisionProvider &self,
+		std::vector<VisionProvider::AprilTagTransform> tags) {
 	units::second_t currentTimestamp = frc::Timer::GetTimestamp();
 
-	std::vector < VisionProvider::AprilTagTransform > tags =
-			visionSystem->GetValidRelativeAprilTags(
-					Drive::Vision::kRequiredConfidence);
 	for (size_t index = 0; index < tags.size(); ++index) {
-		std::optional < frc::Pose3d > aprilPose =
-				visionSystem->fieldLayout.GetTagPose(tags.at(index).ID);
+		std::optional < frc::Pose3d > aprilPose = self.fieldLayout.GetTagPose(
+				tags.at(index).ID);
 
 		if (!aprilPose.has_value()) {
 			continue;
@@ -103,19 +98,12 @@ void SwerveSubsystem::AddBestEstimates() {
 	}
 }
 
-void SwerveSubsystem::NotifyVisionSystemConnection() {
-	if (visionSystem) {
-		visionSystem->friended_swerveFunction = [this]() {
-			AddBestEstimates();
-		};
-	}
-}
-
 void SwerveSubsystem::Periodic() {
 	// Tracks robot position using the position of swerve modules and gryo rotation
 	m_poseEstimator.Update(GetRotation2d(),
 			{ m_frontLeft.GetPosition(), m_frontRight.GetPosition(),
 					m_backLeft.GetPosition(), m_backRight.GetPosition() });
+	frc::SmartDashboard::PutNumber("Gyro (deg)", GetHeading().value());
 }
 
 void SwerveSubsystem::ZeroHeading() {
@@ -224,11 +212,4 @@ void SwerveSubsystem::X() {
 			45_deg } });
 }
 
-SwerveSubsystem::~SwerveSubsystem() {
-	if (visionSystem) {
-		visionSystem->friended_swerveFunction = []() -> void {
-			return;
-		};
-	}
-}
 #endif

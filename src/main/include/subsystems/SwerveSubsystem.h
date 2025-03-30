@@ -27,7 +27,6 @@ public:
 	SwerveSubsystem& operator=(SwerveSubsystem &rhs) = delete;
 	SwerveSubsystem(SwerveSubsystem &&rhs) = delete;
 	SwerveSubsystem& operator=(SwerveSubsystem &&rhs) = delete;
-	~SwerveSubsystem();
 
 	void Periodic() override;
 
@@ -59,14 +58,11 @@ public:
 
 	void X();
 
-	VisionProvider *visionSystem = nullptr;
-
 	friend struct SwerveSysIdRoutine;
 	friend class VisionProvider;
-	friend class RobotContainer;
 private:
-	void AddBestEstimates();
-	void NotifyVisionSystemConnection();
+	void AddBestEstimates(const VisionProvider &self,
+			std::vector<VisionProvider::AprilTagTransform> tags);
 private:
 	// Gryo used for odometry and for field centric control
 	ctre::phoenix6::hardware::Pigeon2 m_gryo { DeviceIdentifier::kGyroId,

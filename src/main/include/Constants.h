@@ -18,6 +18,7 @@
 #include <ctre/phoenix6/core/CoreTalonFX.hpp>
 
 #include <frc/geometry/Transform3d.h>
+#include <frc/geometry/Transform2d.h>
 
 #include <rev/SparkMax.h>
 #include <rev/config/SparkMaxConfig.h>
@@ -168,10 +169,12 @@ constexpr double kYTranslationP = 0.33;
 constexpr double kRotationP = 0.33;
 }
 namespace Location {
-constexpr frc::Transform2d kAprilTagTransform { frc::Translation2d { -0.34_m,
-		0.16_m }, frc::Rotation2d { 0_deg } };
-constexpr units::meter_t kTranslationThreshold = 0.02_m;
-constexpr units::radian_t kRotationThreshold = 1_deg;
+constexpr frc::Transform2d kRightBranch { frc::Translation2d { 13_in, 6_in },
+		frc::Rotation2d { 0_deg } };
+constexpr frc::Transform2d kLeftBranch { frc::Translation2d { 13_in, -6_in },
+		frc::Rotation2d { 0_deg } };
+constexpr frc::Transform2d kBranchThreshold { frc::Translation2d { 0.7_in,
+		0.7_in }, frc::Rotation2d { 1_deg } };
 }
 namespace Time {
 constexpr units::second_t kTagOutOfViewTime = 1_s;
