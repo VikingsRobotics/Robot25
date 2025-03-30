@@ -33,6 +33,7 @@ public:
 
 private:
 	void ConfigureBindings();
+	void PrintDisabledSystems();
 #ifndef NO_SWERVE_SYSID_COMMAND
 	void ConfigureSwerveSysId();
 	frc::Alert swerveSysIdTestMoveOnly {

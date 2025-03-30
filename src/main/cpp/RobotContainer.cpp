@@ -53,6 +53,7 @@ RobotContainer::RobotContainer() : joystick {
 }
 
 void RobotContainer::ConfigureBindings() {
+	PrintDisabledSystems();
 #ifndef NO_ELEVATOR_HEIGHT_COMMAND
 	BindElevatorCommand();
 #endif
@@ -369,6 +370,34 @@ void RobotContainer::BindArmCommand() {
 }
 
 #endif
+
+void PrintDisabledSystems() {
+#ifdef NO_SWERVE
+	frc::SmartDashboard::PutBoolean("Disabled Swerve",true);
+#else
+	frc::SmartDashboard::PutBoolean("Disabled Swerve", false);
+#endif
+#ifdef NO_ELEVATOR
+	frc::SmartDashboard::PutBoolean("Disabled Elevator",true);
+#else
+	frc::SmartDashboard::PutBoolean("Disabled Elevator", false);
+#endif
+#ifdef NO_ARM
+	frc::SmartDashboard::PutBoolean("Disabled Arm",true);
+#else
+	frc::SmartDashboard::PutBoolean("Disabled Arm", false);
+#endif
+#ifdef NO_ROLLER
+	frc::SmartDashboard::PutBoolean("Disabled Roller",true);
+#else
+	frc::SmartDashboard::PutBoolean("Disabled Roller", false);
+#endif
+#ifdef NO_VISION
+	frc::SmartDashboard::PutBoolean("Disabled Vision",true);
+#else
+	frc::SmartDashboard::PutBoolean("Disabled Vision", false);
+#endif
+}
 
 frc2::Command* RobotContainer::GetAutonomousCommand() {
 #ifdef NO_SWERVE

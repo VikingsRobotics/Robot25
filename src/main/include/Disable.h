@@ -9,7 +9,9 @@
 /* Disable part of elevator */
 //#define NO_ELEVATOR 1
 //#define NO_ARM 1
+/* Disable the roller */
 //#define NO_ROLLER 1
+/* Disable alignment and pose correction */
 //#define NO_VISION 1
 /* Compound define expansion */
 #if defined(NO_ELEVATOR_ARM) || NO_ELEVATOR_ARM == 1
