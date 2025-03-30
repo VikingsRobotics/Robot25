@@ -18,9 +18,9 @@ RotationCommand::RotationCommand(ArmSubsystem *const subsystem,
 void RotationCommand::Initialize() {
 	// Nothing (for now >:])
 	m_subsystem->RunRotation(m_desiredRotation,
-			((m_desiredRotation - m_subsystem->GetRotation()) < 0_m ?
+			((m_desiredRotation - m_subsystem->GetRotation()) < 0_tr ?
 					-Arm::Mechanism::kStaticVoltage :
-				(m_desiredRotation - m_subsystem->GetRotation()) > 0_m ?
+				(m_desiredRotation - m_subsystem->GetRotation()) > 0_tr ?
 						+Arm::Mechanism::kStaticVoltage : 0_V)
 					+ (units::math::cos(
 							(m_desiredRotation / Arm::Mechanism::kGearRatio)
