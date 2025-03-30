@@ -4,7 +4,6 @@
 
 #include "Constants.h"
 #include <frc/smartdashboard/SmartDashboard.h>
-#include <frc/shuffleboard/Shuffleboard.h>
 
 RollerSubsystem::RollerSubsystem() : m_rollerWheel {
 		DeviceIdentifier::kRollerWheelId }, m_solenoid {
@@ -15,23 +14,17 @@ RollerSubsystem::RollerSubsystem() : m_rollerWheel {
 	SetRollerWheel(0.0);
 	//PutRollerDown();
 
-	frc::ShuffleboardTab &smart = frc::Shuffleboard::GetTab("SmartDashboard");
-	frc::ShuffleboardLayout &layout = smart.GetLayout("Roller",
-			frc::BuiltInLayouts::kList);
-
-	layout.AddNumber("Wheel Spd", [&]() -> double {
-		return m_rollerWheel.GetMotorOutputPercent();
-	});
-	layout.AddBoolean("Solenoid Down", [&]() -> double {
-		return m_solenoid.Get() == frc::DoubleSolenoid::Value::kForward;
-	});
-
 	SetName("Roller Subsystem");
 	frc::SmartDashboard::PutData(this);
 }
 
 void RollerSubsystem::Periodic() {
-
+	frc::SmartDashboard::PutString("Roller Motor",
+			GetRollerWheelSpeed() == 0 ? "Stalling" :
+			GetRollerWheelSpeed() > 0 ? "Forward" : "Backward");
+	frc::SmartDashboard::PutString("Roller Pos",
+			IsRollerDown() ? "Down" : IsRollerUp() ? "Up" : "Unmoved");
+	frc::SmartDashboard::PutNumber("Roller Speed", +GetRollerWheelSpeed());
 }
 
 void RollerSubsystem::PutRollerDown() {
@@ -39,6 +32,7 @@ void RollerSubsystem::PutRollerDown() {
 }
 
 void RollerSubsystem::PutRollerUp() {
+	SetRollerWheel(0.0);
 	m_solenoid.Set(frc::DoubleSolenoid::Value::kReverse);
 }
 

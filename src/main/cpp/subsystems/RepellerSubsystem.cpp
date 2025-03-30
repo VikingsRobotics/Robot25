@@ -5,25 +5,18 @@
 #include <frc2/command/RunCommand.h>
 
 #include <frc/smartdashboard/SmartDashboard.h>
-#include <frc/shuffleboard/Shuffleboard.h>
 
 RepellerSubsystem::RepellerSubsystem() : m_wheel {
 		DeviceIdentifier::kRepellerWheelId } {
-
-	frc::ShuffleboardTab &smart = frc::Shuffleboard::GetTab("SmartDashboard");
-	frc::ShuffleboardLayout &layout = smart.GetLayout("Arm",
-			frc::BuiltInLayouts::kList);
-
-	layout.AddNumber("Wheel Spd", [&]() -> double {
-		return m_wheel.GetMotorOutputPercent();
-	});
-
 	SetName("Elev Wheel Subsystem");
 	frc::SmartDashboard::PutData(this);
 }
 
 void RepellerSubsystem::Periodic() {
-
+	frc::SmartDashboard::PutString("Repeller State",
+			GetRepellerWheelSpeed() == 0 ? "Stalling" :
+			GetRepellerWheelSpeed() > 0 ? "Forward" : "Backward");
+	frc::SmartDashboard::PutNumber("Repeller Speed", +GetRepellerWheelSpeed());
 }
 
 void RepellerSubsystem::SetRepellerWheel(double speed) {
