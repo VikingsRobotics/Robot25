@@ -4,6 +4,7 @@
 #include "Constants.h"
 
 #include <units/math.h>
+#include <frc/smartdashboard/SmartDashboard.h>
 
 HeightCommand::HeightCommand(ElevatorSubsystem *const subsystem,
 		units::meter_t height, units::second_t switchTime,
@@ -16,38 +17,42 @@ HeightCommand::HeightCommand(ElevatorSubsystem *const subsystem,
 
 void HeightCommand::Initialize() {
 	// Nothing (for now >:])
-	rev::REVLibError error =
-			m_subsystem->m_elevatorPID.SetReference(
-					(m_desiredHeight * Elevator::Mechanism::kDistanceToRotation).value(),
-					rev::spark::SparkLowLevel::ControlType::kMAXMotionPositionControl,
-					rev::spark::kSlot0,
-					Elevator::Mechanism::kStaticVoltage.value());
-	if (error != rev::REVLibError::kOk) {
-		this->Cancel();
-		return;
-	}
+	m_subsystem->RunHeight(m_desiredHeight,
+			((m_desiredHeight - m_subsystem->GetHeight()) < 0_m ?
+					-Elevator::Mechanism::kStaticVoltage :
+				(m_desiredHeight - m_subsystem->GetHeight()) > 0_m ?
+						+Elevator::Mechanism::kStaticVoltage : 0_V)
+					+ Elevator::Mechanism::kGravity);
+	frc::SmartDashboard::PutNumber("Desired Height (Inch)", units::inch_t {
+			m_desiredHeight }.value());
 }
 
 void HeightCommand::Execute() {
 	// Nothing (for now >:])
+	units::inch_t error = m_desiredHeight - m_subsystem->GetHeight();
+	frc::SmartDashboard::PutNumber("Error Height (Inch)", error.value());
 }
 
 void HeightCommand::End(bool interrupted) {
-	m_subsystem->m_elevatorDriver.SetVoltage(
-			Elevator::Mechanism::kStaticVoltage);
+	m_subsystem->RunVoltage(Elevator::Mechanism::kGravity);
 }
 
 bool HeightCommand::IsFinished() {
-	units::meter_t currentHeight = units::turn_t {
-			m_subsystem->m_driverEncoder.GetPosition() }
-			/ Elevator::Mechanism::kDistanceToRotation;
-	units::meter_t error = m_desiredHeight - currentHeight;
+	units::inch_t error = m_desiredHeight - m_subsystem->GetHeight();
 	return m_limitSwitch.Debounce(m_stopOnLimitSeconds).Get()
 			|| units::math::abs(error) < m_allowedError;
 }
 
 units::meter_t HeightCommand::GetDesiredHeight() {
 	return m_desiredHeight;
+}
+
+units::second_t HeightCommand::GetLimitingTime() {
+	return m_stopOnLimitSeconds;
+}
+
+units::meter_t HeightCommand::GetTolerance() {
+	return m_allowedError;
 }
 
 #endif

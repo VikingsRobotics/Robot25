@@ -24,7 +24,19 @@ public:
 
 	frc2::Trigger LimiterTriggered();
 
-	friend class RotationCommand;
+	void RunRotation(units::turn_t rotation, units::volt_t staticVolt);
+	void RunRawRotation(units::turn_t rotation, units::volt_t staticVolt);
+	void RunVoltage(units::volt_t voltage);
+	void RunPercent(double speed);
+
+	units::meter_t GetArcDistance();
+	units::turn_t GetRotation();
+	units::turn_t GetDeltaRotation();
+	units::turn_t GetRawRotation();
+	units::turn_t GetDeltaRawRotation();
+	double GetPercent();
+
+	units::turn_t GetRotationalOffset();
 private:
 	rev::spark::SparkMax m_directionMotor;
 	rev::spark::SparkRelativeEncoder m_directionEncoder;

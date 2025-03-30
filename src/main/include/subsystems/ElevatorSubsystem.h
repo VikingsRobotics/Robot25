@@ -9,6 +9,8 @@
 #include <rev/SparkMax.h>
 
 #include <units/length.h>
+#include <units/angle.h>
+#include <units/voltage.h>
 
 class HeightCommand;
 
@@ -24,7 +26,18 @@ public:
 
 	frc2::Trigger LimiterTriggered();
 
-	friend HeightCommand;
+	void RunHeight(units::meter_t height, units::volt_t staticVolt);
+	void RunDistance(units::meter_t distance, units::volt_t staticVolt);
+	void RunRotation(units::turn_t rotation, units::volt_t staticVolt);
+	void RunRawRotation(units::turn_t rotation, units::volt_t staticVolt);
+	void RunVoltage(units::volt_t voltage);
+	void RunPercent(double speed);
+
+	units::meter_t GetHeight();
+	units::meter_t GetDistance();
+	units::turn_t GetRotation();
+	units::turn_t GetRawRotation();
+	double GetPercent();
 private:
 	rev::spark::SparkMax m_elevatorDriver;
 	rev::spark::SparkRelativeEncoder m_driverEncoder;

@@ -4,6 +4,7 @@
 #include "Constants.h"
 
 #include <units/math.h>
+#include <frc/smartdashboard/SmartDashboard.h>
 
 RotationCommand::RotationCommand(ArmSubsystem *const subsystem,
 		units::turn_t desiredRotation, units::second_t switchTime,
@@ -16,38 +17,39 @@ RotationCommand::RotationCommand(ArmSubsystem *const subsystem,
 
 void RotationCommand::Initialize() {
 	// Nothing (for now >:])
-	rev::REVLibError error =
-			m_subsystem->m_directionPID.SetReference(
-					(m_desiredRotation / Arm::Mechanism::kGearRatio).value(),
-					rev::spark::SparkLowLevel::ControlType::kMAXMotionPositionControl,
-					rev::spark::kSlot0,
-					(Arm::Mechanism::kStaticVoltage
-							* units::math::cos(
-									(m_desiredRotation
-											/ Arm::Mechanism::kGearRatio)
-											+ m_subsystem->m_rotationalOffset)).value());
-	if (error != rev::REVLibError::kOk) {
-		this->Cancel();
-	}
+	m_subsystem->RunRotation(m_desiredRotation,
+			((m_desiredRotation - m_subsystem->GetRotation()) < 0_m ?
+					-Arm::Mechanism::kStaticVoltage :
+				(m_desiredRotation - m_subsystem->GetRotation()) > 0_m ?
+						+Arm::Mechanism::kStaticVoltage : 0_V)
+					+ (units::math::cos(
+							(m_desiredRotation / Arm::Mechanism::kGearRatio)
+									+ m_subsystem->GetRotationalOffset())
+							* Arm::Mechanism::kGravity));
+	frc::SmartDashboard::PutNumber("Desired Rotation (Deg)", units::degree_t {
+			m_desiredRotation }.value());
 }
 
 void RotationCommand::Execute() {
 	// Nothing (for now >:])
+	units::degree_t error = m_desiredRotation - m_subsystem->GetRotation();
+	frc::SmartDashboard::PutNumber("Error Rotation (Deg)", error.value());
+	units::inch_t errorDistance = ((m_desiredRotation / 1_tr)
+			* Arm::Mechanism::kArmLength) - m_subsystem->GetArcDistance();
+	frc::SmartDashboard::PutNumber("Error Arc Distance (In)",
+			errorDistance.value());
 }
 
 void RotationCommand::End(bool interrupted) {
-	m_subsystem->m_directionMotor.SetVoltage(
-			Arm::Mechanism::kStaticVoltage
-					* units::math::cos(
-							(m_desiredRotation / Arm::Mechanism::kGearRatio)
-									+ m_subsystem->m_rotationalOffset).value());
+	m_subsystem->RunVoltage(
+			units::math::cos(
+					(m_desiredRotation / Arm::Mechanism::kGearRatio)
+							+ m_subsystem->GetRotationalOffset())
+					* Arm::Mechanism::kGravity);
 }
 
 bool RotationCommand::IsFinished() {
-	units::turn_t currentHeight = (units::turn_t {
-			m_subsystem->m_directionEncoder.GetPosition() }
-			* Arm::Mechanism::kGearRatio) + m_subsystem->m_rotationalOffset;
-	units::turn_t error = m_desiredRotation - currentHeight;
+	units::turn_t error = m_desiredRotation - m_subsystem->GetRotation();
 	return m_limitSwitch.Debounce(m_stopOnLimitSeconds).Get()
 			|| units::math::abs(error) < m_allowedError;
 }
@@ -56,4 +58,11 @@ units::turn_t RotationCommand::GetDesiredRotation() {
 	return m_desiredRotation;
 }
 
+units::second_t RotationCommand::GetLimitingTime() {
+	return m_stopOnLimitSeconds;
+}
+
+units::turn_t RotationCommand::GetTolerance() {
+	return m_allowedError;
+}
 #endif

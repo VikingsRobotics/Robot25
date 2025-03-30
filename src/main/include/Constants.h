@@ -211,10 +211,12 @@ constexpr bool kInvertEncoder = false;
 
 namespace Mechanism {
 constexpr units::volt_t kStaticVoltage { 0.0 };
+constexpr units::volt_t kGravity { 0.0 };
 constexpr units::turn_t kRotationalOffset { 0.0 };
 constexpr units::turns_per_second_t kMaxAngularSpeed { 1.0 };
 constexpr units::turns_per_second_squared_t kMaxAngularAcceleration { 1.0 };
 constexpr units::scalar_t kGearRatio { 1.0 / 45.0 };
+constexpr units::meter_t kArmLength = units::inch_t { 15 };
 }
 }
 
@@ -246,6 +248,7 @@ constexpr units::meter_t kMinHeight = 0_in;
 
 namespace Mechanism {
 constexpr units::volt_t kStaticVoltage { 0.0 };
+constexpr units::volt_t kGravity { 0.0 };
 constexpr units::scalar_t kGearRatio { 1 / 20.0 };
 constexpr units::meter_t kGearDiameter = units::inch_t { 1.80 };
 // 20 turns / diameter*pi inchs

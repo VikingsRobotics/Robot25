@@ -2,7 +2,6 @@
 #ifndef NO_ELEVATOR
 
 #include <frc/smartdashboard/SmartDashboard.h>
-#include <frc/shuffleboard/Shuffleboard.h>
 #include "Constants.h"
 
 ElevatorSubsystem::ElevatorSubsystem() : m_elevatorDriver {
@@ -22,21 +21,18 @@ ElevatorSubsystem::ElevatorSubsystem() : m_elevatorDriver {
 
 	m_driverEncoder.SetPosition(0);
 
-	frc::ShuffleboardTab &smart = frc::Shuffleboard::GetTab("SmartDashboard");
-	frc::ShuffleboardLayout &layout = smart.GetLayout("Elevator",
-			frc::BuiltInLayouts::kList);
-	layout.AddNumber("Chain Pos (Inch)",
-			[&]() -> double {
-				return units::inch_t(
-						units::turn_t { m_driverEncoder.GetPosition() }
-								/ Elevator::Mechanism::kDistanceToRotation).value();
-			});
-
 	SetName("Elevator Subsystem");
 	frc::SmartDashboard::PutData(this);
 }
 
 void ElevatorSubsystem::Periodic() {
+	frc::SmartDashboard::PutNumber("Chain Pos (Inch)",
+			units::inch_t(
+					units::turn_t { m_driverEncoder.GetPosition() }
+							/ Elevator::Mechanism::kDistanceToRotation).value());
+	frc::SmartDashboard::PutNumber("Chain Pos (Rot)", units::turn_t {
+			m_driverEncoder.GetPosition() }.value());
+	frc::SmartDashboard::PutBoolean("Chain Limit", LimiterTriggered().Get());
 }
 
 frc2::Trigger ElevatorSubsystem::LimiterTriggered() {
@@ -47,6 +43,59 @@ frc2::Trigger ElevatorSubsystem::LimiterTriggered() {
 						|| m_elevatorFollow.GetForwardLimitSwitch().Get()
 						|| m_elevatorFollow.GetReverseLimitSwitch().Get();
 			});
+}
+
+void ElevatorSubsystem::RunHeight(units::meter_t height,
+		units::volt_t staticVolt) {
+	RunDistance(height / 2, staticVolt);
+}
+
+void ElevatorSubsystem::RunDistance(units::meter_t distance,
+		units::volt_t staticVolt) {
+	m_elevatorPID.SetReference(
+			(distance * Elevator::Mechanism::kDistanceToRotation).value(),
+			rev::spark::SparkLowLevel::ControlType::kMAXMotionPositionControl,
+			rev::spark::kSlot0, staticVolt.value());
+}
+
+void ElevatorSubsystem::RunRotation(units::turn_t rotation,
+		units::volt_t staticVolt) {
+	RunRotation(rotation / Elevator::Mechanism::kGearRatio, staticVolt);
+}
+
+void ElevatorSubsystem::RunRawRotation(units::turn_t rotation,
+		units::volt_t staticVolt) {
+	m_elevatorPID.SetReference(rotation.value(),
+			rev::spark::SparkLowLevel::ControlType::kMAXMotionPositionControl,
+			rev::spark::kSlot0, staticVolt.value());
+}
+
+void ElevatorSubsystem::RunVoltage(units::volt_t voltage) {
+	m_elevatorDriver.SetVoltage(voltage);
+}
+
+void ElevatorSubsystem::RunPercent(double speed) {
+	m_elevatorDriver.Set(speed);
+}
+
+units::meter_t ElevatorSubsystem::GetHeight() {
+	return GetDistance() / 2;
+}
+
+units::meter_t ElevatorSubsystem::GetDistance() {
+	return units::turn_t { m_driverEncoder.GetPosition() }
+			/ Elevator::Mechanism::kDistanceToRotation;
+}
+units::turn_t ElevatorSubsystem::GetRotation() {
+	return GetRawRotation() * Elevator::Mechanism::kGearRatio;
+}
+
+units::turn_t ElevatorSubsystem::GetRawRotation() {
+	return units::turn_t { m_driverEncoder.GetPosition() };
+}
+
+double ElevatorSubsystem::GetPercent() {
+	return m_elevatorDriver.Get();
 }
 
 #endif

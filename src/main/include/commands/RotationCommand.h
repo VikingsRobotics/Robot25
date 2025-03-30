@@ -2,11 +2,11 @@
 
 #pragma once
 
-#include "subsystems/ArmSubsystem.h"
 #include "Disable.h"
 
 #ifndef NO_ARM_ROTATION_COMMAND
 
+#include "subsystems/ArmSubsystem.h"
 #include <units/angle.h>
 
 #include <frc2/command/CommandHelper.h>
@@ -27,6 +27,8 @@ public:
 	bool IsFinished() override;
 
 	units::turn_t GetDesiredRotation();
+	units::second_t GetLimitingTime();
+	units::turn_t GetTolerance();
 private:
 	ArmSubsystem *const m_subsystem;
 	const units::turn_t m_desiredRotation;

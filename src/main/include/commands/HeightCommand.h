@@ -1,10 +1,10 @@
 #pragma once
 
-#include "subsystems/ElevatorSubsystem.h"
 #include "Disable.h"
 
 #ifndef NO_ELEVATOR_HEIGHT_COMMAND
 
+#include "subsystems/ElevatorSubsystem.h"
 #include <units/time.h>
 
 #include <frc2/command/CommandHelper.h>
@@ -25,6 +25,8 @@ public:
 	bool IsFinished() override;
 
 	units::meter_t GetDesiredHeight();
+	units::second_t GetLimitingTime();
+	units::meter_t GetTolerance();
 private:
 	ElevatorSubsystem *const m_subsystem;
 	const units::meter_t m_desiredHeight;
