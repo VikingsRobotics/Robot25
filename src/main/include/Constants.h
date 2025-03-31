@@ -215,7 +215,7 @@ constexpr bool kInvertEncoder = false;
 namespace Mechanism {
 constexpr units::volt_t kStaticVoltage { 0.0 };
 constexpr units::volt_t kGravity { 0.0 };
-constexpr units::turn_t kRotationalOffset { 0.0 };
+constexpr units::turn_t kRotationalOffset = -90_deg;
 constexpr units::turns_per_second_t kMaxAngularSpeed { 1.0 };
 constexpr units::turns_per_second_squared_t kMaxAngularAcceleration { 1.0 };
 constexpr units::scalar_t kGearRatio { 1.0 / 45.0 };
@@ -261,8 +261,7 @@ constexpr units::unit_t<
 // 9 inch per second
 constexpr units::meters_per_second_t kMaxSpeedInMeters = 0.75_fps;
 // 9 inch per second squared
-constexpr units::meters_per_second_squared_t kMaxAccelerationInMeters =
-		0.75_fps_sq;
+constexpr units::meters_per_second_squared_t kMaxAccelInMeters = 0.75_fps_sq;
 }
 
 namespace DeviceProperties {
