@@ -12,7 +12,7 @@
         "y": 7.039593518973681
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Far-Out"
     },
     {
       "anchor": {
@@ -32,16 +32,16 @@
     },
     {
       "anchor": {
-        "x": 2.8650528169014073,
-        "y": 4.223415492957745
+        "x": 2.8398544520547944,
+        "y": 4.197795376712328
       },
       "prevControl": {
-        "x": 2.39735915492382,
-        "y": 4.478521126755931
+        "x": 2.372160790077207,
+        "y": 4.452901010510514
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Reef A"
     }
   ],
   "rotationTargets": [],

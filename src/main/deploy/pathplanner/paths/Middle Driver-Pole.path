@@ -12,7 +12,7 @@
         "y": 7.150956332068938
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Middle"
     },
     {
       "anchor": {
@@ -33,15 +33,15 @@
     {
       "anchor": {
         "x": 2.8398544520547944,
-        "y": 4.257898116438356
+        "y": 4.197795376712328
       },
       "prevControl": {
         "x": 2.6623588738355535,
-        "y": 4.6357741336163905
+        "y": 4.575671393890363
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Reef A"
     }
   ],
   "rotationTargets": [],
