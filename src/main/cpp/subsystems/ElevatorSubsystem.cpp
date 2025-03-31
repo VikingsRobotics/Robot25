@@ -26,12 +26,14 @@ ElevatorSubsystem::ElevatorSubsystem() : m_elevatorDriver {
 }
 
 void ElevatorSubsystem::Periodic() {
-	frc::SmartDashboard::PutNumber("Chain Pos (Inch)",
-			units::inch_t(
-					units::turn_t { m_driverEncoder.GetPosition() }
-							/ Elevator::Mechanism::kDistanceToRotation).value());
-	frc::SmartDashboard::PutNumber("Chain Pos (Rot)", units::turn_t {
-			m_driverEncoder.GetPosition() }.value());
+	frc::SmartDashboard::PutNumber("Chain Height (Inch)", units::inch_t {
+			GetHeight() }.value());
+	frc::SmartDashboard::PutNumber("Chain Distance (Inch)", units::inch_t {
+			GetDistance() }.value());
+	frc::SmartDashboard::PutNumber("Chain Raw Pos (Rot)",
+			GetRawRotation().value());
+	frc::SmartDashboard::PutNumber("Chain Out Pos (Rot)",
+			GetRotation().value());
 	frc::SmartDashboard::PutBoolean("Chain Limit", LimiterTriggered().Get());
 }
 
@@ -52,15 +54,12 @@ void ElevatorSubsystem::RunHeight(units::meter_t height,
 
 void ElevatorSubsystem::RunDistance(units::meter_t distance,
 		units::volt_t staticVolt) {
-	m_elevatorPID.SetReference(
-			(distance * Elevator::Mechanism::kDistanceToRotation).value(),
-			rev::spark::SparkLowLevel::ControlType::kMAXMotionPositionControl,
-			rev::spark::kSlot0, staticVolt.value());
+	RunRotation(ConvertDistanceToRotation(distance), staticVolt);
 }
 
 void ElevatorSubsystem::RunRotation(units::turn_t rotation,
 		units::volt_t staticVolt) {
-	RunRawRotation(rotation / Elevator::Mechanism::kGearRatio, staticVolt);
+	RunRawRotation(ConvertRotationToRaw(rotation), staticVolt);
 }
 
 void ElevatorSubsystem::RunRawRotation(units::turn_t rotation,
@@ -83,11 +82,10 @@ units::meter_t ElevatorSubsystem::GetHeight() {
 }
 
 units::meter_t ElevatorSubsystem::GetDistance() {
-	return units::turn_t { m_driverEncoder.GetPosition() }
-			/ Elevator::Mechanism::kDistanceToRotation;
+	return ConvertRotationToDistance(GetRotation());
 }
 units::turn_t ElevatorSubsystem::GetRotation() {
-	return GetRawRotation() * Elevator::Mechanism::kGearRatio;
+	return ConvertRawToRotation(GetRawRotation());
 }
 
 units::turn_t ElevatorSubsystem::GetRawRotation() {
@@ -96,6 +94,24 @@ units::turn_t ElevatorSubsystem::GetRawRotation() {
 
 double ElevatorSubsystem::GetPercent() {
 	return m_elevatorDriver.Get();
+}
+
+units::turn_t ElevatorSubsystem::ConvertRawToRotation(units::turn_t raw) {
+	return raw / Elevator::Mechanism::kGearRatio;
+}
+
+units::turn_t ElevatorSubsystem::ConvertRotationToRaw(units::turn_t rotation) {
+	return rotation * Elevator::Mechanism::kGearRatio;
+}
+
+units::meter_t ElevatorSubsystem::ConvertRotationToDistance(
+		units::turn_t rotation) {
+	return rotation / Elevator::Mechanism::kDistanceToRotation;
+}
+
+units::turn_t ElevatorSubsystem::ConvertDistanceToRotation(
+		units::meter_t distance) {
+	return distance * Elevator::Mechanism::kDistanceToRotation;
 }
 
 #endif

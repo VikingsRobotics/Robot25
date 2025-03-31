@@ -15,16 +15,16 @@ RotationCommand::RotationCommand(ArmSubsystem *const subsystem,
 	SetName("Rotation Command");
 }
 
+static units::scalar_t sign(units::turn_t input) {
+	return input > 0_tr ? +1 : input < 0_tr ? -1 : 0;
+}
+
 void RotationCommand::Initialize() {
 	// Nothing (for now >:])
 	m_subsystem->RunRotation(m_desiredRotation,
-			((m_desiredRotation - m_subsystem->GetRotation()) < 0_tr ?
-					-Arm::Mechanism::kStaticVoltage :
-				(m_desiredRotation - m_subsystem->GetRotation()) > 0_tr ?
-						+Arm::Mechanism::kStaticVoltage : 0_V)
-					+ (units::math::cos(
-							(m_desiredRotation / Arm::Mechanism::kGearRatio)
-									+ m_subsystem->GetRotationalOffset())
+			(sign(m_desiredRotation - m_subsystem->GetRotation())
+					* Arm::Mechanism::kStaticVoltage)
+					+ (units::math::cos(m_desiredRotation)
 							* Arm::Mechanism::kGravity));
 	frc::SmartDashboard::PutNumber("Desired Rotation (Deg)", units::degree_t {
 			m_desiredRotation }.value());
@@ -34,18 +34,15 @@ void RotationCommand::Execute() {
 	// Nothing (for now >:])
 	units::degree_t error = m_desiredRotation - m_subsystem->GetRotation();
 	frc::SmartDashboard::PutNumber("Error Rotation (Deg)", error.value());
-	units::inch_t errorDistance = ((m_desiredRotation / 1_tr)
-			* Arm::Mechanism::kArmLength) - m_subsystem->GetArcDistance();
+	units::inch_t errorDistance = m_subsystem->GetArcDistance(
+			m_desiredRotation);
 	frc::SmartDashboard::PutNumber("Error Arc Distance (In)",
 			errorDistance.value());
 }
 
 void RotationCommand::End(bool interrupted) {
 	m_subsystem->RunVoltage(
-			units::math::cos(
-					(m_desiredRotation / Arm::Mechanism::kGearRatio)
-							+ m_subsystem->GetRotationalOffset())
-					* Arm::Mechanism::kGravity);
+			units::math::cos(m_desiredRotation) * Arm::Mechanism::kGravity);
 }
 
 bool RotationCommand::IsFinished() {

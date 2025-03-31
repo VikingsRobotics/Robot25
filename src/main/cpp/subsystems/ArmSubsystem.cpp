@@ -40,7 +40,7 @@ frc2::Trigger ArmSubsystem::LimiterTriggered() {
 
 void ArmSubsystem::RunRotation(units::turn_t rotation,
 		units::volt_t staticVolt) {
-	RunRawRotation(rotation / Arm::Mechanism::kGearRatio, staticVolt);
+	RunRawRotation(ConvertRotationToRaw(rotation), staticVolt);
 }
 
 void ArmSubsystem::RunRawRotation(units::turn_t rotation,
@@ -59,12 +59,12 @@ void ArmSubsystem::RunPercent(double speed) {
 	m_directionMotor.Set(speed);
 }
 
-units::meter_t ArmSubsystem::GetArcDistance() {
-	return (GetRotation() / 1_tr) * Arm::Mechanism::kArmLength;
+units::meter_t ArmSubsystem::GetArcDistance(units::turn_t from) {
+	return ((GetRotation() - from) / 1_tr) * Arm::Mechanism::kArmLength;
 }
 
 units::turn_t ArmSubsystem::GetDeltaRotation() {
-	return GetDeltaRawRotation() * Arm::Mechanism::kGearRatio;
+	return ConvertRawToRotation(GetDeltaRawRotation());
 }
 
 units::turn_t ArmSubsystem::GetRotation() {
@@ -76,8 +76,7 @@ units::turn_t ArmSubsystem::GetDeltaRawRotation() {
 }
 
 units::turn_t ArmSubsystem::GetRawRotation() {
-	return GetDeltaRawRotation()
-			+ (m_rotationalOffset * Arm::Mechanism::kGearRatio);
+	return GetDeltaRawRotation() + ConvertRotationToRaw(m_rotationalOffset);
 }
 
 double ArmSubsystem::GetPercent() {
@@ -86,6 +85,14 @@ double ArmSubsystem::GetPercent() {
 
 units::turn_t ArmSubsystem::GetRotationalOffset() {
 	return m_rotationalOffset;
+}
+
+units::turn_t ArmSubsystem::ConvertRawToRotation(units::turn_t raw) {
+	return raw / Arm::Mechanism::kGearRatio;
+}
+
+units::turn_t ArmSubsystem::ConvertRotationToRaw(units::turn_t rotation) {
+	return rotation * Arm::Mechanism::kGearRatio;
 }
 
 #endif

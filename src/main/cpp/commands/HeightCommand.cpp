@@ -15,13 +15,15 @@ HeightCommand::HeightCommand(ElevatorSubsystem *const subsystem,
 	SetName("Height Command");
 }
 
+static units::scalar_t sign(units::meter_t input) {
+	return input > 0_m ? +1 : input < 0_m ? -1 : 0;
+}
+
 void HeightCommand::Initialize() {
 	// Nothing (for now >:])
 	m_subsystem->RunHeight(m_desiredHeight,
-			((m_desiredHeight - m_subsystem->GetHeight()) < 0_m ?
-					-Elevator::Mechanism::kStaticVoltage :
-				(m_desiredHeight - m_subsystem->GetHeight()) > 0_m ?
-						+Elevator::Mechanism::kStaticVoltage : 0_V)
+			(sign(m_desiredHeight - m_subsystem->GetHeight())
+					* Elevator::Mechanism::kStaticVoltage)
 					+ Elevator::Mechanism::kGravity);
 	frc::SmartDashboard::PutNumber("Desired Height (Inch)", units::inch_t {
 			m_desiredHeight }.value());
@@ -31,6 +33,10 @@ void HeightCommand::Execute() {
 	// Nothing (for now >:])
 	units::inch_t error = m_desiredHeight - m_subsystem->GetHeight();
 	frc::SmartDashboard::PutNumber("Error Height (Inch)", error.value());
+	units::turn_t errorRotation = m_subsystem->ConvertDistanceToRotation(
+			m_desiredHeight) - m_subsystem->GetRotation();
+	frc::SmartDashboard::PutNumber("Error Rotation (Rot)",
+			errorRotation.value());
 }
 
 void HeightCommand::End(bool interrupted) {

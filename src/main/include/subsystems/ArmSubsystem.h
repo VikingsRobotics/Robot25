@@ -31,7 +31,7 @@ public:
 	void RunVoltage(units::volt_t voltage);
 	void RunPercent(double speed);
 
-	units::meter_t GetArcDistance();
+	units::meter_t GetArcDistance(units::turn_t from);
 	units::turn_t GetRotation();
 	units::turn_t GetDeltaRotation();
 	units::turn_t GetRawRotation();
@@ -39,6 +39,8 @@ public:
 	double GetPercent();
 
 	units::turn_t GetRotationalOffset();
+	units::turn_t ConvertRawToRotation(units::turn_t raw);
+	units::turn_t ConvertRotationToRaw(units::turn_t rotation);
 private:
 	rev::spark::SparkMax m_directionMotor;
 	rev::spark::SparkRelativeEncoder m_directionEncoder;

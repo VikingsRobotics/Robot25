@@ -38,6 +38,11 @@ public:
 	units::turn_t GetRotation();
 	units::turn_t GetRawRotation();
 	double GetPercent();
+
+	units::turn_t ConvertRawToRotation(units::turn_t raw);
+	units::turn_t ConvertRotationToRaw(units::turn_t rotation);
+	units::meter_t ConvertRotationToDistance(units::turn_t rotation);
+	units::turn_t ConvertDistanceToRotation(units::meter_t distance);
 private:
 	rev::spark::SparkMax m_elevatorDriver;
 	rev::spark::SparkRelativeEncoder m_driverEncoder;
