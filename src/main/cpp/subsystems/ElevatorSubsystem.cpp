@@ -27,12 +27,10 @@ ElevatorSubsystem::ElevatorSubsystem() : m_elevatorDriver {
 
 void ElevatorSubsystem::Periodic() {
 	frc::SmartDashboard::PutNumber("Chain Height (Inch)", units::inch_t {
-			GetHeight() }.value());
-	frc::SmartDashboard::PutNumber("Chain Distance (Inch)", units::inch_t {
 			GetDistance() }.value());
 	frc::SmartDashboard::PutNumber("Chain Raw Pos (Rot)",
 			GetRawRotation().value());
-	frc::SmartDashboard::PutNumber("Chain Out Pos (Rot)",
+	frc::SmartDashboard::PutNumber("Chain Geared Pos (Rot)",
 			GetRotation().value());
 	frc::SmartDashboard::PutBoolean("Chain Limit", LimiterTriggered().Get());
 }
@@ -47,14 +45,9 @@ frc2::Trigger ElevatorSubsystem::LimiterTriggered() {
 			});
 }
 
-void ElevatorSubsystem::RunHeight(units::meter_t height,
-		units::volt_t staticVolt) {
-	RunDistance(height / 2, staticVolt);
-}
-
 void ElevatorSubsystem::RunDistance(units::meter_t distance,
 		units::volt_t staticVolt) {
-	RunRotation(ConvertDistanceToRotation(distance), staticVolt);
+	RunRawRotation(ConvertDistanceToRaw(distance), staticVolt);
 }
 
 void ElevatorSubsystem::RunRotation(units::turn_t rotation,
@@ -66,7 +59,8 @@ void ElevatorSubsystem::RunRawRotation(units::turn_t rotation,
 		units::volt_t staticVolt) {
 	m_elevatorPID.SetReference(rotation.value(),
 			rev::spark::SparkLowLevel::ControlType::kMAXMotionPositionControl,
-			rev::spark::kSlot0, staticVolt.value());
+			rev::spark::kSlot0, staticVolt.value(),
+			rev::spark::SparkClosedLoopController::ArbFFUnits::kVoltage);
 }
 
 void ElevatorSubsystem::RunVoltage(units::volt_t voltage) {
@@ -82,7 +76,7 @@ units::meter_t ElevatorSubsystem::GetHeight() {
 }
 
 units::meter_t ElevatorSubsystem::GetDistance() {
-	return ConvertRotationToDistance(GetRotation());
+	return ConvertRawToDistance(GetRawRotation());
 }
 units::turn_t ElevatorSubsystem::GetRotation() {
 	return ConvertRawToRotation(GetRawRotation());
@@ -97,21 +91,19 @@ double ElevatorSubsystem::GetPercent() {
 }
 
 units::turn_t ElevatorSubsystem::ConvertRawToRotation(units::turn_t raw) {
-	return raw / Elevator::Mechanism::kGearRatio;
+	return raw * Elevator::Mechanism::kGearRatio;
 }
 
 units::turn_t ElevatorSubsystem::ConvertRotationToRaw(units::turn_t rotation) {
-	return rotation * Elevator::Mechanism::kGearRatio;
+	return rotation / Elevator::Mechanism::kGearRatio;
 }
 
-units::meter_t ElevatorSubsystem::ConvertRotationToDistance(
-		units::turn_t rotation) {
-	return rotation / Elevator::Mechanism::kDistanceToRotation;
+units::meter_t ElevatorSubsystem::ConvertRawToDistance(units::turn_t raw) {
+	return raw * Elevator::Mechanism::kRotationToDistance;
 }
 
-units::turn_t ElevatorSubsystem::ConvertDistanceToRotation(
-		units::meter_t distance) {
-	return distance * Elevator::Mechanism::kDistanceToRotation;
+units::turn_t ElevatorSubsystem::ConvertDistanceToRaw(units::meter_t distance) {
+	return distance / Elevator::Mechanism::kRotationToDistance;
 }
 
 #endif

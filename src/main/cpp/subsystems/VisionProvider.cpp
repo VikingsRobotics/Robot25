@@ -4,6 +4,7 @@
 
 #include <wpi/Endian.h>
 #include "subsystems/SwerveSubsystem.h"
+#include <frc/smartdashboard/SmartDashboard.h>
 
 #ifdef NO_SWERVE
 VisionProvider::VisionProvider() : m_tagTable {
@@ -31,7 +32,7 @@ VisionProvider::VisionProvider(SwerveSubsystem &odomentryCallback) : m_tagTable 
 				ProcessData(event.GetValueEventData()->value.GetRaw(), false);
 			}
 	);
-
+	frc::SmartDashboard::PutBoolean("Swerve Vision", true);
 	m_lastRead.Reset();
 }
 #endif
@@ -57,6 +58,7 @@ constexpr frc::Transform3d VisionProvider::DecodeData(double tx, double ty,
 
 std::vector<VisionProvider::AprilTagTransform> VisionProvider::GetValidRelativeAprilTags(
 		float requiredConfidenced) {
+	(void) requiredConfidenced;
 	std::scoped_lock lock { mutex };
 	std::vector<AprilTagWithConfidence> aprilTags(std::begin (m_foundTags),
 			std::end (m_foundTags));
@@ -78,6 +80,7 @@ std::vector<VisionProvider::AprilTagTransform> VisionProvider::GetValidRelativeA
 
 std::vector<frc::AprilTag> VisionProvider::GetValidAprilTags(
 		float requiredConfidenced) {
+	(void) requiredConfidenced;
 	std::scoped_lock lock { mutex };
 	std::vector<AprilTagWithConfidence> aprilTags(std::begin (m_foundTags),
 			std::end (m_foundTags));
@@ -163,6 +166,15 @@ void VisionProvider::ProcessData(std::span<const uint8_t> data, bool forced) {
 						std::bit_cast<double>(read64be(at + (48 + 56 * index)))) 
 				} 
 			};
+		frc::SmartDashboard::PutNumberArray("Pose" + index,std::array<double,6>
+		{
+			std::bit_cast<double>(read64be(at + (8 + 56 * index))),
+			std::bit_cast<double>(read64be(at + (16 + 56 * index))),
+			std::bit_cast<double>(read64be(at + (24 + 56 * index))),
+			std::bit_cast<double>(read64be(at + (32 + 56 * index))),
+			std::bit_cast<double>(read64be(at + (40 + 56 * index))),
+			std::bit_cast<double>(read64be(at + (48 + 56 * index)))
+		});
 	}
 	// @formatter:on
 	m_lastRead.Reset();

@@ -61,8 +61,10 @@ public:
 	friend struct SwerveSysIdRoutine;
 	friend class VisionProvider;
 private:
+#ifndef NO_VISION
 	void AddBestEstimates(const VisionProvider &self,
 			std::vector<VisionProvider::AprilTagTransform> tags);
+#endif
 private:
 	// Gryo used for odometry and for field centric control
 	ctre::phoenix6::hardware::Pigeon2 m_gryo { DeviceIdentifier::kGyroId,
@@ -91,6 +93,7 @@ private:
 					m_backRight.GetPosition() }, frc::Pose2d { }, { 0.1, 0.1,
 					0.1 }, { 0.1, 0.1, 0.1 } };
 	frc::Field2d m_field { };
+	frc::Field2d m_pose { };
 };
 
 #endif

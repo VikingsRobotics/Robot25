@@ -49,7 +49,8 @@ SwerveSubsystem::SwerveSubsystem() : m_getGyroYaw { m_gryo.GetYaw().AsSupplier()
         },
         this
     );
-	frc::SmartDashboard::PutData("Field", &m_field);
+	frc::SmartDashboard::PutData("Odometry Field", &m_pose);
+	frc::SmartDashboard::PutData("Pathplanner Field", &m_field);
 
     // Logging callback for current robot pose
     pathplanner::PathPlannerLogging::setLogCurrentPoseCallback([this](frc::Pose2d pose){
@@ -73,10 +74,12 @@ SwerveSubsystem::SwerveSubsystem() : m_getGyroYaw { m_gryo.GetYaw().AsSupplier()
 	frc::SmartDashboard::PutData(this);
 }
 // @formatter:on
+#ifndef NO_VISION
 void SwerveSubsystem::AddBestEstimates(const VisionProvider &self,
 		std::vector<VisionProvider::AprilTagTransform> tags) {
 	units::second_t currentTimestamp = frc::Timer::GetTimestamp();
-
+	size_t foundTags = 0;
+	return;
 	for (size_t index = 0; index < tags.size(); ++index) {
 		std::optional < frc::Pose3d > aprilPose = self.fieldLayout.GetTagPose(
 				tags.at(index).ID);
@@ -87,20 +90,23 @@ void SwerveSubsystem::AddBestEstimates(const VisionProvider &self,
 				> Drive::Vision::kRequiredDeltaDistance) {
 			continue;
 		}
-
+		++foundTags;
 		frc::Pose3d pose = frc::ObjectToRobotPose(aprilPose.value(),
 				tags.at(index).relativePose,
 				Drive::Vision::kCameraMountingPosition);
 
 		m_poseEstimator.AddVisionMeasurement(pose.ToPose2d(), currentTimestamp);
 	}
+	frc::SmartDashboard::PutNumber("Found Tags", foundTags);
 }
+#endif
 
 void SwerveSubsystem::Periodic() {
 	// Tracks robot position using the position of swerve modules and gryo rotation
-	m_poseEstimator.Update(GetRotation2d(),
-			{ m_frontLeft.GetPosition(), m_frontRight.GetPosition(),
-					m_backLeft.GetPosition(), m_backRight.GetPosition() });
+	m_pose.SetRobotPose(
+			m_poseEstimator.Update(GetRotation2d(), { m_frontLeft.GetPosition(),
+					m_frontRight.GetPosition(), m_backLeft.GetPosition(),
+					m_backRight.GetPosition() }));
 	frc::SmartDashboard::PutNumber("Gyro (deg)", GetHeading().value());
 }
 

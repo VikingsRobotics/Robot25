@@ -33,12 +33,9 @@ public:
 
 	units::meter_t GetArcDistance(units::turn_t from);
 	units::turn_t GetRotation();
-	units::turn_t GetDeltaRotation();
 	units::turn_t GetRawRotation();
-	units::turn_t GetDeltaRawRotation();
 	double GetPercent();
 
-	units::turn_t GetRotationalOffset();
 	units::turn_t ConvertRawToRotation(units::turn_t raw);
 	units::turn_t ConvertRotationToRaw(units::turn_t rotation);
 private:

@@ -11,6 +11,8 @@
 #include "commands/SwerveJoystickCommand.h"
 #include "commands/SwerveSysIdRoutine.h"
 
+#include <pathplanner/lib/auto/NamedCommands.h>
+#include <pathplanner/lib/auto/CommandUtil.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 #include <frc/shuffleboard/Shuffleboard.h>
 #include <frc/RobotState.h>
@@ -25,6 +27,21 @@ RobotContainer::RobotContainer() : joystick {
 #ifndef NO_SWERVE
 	swerveSubsystem.SetDefaultCommand(SwerveJoystickCommand { &swerveSubsystem,
 			joystick });
+	joystick.Button(6).OnTrue(swerveSubsystem.GetDefaultCommand());
+#ifndef NO_VISION
+	joystick.Button(3).Debounce(Drive::TeleopOperator::kVisionDebounce).OnTrue(
+			SwerveAlignAprilTagCommand { &swerveSubsystem, &visionProvider,
+					Drive::Align::Location::kLeftBranch,
+					Drive::Align::Location::kBranchThreshold,
+					Drive::Align::System::kTranslationP, 0, 0,
+					Drive::Align::System::kRotationP, 0, 0 }.ToPtr());
+	joystick.Button(4).Debounce(Drive::TeleopOperator::kVisionDebounce).OnTrue(
+			SwerveAlignAprilTagCommand { &swerveSubsystem, &visionProvider,
+					Drive::Align::Location::kRightBranch,
+					Drive::Align::Location::kBranchThreshold,
+					Drive::Align::System::kTranslationP, 0, 0,
+					Drive::Align::System::kRotationP, 0, 0 }.ToPtr());
+#endif
 #endif
 #ifndef NO_ELEVATOR
 	elevatorSubsystem.SetDefaultCommand(
@@ -49,17 +66,21 @@ RobotContainer::RobotContainer() : joystick {
 }
 
 void RobotContainer::ConfigureBindings() {
-	PrintDisabledSystems();
+	//PrintDisabledSystems();
 #ifndef NO_ELEVATOR_HEIGHT_COMMAND
 	BindElevatorCommand();
 #endif
 #ifndef NO_ARM_ROTATION_COMMAND
 	BindArmCommand();
 #endif
+#ifndef NO_ROLLER
+	BindRollerCommands();
+#endif
 #ifndef NO_SWERVE_SYSID_COMMAND
 	ConfigureSwerveSysId();
 #endif
 #ifndef NO_SWERVE
+	BindCoralCommands();
 	autoChooser = pathplanner::AutoBuilder::buildAutoChooser();
 	frc::SmartDashboard::PutData (&autoChooser);
 #endif
@@ -290,82 +311,187 @@ void RobotContainer::ConfigureSwerveSysId() {
 }
 
 #endif
-#ifndef NO_ELEVATOR_HEIGHT_COMMAND
+#ifndef NO_ELEVATOR
 
 void RobotContainer::BindElevatorCommand() {
 	xboxController.A().Debounce(Elevator::TeleopOperator::kDebounce).OnTrue(
 			HeightCommand { &elevatorSubsystem,
-					Elevator::Destination::kFirstGoal,
-					Elevator::Destination::kAllowableSwitchTime,
-					Elevator::Destination::kAllowableError }.ToPtr());
+					Elevator::Destination::kCollectionHeight,
+					Elevator::Destination::kAllowableSwitchTime }.ToPtr());
 	xboxController.B().Debounce(Elevator::TeleopOperator::kDebounce).OnTrue(
 			HeightCommand { &elevatorSubsystem,
 					Elevator::Destination::kSecondGoal,
-					Elevator::Destination::kAllowableSwitchTime,
-					Elevator::Destination::kAllowableError }.ToPtr());
+					Elevator::Destination::kAllowableSwitchTime }.ToPtr());
 	xboxController.X().Debounce(Elevator::TeleopOperator::kDebounce).OnTrue(
 			HeightCommand { &elevatorSubsystem,
 					Elevator::Destination::kThirdGoal,
-					Elevator::Destination::kAllowableSwitchTime,
-					Elevator::Destination::kAllowableError }.ToPtr());
+					Elevator::Destination::kAllowableSwitchTime }.ToPtr());
 	xboxController.Y().Debounce(Elevator::TeleopOperator::kDebounce).OnTrue(
 			HeightCommand { &elevatorSubsystem,
 					Elevator::Destination::kFourthGoal,
-					Elevator::Destination::kAllowableSwitchTime,
-					Elevator::Destination::kAllowableError }.ToPtr());
+					Elevator::Destination::kAllowableSwitchTime }.ToPtr());
 	xboxController.RightBumper().Debounce(Elevator::TeleopOperator::kDebounce).OnTrue(
 			HeightCommand { &elevatorSubsystem,
-					Elevator::Destination::kCollectionHeight,
-					Elevator::Destination::kAllowableSwitchTime,
-					Elevator::Destination::kAllowableError }.ToPtr());
+					Elevator::Destination::kAbsorbCoralHeight,
+					Elevator::Destination::kAllowableSwitchTime }.ToPtr());
 
-	xboxController.Back().Debounce(Elevator::TeleopOperator::kDebounce).OnTrue(
-			HeightCommand { &elevatorSubsystem,
-					Elevator::Destination::kMaxHeight,
-					Elevator::Destination::kAllowableSwitchTime,
-					Elevator::Destination::kAllowableError }.ToPtr());
-	xboxController.Start().Debounce(Elevator::TeleopOperator::kDebounce).OnTrue(
-			HeightCommand { &elevatorSubsystem,
-					Elevator::Destination::kMinHeight,
-					Elevator::Destination::kAllowableSwitchTime,
-					Elevator::Destination::kAllowableError }.ToPtr());
+	xboxController.LeftBumper().Debounce(Elevator::TeleopOperator::kDebounce).OnTrue(
+			frc2::cmd::RunOnce([&]() -> void {
+				double current = repellerSubsystem.GetRepellerWheelSpeed();
+				repellerSubsystem.SetRepellerWheel(current == 0.0 ? 1.0 : 0.0);
+			},
+			{ &repellerSubsystem }).WithName("Repeller Turns"));
 }
 
 #endif
-#ifndef NO_ARM_ROTATION_COMMAND
+#ifndef NO_ARM
 
 void RobotContainer::BindArmCommand() {
-	frc::EventLoop *loop =
-			frc2::CommandScheduler::GetInstance().GetDefaultButtonLoop();
-	xboxController.GetHID().LeftTrigger(Arm::TeleopOperator::kArmDeadband, loop).Debounce(
-			Arm::TeleopOperator::kDebounce).CastTo<frc2::Trigger>().OnTrue(
-			RotationCommand { &armSubsystem, Arm::Destination::kMaxTurn,
-					Arm::Destination::kAllowableSwitchTime,
-					Arm::Destination::kAllowableError }.ToPtr());
-	xboxController.GetHID().RightTrigger(Arm::TeleopOperator::kArmDeadband,
-			loop).Debounce(Arm::TeleopOperator::kDebounce).CastTo<frc2::Trigger>().OnTrue(
-			RotationCommand { &armSubsystem, Arm::Destination::kMinTurn,
-					Arm::Destination::kAllowableSwitchTime,
-					Arm::Destination::kAllowableError }.ToPtr());
-
-	xboxController.POVUp().Debounce(Arm::TeleopOperator::kDebounce).OnTrue(
+	xboxController.Start().Debounce(Arm::TeleopOperator::kDebounce).OnTrue(
 			RotationCommand { &armSubsystem, Arm::Destination::kTopTurn,
-					Arm::Destination::kAllowableSwitchTime,
-					Arm::Destination::kAllowableError }.ToPtr());
+					Arm::Destination::kAllowableSwitchTime }.ToPtr());
 
-	xboxController.POVLeft().Debounce(Arm::TeleopOperator::kDebounce).OnTrue(
-			RotationCommand { &armSubsystem, Arm::Destination::kMiddleTurn,
-					Arm::Destination::kAllowableSwitchTime,
-					Arm::Destination::kAllowableError }.ToPtr());
+	/*	xboxController.POVLeft().Debounce(Arm::TeleopOperator::kDebounce).OnTrue(
+	 RotationCommand { &armSubsystem, Arm::Destination::kMiddleTurn,
+	 Arm::Destination::kAllowableSwitchTime }.ToPtr()); */
 
-	xboxController.POVDown().Debounce(Arm::TeleopOperator::kDebounce).OnTrue(
+	/*	xboxController.POVRight().Debounce(Arm::TeleopOperator::kDebounce).OnTrue(
+	 RotationCommand { &armSubsystem, Arm::Destination::kMinTurn,
+	 Arm::Destination::kAllowableSwitchTime }.ToPtr()); */
+
+	xboxController.Back().Debounce(Arm::TeleopOperator::kDebounce).OnTrue(
 			RotationCommand { &armSubsystem, Arm::Destination::kBottomTurn,
-					Arm::Destination::kAllowableSwitchTime,
-					Arm::Destination::kAllowableError }.ToPtr());
-
+					Arm::Destination::kAllowableSwitchTime }.ToPtr());
 }
 
 #endif
+#ifndef NO_ROLLER
+void RobotContainer::BindRollerCommands() {
+	using namespace frc2::cmd;
+	xboxController.LeftTrigger(Roller::TeleopOperator::kDriveDeadband).Debounce(
+			Roller::TeleopOperator::kDebounce).ToggleOnTrue(
+			RunOnce([&]() -> void {
+				rollerSubsystem.PutRollerDown();
+			}, { &rollerSubsystem }).WithName("Down"));
+	xboxController.LeftTrigger(Roller::TeleopOperator::kDriveDeadband).Debounce(
+			Roller::TeleopOperator::kDebounce).ToggleOnFalse(
+			RunOnce([&]() -> void {
+				rollerSubsystem.PutRollerUp();
+			}, { &rollerSubsystem }).WithName("Up"));
+
+	xboxController.LeftStick().Debounce(Roller::TeleopOperator::kDebounce).OnTrue(
+			RunOnce([&]() -> void {
+				rollerSubsystem.SetRollerWheel(0.6);
+			}, { &rollerSubsystem }).WithName("Forward"));
+	xboxController.RightStick().Debounce(Roller::TeleopOperator::kDebounce).OnTrue(
+			RunOnce([&]() -> void {
+				rollerSubsystem.SetRollerWheel(-0.6);
+			}, { &rollerSubsystem }).WithName("Reverse"));
+	xboxController.LeftStick().OnFalse(RunOnce([&]() -> void {
+		rollerSubsystem.SetRollerWheel(0.0);
+	}, { &rollerSubsystem }).OnlyIf([&]() -> bool {
+		return !xboxController.RightStick().Get();
+	})
+	);
+	xboxController.RightStick().OnFalse(RunOnce([&]() -> void {
+		rollerSubsystem.SetRollerWheel(0.0);
+	}, { &rollerSubsystem }).OnlyIf([&]() -> bool {
+		return !xboxController.LeftStick().Get();
+	})
+	);
+}
+#endif
+
+#if !defined(NO_ELEVATOR) && !defined(NO_ARM)
+void RobotContainer::BindCoralCommands() {
+	using namespace frc2::cmd;
+	using namespace pathplanner;
+
+	auto atHeight = [&](units::inch_t height) -> bool {
+		return elevatorSubsystem.GetDistance() >= height;
+	};
+	auto meetsClearance = [&]() -> bool {
+		return atHeight(Arm::Mechanism::kRequiredClearance);
+	};
+
+	auto meetAngle = [&](units::turn_t endpoint,
+			units::turn_t tolerance) -> bool {
+		return units::math::abs(armSubsystem.GetRotation() - endpoint)
+				< tolerance;
+	};
+
+	NamedCommands::registerCommand("Absorb Coral",
+			RotationCommand { &armSubsystem, Arm::Destination::kCollectTurn,
+					Arm::Destination::kAllowableSwitchTime,
+					Arm::Destination::kAllowableErrorCommand }.ToPtr().AlongWith(
+					RunOnce([&]() -> void {
+						repellerSubsystem.SetRepellerWheel(0.0);
+					},
+					{ &repellerSubsystem })).AndThen(HeightCommand {
+					&elevatorSubsystem,
+					Elevator::Destination::kAbsorbCoralHeight,
+					Elevator::Destination::kAllowableSwitchTime,
+					Elevator::Destination::kAllowableErrorCommand }.ToPtr()).WithName(
+					"Absorbing Coral"));
+	NamedCommands::registerCommand("Low Rung",
+			HeightCommand { &elevatorSubsystem,
+					Elevator::Destination::kSecondGoal,
+					Elevator::Destination::kAllowableSwitchTime,
+					Elevator::Destination::kAllowableErrorCommand }.ToPtr().AlongWith(
+					Race(WaitUntil(meetsClearance), Wait(2_s)).AndThen(
+							RotationCommand { &armSubsystem,
+									Arm::Destination::kTopTurn,
+									Arm::Destination::kAllowableSwitchTime,
+									Arm::Destination::kAllowableErrorCommand }.ToPtr())).WithName(
+					"Push Second Goal"));
+	NamedCommands::registerCommand("Middle Rung",
+			HeightCommand { &elevatorSubsystem,
+					Elevator::Destination::kThirdGoal,
+					Elevator::Destination::kAllowableSwitchTime,
+					Elevator::Destination::kAllowableErrorCommand }.ToPtr().AlongWith(
+					Race(WaitUntil(meetsClearance), Wait(2_s)).AndThen(
+							RotationCommand { &armSubsystem,
+									Arm::Destination::kTopTurn,
+									Arm::Destination::kAllowableSwitchTime,
+									Arm::Destination::kAllowableErrorCommand }.ToPtr())).WithName(
+					"Push Third Goal"));
+	NamedCommands::registerCommand("High Rung",
+			HeightCommand { &elevatorSubsystem,
+					Elevator::Destination::kThirdGoal,
+					Elevator::Destination::kAllowableSwitchTime,
+					Elevator::Destination::kAllowableErrorCommand }.ToPtr().AlongWith(
+					Race(WaitUntil(meetsClearance), Wait(2_s)).AndThen(
+							RotationCommand { &armSubsystem,
+									Arm::Destination::kTopTurn,
+									Arm::Destination::kAllowableSwitchTime,
+									Arm::Destination::kAllowableErrorCommand }.ToPtr())).AndThen(
+					WaitUntil(
+							[meetAngle]() -> bool {
+								return meetAngle(Arm::Destination::kTopTurn,
+										Arm::Destination::kAllowableErrorCommand);
+							})
+			).AndThen(HeightCommand { &elevatorSubsystem,
+					Elevator::Destination::kFourthGoal,
+					Elevator::Destination::kAllowableSwitchTime,
+					Elevator::Destination::kAllowableErrorCommand }.ToPtr()).AndThen(
+					RotationCommand { &armSubsystem,
+							Arm::Destination::kMiddleTurn,
+							Arm::Destination::kAllowableSwitchTime,
+							Arm::Destination::kAllowableErrorCommand }.ToPtr()));
+	NamedCommands::registerCommand("Collect Coral",
+			HeightCommand { &elevatorSubsystem,
+					Elevator::Destination::kCollectionHeight,
+					Elevator::Destination::kAllowableSwitchTime }.ToPtr().WithName(
+					"Collecting Coral"));
+	NamedCommands::registerCommand("Start Repel", RunOnce([&]() -> void {
+		repellerSubsystem.SetRepellerWheel(1.0);
+	}, { &repellerSubsystem }));
+	NamedCommands::registerCommand("Stop Repel", RunOnce([&]() -> void {
+		repellerSubsystem.SetRepellerWheel(0.0);
+	}, { &repellerSubsystem }));
+
+}
+#endif 
 
 void RobotContainer::PrintDisabledSystems() {
 #ifdef NO_SWERVE

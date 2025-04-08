@@ -3,45 +3,45 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 8.038741438356164,
-        "y": 5.084310787671233
+        "x": 8.0,
+        "y": 0.77
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.690453550787876,
-        "y": 5.514853855282829
+        "x": 6.109707538405939,
+        "y": 0.8503642311023313
       },
       "isLocked": false,
       "linkedName": "Far-In"
     },
     {
       "anchor": {
-        "x": 3.7413955479452055,
-        "y": 5.970826198630136
+        "x": 2.8398544520547944,
+        "y": 1.8252561475409823
       },
       "prevControl": {
-        "x": 5.070451355968652,
-        "y": 6.628419719229058
+        "x": 3.845259551859484,
+        "y": 0.3915980062409359
       },
       "nextControl": {
-        "x": 2.9097280869399142,
-        "y": 5.559331714840643
+        "x": 1.9922326419958356,
+        "y": 3.033923090816457
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 2.8398544520547944,
-        "y": 4.197795376712328
+        "x": 2.7691598360655743,
+        "y": 4.198821721311475
       },
       "prevControl": {
-        "x": 2.599443493150685,
-        "y": 4.783797089041096
+        "x": 2.33883407253537,
+        "y": 4.45158986918931
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Reef A"
+      "linkedName": "Reef"
     }
   ],
   "rotationTargets": [],
@@ -49,10 +49,10 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 5.0,
+    "maxVelocity": 3.0,
     "maxAcceleration": 5.0,
     "maxAngularVelocity": 540.0,
-    "maxAngularAcceleration": 720.0,
+    "maxAngularAcceleration": 280.0,
     "nominalVoltage": 12.0,
     "unlimited": false
   },

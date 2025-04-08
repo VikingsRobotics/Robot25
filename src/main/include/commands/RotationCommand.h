@@ -16,7 +16,7 @@ class RotationCommand: public frc2::CommandHelper<frc2::Command, RotationCommand
 public:
 	// Use this constructor for stopping after reaching destination (within error), don't fill last for continous
 	RotationCommand(ArmSubsystem *const subsystem, units::turn_t rotation,
-			units::second_t switchTime, units::turn_t allowedError);
+			units::second_t switchTime, units::turn_t allowedError = -1_tr);
 
 	void Initialize() override;
 

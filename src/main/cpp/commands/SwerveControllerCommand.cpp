@@ -5,7 +5,7 @@
 
 #include <frc/kinematics/ChassisSpeeds.h>
 
-#include <frc/shuffleboard/Shuffleboard.h>
+#include <frc/smartdashboard/Smartdashboard.h>
 
 #include <frc2/command/RunCommand.h>
 
@@ -17,23 +17,6 @@ SwerveControllerCommand::SwerveControllerCommand(
 		Drive::TeleopOperator::kLimiter } {
 	AddRequirements (m_subsystem);
 	SetName("Swerve Xbox Controller Command");
-
-	frc::ShuffleboardTab &smart = frc::Shuffleboard::GetTab("SmartDashboard");
-	frc::ShuffleboardLayout &layout = smart.GetLayout("Swerve",
-			frc::BuiltInLayouts::kList);
-
-	layout.AddNumber("Throttle", [&]() -> double {
-		return m_internalThrottle;
-	});
-	layout.AddBoolean("Field Centric", [&]() -> bool {
-		return m_fieldCentric;
-	});
-	layout.AddBoolean("Stored Throttle", [&]() -> bool {
-		return m_storedThrottle;
-	});
-	layout.AddBoolean("Precision Mode", [&]() -> bool {
-		return m_precision;
-	});
 }
 
 void SwerveControllerCommand::Initialize() {
@@ -47,6 +30,10 @@ void SwerveControllerCommand::Initialize() {
 }
 
 void SwerveControllerCommand::Execute() {
+	frc::SmartDashboard::PutNumber("Throttle", m_internalThrottle);
+	frc::SmartDashboard::PutBoolean("Stored Throttle", m_storedThrottle);
+	frc::SmartDashboard::PutBoolean("Field Centric", m_fieldCentric);
+	frc::SmartDashboard::PutBoolean("Precision Mode", m_precision);
 	if (m_controller.GetRightBumperButtonPressed()) {
 		m_fieldCentric = !m_fieldCentric;
 	}

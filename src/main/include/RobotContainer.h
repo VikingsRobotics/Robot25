@@ -31,7 +31,7 @@ public:
 
 	frc2::Command* GetAutonomousCommand();
 
-private:
+public:
 	void ConfigureBindings();
 	void PrintDisabledSystems();
 #ifndef NO_SWERVE_SYSID_COMMAND
@@ -40,14 +40,6 @@ private:
 			"Swerve System Identification Command can only be run in Test Mode",
 			frc::Alert::AlertType::kWarning };
 	std::vector<frc2::CommandPtr> SwerveSysId { };
-#endif
-#ifndef NO_ELEVATOR_HEIGHT_COMMAND
-	void BindElevatorCommand();
-	std::vector<HeightCommand> destinationCommands { };
-#endif
-#ifndef NO_ARM_ROTATION_COMMAND
-	void BindArmCommand();
-	std::vector<RotationCommand> rotationCommands { };
 #endif
 #ifndef NO_SWERVE
 	SwerveSubsystem swerveSubsystem { };
@@ -61,13 +53,19 @@ private:
 #endif
 #endif
 #ifndef NO_ELEVATOR
+	void BindElevatorCommand();
 	ElevatorSubsystem elevatorSubsystem { };
 	RepellerSubsystem repellerSubsystem { };
 #endif
+#if !defined(NO_ELEVATOR) && !defined(NO_ARM)
+	void BindCoralCommands();
+#endif 
 #ifndef NO_ARM
+	void BindArmCommand();
 	ArmSubsystem armSubsystem { };
 #endif
 #ifndef NO_ROLLER
+	void BindRollerCommands();
 	RollerSubsystem rollerSubsystem { };
 #endif
 	/* [[maybe_unused]] */

@@ -58,6 +58,9 @@ constexpr double kDefaultThrottleXbox = 0.7;
 constexpr units::radians_per_second_t kDriveAngleSpeedMax = 3.0_rad_per_s;
 //Maximum turning speed that the robot will move (limited by physical design)
 constexpr units::radians_per_second_t kDriveAngleSpeedPrecision = 0.5_rad_per_s;
+
+constexpr units::second_t kDebounce = 0.1_s;
+constexpr units::second_t kVisionDebounce = 0.35_s;
 }
 
 namespace DeviceProperties {
@@ -134,13 +137,13 @@ constexpr units::second_t kTimeout { 10.0 };
 
 namespace Vision {
 /* rPi code at https://github.com/VikingsRobotics/PiVision */
-constexpr units::second_t kProcessDataEvery = 0.5_s;
-constexpr uint8_t kProcessDataOnNth = 8;
+constexpr units::second_t kProcessDataEvery = 0.2_s;
+constexpr uint8_t kProcessDataOnNth = 16;
 constexpr float kRequiredConfidence = 0.0;
-constexpr units::meter_t kRequiredDeltaDistance { 0.5 };
+constexpr units::meter_t kRequiredDeltaDistance = 3_ft;
 constexpr size_t kNumAprilTags = 22;
-constexpr frc::Transform3d kCameraMountingPosition { frc::Translation3d {
-		14.5_in, 0_in, 16_in }, frc::Rotation3d { 0_rad, 5_deg, 0_rad } };
+constexpr frc::Transform3d kCameraMountingPosition { frc::Translation3d { 10_in,
+		0_in, 16_in }, frc::Rotation3d { 0_rad, 0_deg, 0_rad } };
 }
 
 namespace AutoSettings {
@@ -164,16 +167,15 @@ constexpr units::radians_per_second_squared_t kMaxAngularAcceleration =
 namespace Align {
 // Source: https://github.com/ElectroBunny/BetaBot2025/blob/develop/src/main/java/frc/robot/Constants.java
 namespace System {
-constexpr double kXTranslationP = 0.33;
-constexpr double kYTranslationP = 0.33;
+constexpr double kTranslationP = 0.33;
 constexpr double kRotationP = 0.33;
 }
 namespace Location {
-constexpr frc::Transform2d kRightBranch { frc::Translation2d { 13_in, 6_in },
-		frc::Rotation2d { 0_deg } };
-constexpr frc::Transform2d kLeftBranch { frc::Translation2d { 13_in, -6_in },
-		frc::Rotation2d { 0_deg } };
-constexpr frc::Transform2d kBranchThreshold { frc::Translation2d { 0.7_in,
+constexpr frc::Transform2d kRightBranch { frc::Translation2d { 0.5_in, 3.5_in },
+		frc::Rotation2d { 180_deg } };
+constexpr frc::Transform2d kLeftBranch { frc::Translation2d { 0.5_in, -3.5_in },
+		frc::Rotation2d { 180_deg } };
+constexpr frc::Transform2d kBranchThreshold { frc::Translation2d { 0.2_in,
 		0.7_in }, frc::Rotation2d { 1_deg } };
 }
 namespace Time {
@@ -187,19 +189,21 @@ namespace Arm {
 
 namespace TeleopOperator {
 //Debounce on different positions
-constexpr units::second_t kDebounce { 1.0 };
+constexpr units::second_t kDebounce { 0.1 };
 //Minimum percent of controller distance before robot response
 constexpr double kArmDeadband = 0.15;
 }
 
 namespace Destination {
-constexpr units::turn_t kAllowableError { 0.1 };
+constexpr units::turn_t kAllowableError = 10_deg;
+constexpr units::turn_t kAllowableErrorCommand = 15_deg;
 constexpr units::second_t kAllowableSwitchTime { 0.5 };
-constexpr units::turn_t kMinTurn { 0.0 };
-constexpr units::turn_t kMaxTurn { 0.5 };
-constexpr units::turn_t kBottomTurn { 0.15 };
-constexpr units::turn_t kMiddleTurn { 0.25 };
-constexpr units::turn_t kTopTurn { 0.4 };
+constexpr units::turn_t kMinTurn = -100.0_deg;
+constexpr units::turn_t kMaxTurn = 180.0_deg;
+constexpr units::turn_t kBottomTurn = -90_deg;
+constexpr units::turn_t kMiddleTurn = 15_deg;
+constexpr units::turn_t kTopTurn = 130_deg;
+constexpr units::turn_t kCollectTurn = -90_deg;
 }
 
 namespace DeviceProperties {
@@ -215,11 +219,18 @@ constexpr bool kInvertEncoder = false;
 namespace Mechanism {
 constexpr units::volt_t kStaticVoltage { 0.0 };
 constexpr units::volt_t kGravity { 0.0 };
+constexpr units::scalar_t kReducedGearRatio { 1.0 / 45.0 };
+constexpr units::scalar_t kTeethRatio { 16.0 / 26.0 };
+constexpr units::scalar_t kGearRatio = kReducedGearRatio * kTeethRatio;
 constexpr units::turn_t kRotationalOffset = -90_deg;
-constexpr units::turns_per_second_t kMaxAngularSpeed { 1.0 };
-constexpr units::turns_per_second_squared_t kMaxAngularAcceleration { 1.0 };
-constexpr units::scalar_t kGearRatio { 1.0 / 45.0 };
-constexpr units::meter_t kArmLength = units::inch_t { 15 };
+constexpr units::turns_per_second_t kMaxAngularSpeed { 0.5 };
+constexpr units::revolutions_per_minute_t kMaxSpeed = kMaxAngularSpeed
+		/ kGearRatio;
+constexpr units::turns_per_second_squared_t kMaxAngularAcceleration { 0.25 };
+constexpr units::revolutions_per_minute_per_second_t kMaxAccel =
+		kMaxAngularAcceleration / kGearRatio;
+constexpr units::meter_t kArmLength = units::inch_t { 16 };
+constexpr units::meter_t kRequiredClearance = units::inch_t { 3 };
 }
 }
 
@@ -238,14 +249,16 @@ constexpr double kDriveDeadband = 0.15;
 }
 
 namespace Destination {
-constexpr units::meter_t kAllowableError { 0.1 };
+constexpr units::meter_t kAllowableError = 0.05_in;
+constexpr units::meter_t kAllowableErrorCommand = 0.10_in;
 constexpr units::second_t kAllowableSwitchTime { 0.5 };
-constexpr units::meter_t kMaxHeight = 26_in;
-constexpr units::meter_t kCollectionHeight = 7_in;
+constexpr units::meter_t kMaxHeight = 24_in;
 constexpr units::meter_t kFourthGoal = 23_in;
-constexpr units::meter_t kThirdGoal = 20_in;
-constexpr units::meter_t kSecondGoal = 14_in;
-constexpr units::meter_t kFirstGoal = 10_in;
+constexpr units::meter_t kThirdGoal = 18.5_in;
+constexpr units::meter_t kSecondGoal = 4.5_in;
+//constexpr units::meter_t kFirstGoal = 10_in;
+constexpr units::meter_t kCollectionHeight = 7_in;
+constexpr units::meter_t kAbsorbCoralHeight = 0.5_in;
 constexpr units::meter_t kMinHeight = 0_in;
 }
 
@@ -253,15 +266,19 @@ namespace Mechanism {
 constexpr units::volt_t kStaticVoltage { 0.0 };
 constexpr units::volt_t kGravity { 0.0 };
 constexpr units::scalar_t kGearRatio { 1 / 20.0 };
-constexpr units::meter_t kGearDiameter = units::inch_t { 1.80 };
-// 20 turns / diameter*pi inchs
+constexpr units::meter_t kGearDiameter = units::inch_t { 1.75 };
+constexpr units::meter_t kGearCircumference = kGearDiameter * std::numbers::pi;
 constexpr units::unit_t<
-		units::compound_unit<units::turn, units::inverse<units::meter>>> kDistanceToRotation =
-		(1_tr) / (kGearDiameter * std::numbers::pi * kGearRatio);
+		units::compound_unit<units::meter, units::inverse<units::turn>>> kRotationToDistance =
+		(kGearCircumference * kGearRatio) / 1_tr;
 // 9 inch per second
-constexpr units::meters_per_second_t kMaxSpeedInMeters = 0.75_fps;
+constexpr units::meters_per_second_t kMaxSpeedInMeters = 1.5_fps;
+constexpr units::revolutions_per_minute_t kMaxSpeed = kMaxSpeedInMeters
+		/ kRotationToDistance;
 // 9 inch per second squared
-constexpr units::meters_per_second_squared_t kMaxAccelInMeters = 0.75_fps_sq;
+constexpr units::meters_per_second_squared_t kMaxAccelInMeters = 2_fps_sq;
+constexpr units::revolutions_per_minute_per_second_t kMaxAccel =
+		kMaxAccelInMeters / kRotationToDistance;
 }
 
 namespace DeviceProperties {
@@ -276,14 +293,20 @@ constexpr rev::spark::SparkLowLevel::MotorType kSparkMotorType =
 }
 
 namespace Roller {
+namespace TeleopOperator {
+//Debounce on different positions
+constexpr units::second_t kDebounce { 0.1 };
+//Minimum percent of controller distance before robot response
+constexpr double kDriveDeadband = 0.50;
+}
 namespace DeviceProperties {
 // Pneumatics Hub Type
 constexpr frc::PneumaticsModuleType kModuleType =
 		frc::PneumaticsModuleType::CTREPCM;
 }
 namespace SolenoidId {
-constexpr int kForwardChannelId = 0;
-constexpr int kReverseChannelId = 1;
+constexpr int kForwardChannelId = 1;
+constexpr int kReverseChannelId = 0;
 }
 
 }

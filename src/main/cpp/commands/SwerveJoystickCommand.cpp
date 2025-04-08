@@ -5,7 +5,7 @@
 
 #include <frc/kinematics/ChassisSpeeds.h>
 
-#include <frc/shuffleboard/Shuffleboard.h>
+#include <frc/smartdashboard/Smartdashboard.h>
 
 #include <frc2/command/RunCommand.h>
 
@@ -16,28 +16,10 @@ SwerveJoystickCommand::SwerveJoystickCommand(SwerveSubsystem *const subsystem,
 		Drive::TeleopOperator::kLimiter } {
 	AddRequirements (m_subsystem);
 	SetName("Swerve Joystick Command");
-
-	frc::ShuffleboardTab &smart = frc::Shuffleboard::GetTab("SmartDashboard");
-	frc::ShuffleboardLayout &layout = smart.GetLayout("Swerve",
-			frc::BuiltInLayouts::kList);
-
-	layout.AddNumber("Throttle", [&]() -> double {
-		return (-m_joystick.GetRawAxis(3) + 1) / 2;
-	});
-	layout.AddBoolean("Field Centric", [&]() -> bool {
-		return m_fieldCentric;
-	});
-	layout.AddBoolean("Stored Throttle", [&]() -> bool {
-		return false;
-	});
-	layout.AddBoolean("Precision Mode", [&]() -> bool {
-		return m_precision;
-	});
 }
 
 void SwerveJoystickCommand::Initialize() {
 	m_fieldCentric = true;
-	m_precision = false;
 	m_limiterX.Reset(0);
 	m_limiterY.Reset(0);
 	m_limiterA.Reset(0);
@@ -45,11 +27,10 @@ void SwerveJoystickCommand::Initialize() {
 
 void SwerveJoystickCommand::Execute() {
 	double throttle = (-m_joystick.GetRawAxis(3) + 1) / 2;
+	frc::SmartDashboard::PutNumber("Throttle", throttle);
+	frc::SmartDashboard::PutBoolean("Field Centric", m_fieldCentric);
 	if (m_joystick.GetRawButtonPressed(2)) {
 		m_fieldCentric = !m_fieldCentric;
-	}
-	if (m_joystick.GetRawButtonPressed(4)) {
-		m_precision = !m_precision;
 	}
 	if (m_joystick.GetRawButtonPressed(5)) {
 		m_subsystem->ZeroHeading();
@@ -93,19 +74,9 @@ void SwerveJoystickCommand::Execute() {
 	units::meters_per_second_t vy = 0_mps;
 	units::radians_per_second_t va = 0_rad_per_s;
 
-	if (!m_precision) {
-		vx = renormalizedX * throttle
-				* Drive::TeleopOperator::kDriveMoveSpeedMax;
-		vy = renormalizedY * throttle
-				* Drive::TeleopOperator::kDriveMoveSpeedMax;
-		va = renormalizedA * throttle
-				* Drive::TeleopOperator::kDriveAngleSpeedMax;
-	} else {
-		vx = renormalizedX * throttle * Drive::TeleopOperator::kDrivePrecision;
-		vy = renormalizedY * throttle * Drive::TeleopOperator::kDrivePrecision;
-		va = renormalizedA * throttle
-				* Drive::TeleopOperator::kDriveAngleSpeedPrecision;
-	}
+	vx = renormalizedX * throttle * Drive::TeleopOperator::kDriveMoveSpeedMax;
+	vy = renormalizedY * throttle * Drive::TeleopOperator::kDriveMoveSpeedMax;
+	va = renormalizedA * throttle * Drive::TeleopOperator::kDriveAngleSpeedMax;
 
 	frc::ChassisSpeeds speeds { };
 	if (m_fieldCentric) {

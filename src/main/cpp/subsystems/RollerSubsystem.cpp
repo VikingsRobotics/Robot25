@@ -12,7 +12,7 @@ RollerSubsystem::RollerSubsystem() : m_rollerWheel {
 		Roller::SolenoidId::kForwardChannelId,
 		Roller::SolenoidId::kReverseChannelId } {
 	SetRollerWheel(0.0);
-	//PutRollerDown();
+	PutRollerUp();
 
 	SetName("Roller Subsystem");
 	frc::SmartDashboard::PutData(this);
@@ -21,7 +21,7 @@ RollerSubsystem::RollerSubsystem() : m_rollerWheel {
 void RollerSubsystem::Periodic() {
 	frc::SmartDashboard::PutString("Roller Motor",
 			GetRollerWheelSpeed() == 0 ? "Stalling" :
-			GetRollerWheelSpeed() > 0 ? "Forward" : "Backward");
+			GetRollerWheelSpeed() < 0 ? "Sucking" : "Throwing");
 	frc::SmartDashboard::PutString("Roller Pos",
 			IsRollerDown() ? "Down" : IsRollerUp() ? "Up" : "Unmoved");
 	frc::SmartDashboard::PutNumber("Roller Speed", +GetRollerWheelSpeed());
@@ -32,7 +32,6 @@ void RollerSubsystem::PutRollerDown() {
 }
 
 void RollerSubsystem::PutRollerUp() {
-	SetRollerWheel(0.0);
 	m_solenoid.Set(frc::DoubleSolenoid::Value::kReverse);
 }
 

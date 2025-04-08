@@ -8,7 +8,7 @@
 
 HeightCommand::HeightCommand(ElevatorSubsystem *const subsystem,
 		units::meter_t height, units::second_t switchTime,
-		units::meter_t allowedError = -1_m) : m_subsystem { subsystem }, m_desiredHeight {
+		units::meter_t allowedError) : m_subsystem { subsystem }, m_desiredHeight {
 		height }, m_stopOnLimitSeconds { switchTime }, m_allowedError {
 		allowedError }, m_limitSwitch { subsystem->LimiterTriggered() } {
 	AddRequirements(subsystem);
@@ -21,22 +21,27 @@ static units::scalar_t sign(units::meter_t input) {
 
 void HeightCommand::Initialize() {
 	// Nothing (for now >:])
-	m_subsystem->RunHeight(m_desiredHeight,
-			(sign(m_desiredHeight - m_subsystem->GetHeight())
+	m_subsystem->RunDistance(m_desiredHeight,
+			(sign(m_desiredHeight - m_subsystem->GetDistance())
 					* Elevator::Mechanism::kStaticVoltage)
 					+ Elevator::Mechanism::kGravity);
+#ifdef SMART_DEBUG
 	frc::SmartDashboard::PutNumber("Desired Height (Inch)", units::inch_t {
 			m_desiredHeight }.value());
+	#endif
 }
 
 void HeightCommand::Execute() {
 	// Nothing (for now >:])
-	units::inch_t error = m_desiredHeight - m_subsystem->GetHeight();
+#ifdef SMART_DEBUG
+	units::inch_t error = m_subsystem->GetDistance() - m_desiredHeight;
 	frc::SmartDashboard::PutNumber("Error Height (Inch)", error.value());
-	units::turn_t errorRotation = m_subsystem->ConvertDistanceToRotation(
-			m_desiredHeight) - m_subsystem->GetRotation();
+	units::turn_t errorRotation = m_subsystem->ConvertRawToRotation(
+			m_subsystem->ConvertDistanceToRaw(m_desiredHeight))
+			- m_subsystem->GetRotation();
 	frc::SmartDashboard::PutNumber("Error Rotation (Rot)",
 			errorRotation.value());
+	#endif
 }
 
 void HeightCommand::End(bool interrupted) {
@@ -44,9 +49,9 @@ void HeightCommand::End(bool interrupted) {
 }
 
 bool HeightCommand::IsFinished() {
-	units::inch_t error = m_desiredHeight - m_subsystem->GetHeight();
-	return m_limitSwitch.Debounce(m_stopOnLimitSeconds).Get()
-			|| units::math::abs(error) < m_allowedError;
+	units::inch_t error = m_subsystem->GetDistance() - m_desiredHeight;
+	return units::math::abs(error) < m_allowedError
+			|| m_limitSwitch.Debounce(m_stopOnLimitSeconds).Get();
 }
 
 units::meter_t HeightCommand::GetDesiredHeight() {

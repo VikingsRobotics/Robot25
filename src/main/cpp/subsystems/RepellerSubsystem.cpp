@@ -8,7 +8,7 @@
 
 RepellerSubsystem::RepellerSubsystem() : m_wheel {
 		DeviceIdentifier::kRepellerWheelId } {
-	SetName("Elev Wheel Subsystem");
+	SetName("Repeller Subsystem");
 	frc::SmartDashboard::PutData(this);
 }
 

@@ -15,19 +15,16 @@ ArmSubsystem::ArmSubsystem() : m_directionMotor {
 			rev::spark::SparkBase::ResetMode::kNoResetSafeParameters,
 			rev::spark::SparkBase::PersistMode::kPersistParameters);
 
-	frc::SmartDashboard::PutNumber("Offset Rot", m_rotationalOffset.value());
+	m_directionEncoder.SetPosition(
+			ConvertRotationToRaw(Arm::Mechanism::kRotationalOffset).value());
 
 	SetName("Arm Subsystem");
 	frc::SmartDashboard::PutData(this);
 }
 
 void ArmSubsystem::Periodic() {
-	frc::SmartDashboard::PutNumber("Current Rot",
-			(units::turn_t { m_directionEncoder.GetPosition() }
-					* Arm::Mechanism::kGearRatio).value());
-	frc::SmartDashboard::PutNumber("Full Rot",
-			((units::turn_t { m_directionEncoder.GetPosition() }
-					* Arm::Mechanism::kGearRatio) + m_rotationalOffset).value());
+	frc::SmartDashboard::PutNumber("Current Rot (deg)", units::degree_t {
+			GetRotation() }.value());
 }
 
 frc2::Trigger ArmSubsystem::LimiterTriggered() {
@@ -47,8 +44,7 @@ void ArmSubsystem::RunRawRotation(units::turn_t rotation,
 		units::volt_t staticVolt) {
 	m_directionPID.SetReference(rotation.value(),
 			rev::spark::SparkLowLevel::ControlType::kMAXMotionPositionControl,
-			rev::spark::kSlot0,
-			(staticVolt * units::math::cos((rotation) + m_rotationalOffset)).value());
+			rev::spark::kSlot0, staticVolt.value());
 }
 
 void ArmSubsystem::RunVoltage(units::volt_t voltage) {
@@ -63,36 +59,24 @@ units::meter_t ArmSubsystem::GetArcDistance(units::turn_t from) {
 	return ((GetRotation() - from) / 1_tr) * Arm::Mechanism::kArmLength;
 }
 
-units::turn_t ArmSubsystem::GetDeltaRotation() {
-	return ConvertRawToRotation(GetDeltaRawRotation());
-}
-
 units::turn_t ArmSubsystem::GetRotation() {
-	return GetDeltaRotation() + m_rotationalOffset;
-}
-
-units::turn_t ArmSubsystem::GetDeltaRawRotation() {
-	return units::turn_t { m_directionEncoder.GetPosition() };
+	return ConvertRawToRotation(GetRawRotation());
 }
 
 units::turn_t ArmSubsystem::GetRawRotation() {
-	return GetDeltaRawRotation() + ConvertRotationToRaw(m_rotationalOffset);
+	return units::turn_t { m_directionEncoder.GetPosition() };
 }
 
 double ArmSubsystem::GetPercent() {
 	return m_directionMotor.Get();
 }
 
-units::turn_t ArmSubsystem::GetRotationalOffset() {
-	return m_rotationalOffset;
-}
-
 units::turn_t ArmSubsystem::ConvertRawToRotation(units::turn_t raw) {
-	return raw / Arm::Mechanism::kGearRatio;
+	return raw * Arm::Mechanism::kGearRatio;
 }
 
 units::turn_t ArmSubsystem::ConvertRotationToRaw(units::turn_t rotation) {
-	return rotation * Arm::Mechanism::kGearRatio;
+	return rotation / Arm::Mechanism::kGearRatio;
 }
 
 #endif

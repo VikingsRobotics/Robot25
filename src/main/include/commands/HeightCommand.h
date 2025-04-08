@@ -14,7 +14,7 @@ class HeightCommand: public frc2::CommandHelper<frc2::Command, HeightCommand> {
 public:
 	// Use this constructor for stopping after reaching destination (within error), don't fill last for continous
 	HeightCommand(ElevatorSubsystem *const subsystem, units::meter_t height,
-			units::second_t switchTime, units::meter_t allowedError);
+			units::second_t switchTime, units::meter_t allowedError = -1_m);
 
 	void Initialize() override;
 
