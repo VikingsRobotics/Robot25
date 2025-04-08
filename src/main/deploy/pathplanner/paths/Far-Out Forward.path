@@ -3,41 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.0,
-        "y": 7.0
+        "x": 8.0,
+        "y": 7.2563380281643814
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.4858361934686064,
-        "y": 7.349221918439167
+        "x": 9.0,
+        "y": 7.2563380281643814
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Far-Out"
     },
     {
       "anchor": {
-        "x": 5.589554794520548,
-        "y": 7.0
+        "x": 6.2336065573770485,
+        "y": 7.2563380281643814
       },
       "prevControl": {
-        "x": 4.62847303337664,
-        "y": 7.665282535388888
-      },
-      "nextControl": {
-        "x": 7.307234746352999,
-        "y": 5.810983082249286
-      },
-      "isLocked": false,
-      "linkedName": null
-    },
-    {
-      "anchor": {
-        "x": 7.1372003424657535,
-        "y": 1.027375856164383
-      },
-      "prevControl": {
-        "x": 6.47010581501949,
-        "y": 2.6678292007890594
+        "x": 5.2336065573770485,
+        "y": 7.2563380281643814
       },
       "nextControl": null,
       "isLocked": false,
@@ -49,10 +33,10 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 5.0,
+    "maxVelocity": 3.0,
     "maxAcceleration": 5.0,
     "maxAngularVelocity": 540.0,
-    "maxAngularAcceleration": 720.0,
+    "maxAngularAcceleration": 280.0,
     "nominalVoltage": 12.0,
     "unlimited": false
   },

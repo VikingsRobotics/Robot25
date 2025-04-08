@@ -6,6 +6,7 @@
 namespace Drive {
 
 namespace DeviceProperties {
+
 static rev::spark::SparkMaxConfig storedConfig { };
 rev::spark::SparkMaxConfig& GetSparkMaxConfig() {
 	rev::spark::SparkMaxConfig &config = storedConfig;
@@ -21,8 +22,6 @@ rev::spark::SparkMaxConfig& GetSparkMaxConfig() {
 			rev::spark::ClosedLoopConfig::kAbsoluteEncoder);
 
 	// * POSITION CLOSED-LOOP * //
-	config.closedLoop.MinOutput(0);
-	config.closedLoop.MaxOutput(std::numbers::pi * 2);
 	config.closedLoop.OutputRange(-1, 1);
 	config.closedLoop.Pidf(1.0, 0.0, 0.0, 0.0);
 	// * END CLOSED-LOOP * //
@@ -68,7 +67,7 @@ ctre::phoenix6::configs::TalonFXConfiguration GetTalonFXConfig() {
 }
 
 namespace SystemControl {
-const frc::SwerveDriveKinematics<4> kDriveKinematics { frc::Translation2d {
+frc::SwerveDriveKinematics<4> kDriveKinematics { frc::Translation2d {
 		+Mechanism::kWheelBase / 2, +Mechanism::kTrackWidth / 2 },
 		frc::Translation2d { +Mechanism::kWheelBase / 2, -Mechanism::kTrackWidth
 				/ 2 }, frc::Translation2d { -Mechanism::kWheelBase / 2,
@@ -78,3 +77,95 @@ const frc::SwerveDriveKinematics<4> kDriveKinematics { frc::Translation2d {
 
 }
 }
+
+namespace Arm {
+
+namespace DeviceProperties {
+
+static rev::spark::SparkMaxConfig storedConfig { };
+rev::spark::SparkMaxConfig& GetSparkMaxConfig() {
+	rev::spark::SparkMaxConfig &config = storedConfig;
+	//config.encoder.Inverted(kInvertEncoder);
+	config.Inverted(true);
+
+	config.closedLoop.PositionWrappingEnabled(true);
+	config.closedLoop.SetFeedbackSensor(
+			rev::spark::ClosedLoopConfig::kPrimaryEncoder);
+
+	config.softLimit.ForwardSoftLimitEnabled(true);
+	config.softLimit.ForwardSoftLimit(
+			(Destination::kMaxTurn / Mechanism::kGearRatio).value());
+	config.softLimit.ReverseSoftLimitEnabled(true);
+	config.softLimit.ReverseSoftLimit(
+			(Destination::kMinTurn / Mechanism::kGearRatio).value());
+
+	// * SMART MOTION CLOSED-LOOP * //
+	config.closedLoop.OutputRange(-1, 1);
+	config.closedLoop.Pidf(1.0, 0.0, 0.0, 0.0);
+	// SMART MOTION CONFIGS
+	config.closedLoop.maxMotion.MaxVelocity(Mechanism::kMaxSpeed.value());
+	config.closedLoop.maxMotion.MaxAcceleration(Mechanism::kMaxAccel.value());
+	config.closedLoop.maxMotion.PositionMode(
+			rev::spark::MAXMotionConfig::MAXMotionPositionMode::kMAXMotionTrapezoidal);
+	config.closedLoop.maxMotion.AllowedClosedLoopError(
+			(Destination::kAllowableError / Mechanism::kGearRatio).value());
+	// * END CLOSED-LOOP * //
+
+	config.SetIdleMode(rev::spark::SparkBaseConfig::kBrake);
+
+	return config;
+}
+
+}
+}
+namespace Elevator {
+
+namespace DeviceProperties {
+
+static rev::spark::SparkMaxConfig storedElevatorConfig { };
+rev::spark::SparkMaxConfig& GetElevatorConfig() {
+	rev::spark::SparkMaxConfig &config = storedElevatorConfig;
+	//config.encoder.PositionConversionFactor(
+	//		Mechanism::kGearRatio.value() * 2 * std::numbers::pi);
+	//config.encoder.VelocityConversionFactor(
+	//		(Mechanism::kGearRatio.value() * 2 * std::numbers::pi) / 60);
+
+	config.closedLoop.SetFeedbackSensor(
+			rev::spark::ClosedLoopConfig::FeedbackSensor::kPrimaryEncoder);
+
+	config.closedLoop.Pidf(0.5, 0, 1, 0);
+	config.closedLoop.PositionWrappingEnabled(false);
+	config.closedLoop.OutputRange(-0.50, 1);
+
+	config.softLimit.ForwardSoftLimitEnabled(true);
+	config.softLimit.ForwardSoftLimit(
+			(Destination::kMaxHeight / Mechanism::kRotationToDistance).value());
+	config.softLimit.ReverseSoftLimitEnabled(true);
+	config.softLimit.ReverseSoftLimit(
+			(Destination::kMinHeight / Mechanism::kRotationToDistance).value());
+
+	config.closedLoop.maxMotion.MaxVelocity(Mechanism::kMaxSpeed.value());
+	config.closedLoop.maxMotion.MaxAcceleration(Mechanism::kMaxAccel.value());
+	config.closedLoop.maxMotion.PositionMode(
+			rev::spark::MAXMotionConfig::MAXMotionPositionMode::kMAXMotionTrapezoidal);
+	config.closedLoop.maxMotion.AllowedClosedLoopError(
+			(Destination::kAllowableError / Mechanism::kRotationToDistance).value());
+
+	config.SetIdleMode(rev::spark::SparkBaseConfig::kBrake);
+
+	return config;
+}
+static rev::spark::SparkMaxConfig storedFollowerConfig { };
+rev::spark::SparkMaxConfig& GetFollowerConfig() {
+	rev::spark::SparkMaxConfig &config = storedFollowerConfig;
+
+	config.Follow(DeviceIdentifier::kElevatorDriverId, true);
+
+	config.SetIdleMode(rev::spark::SparkBaseConfig::kBrake);
+
+	return config;
+}
+
+}
+}
+

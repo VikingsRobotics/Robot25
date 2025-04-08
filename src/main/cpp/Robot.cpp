@@ -5,8 +5,10 @@
 #include "Robot.h"
 
 #include <frc2/command/CommandScheduler.h>
+#include <frc/Compressor.h>
 
 Robot::Robot() {
+	frc::Compressor { frc::PneumaticsModuleType::CTREPCM }.EnableDigital();
 }
 
 void Robot::RobotPeriodic() {

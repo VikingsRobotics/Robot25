@@ -1,9 +1,12 @@
 #pragma once
 
 #include "subsystems/SwerveModule.h"
+#ifndef NO_SWERVE
+
 #include "Constants.h"
 
 #include <vector>
+#include <optional>
 
 #include <ctre/phoenix6/Pigeon2.hpp>
 
@@ -11,9 +14,11 @@
 
 #include <frc/kinematics/ChassisSpeeds.h>
 
-#include <frc/kinematics/SwerveDriveOdometry.h>
+#include <frc/estimator/SwerveDrivePoseEstimator.h>
 
 #include <frc2/command/SubsystemBase.h>
+
+#include "subsystems/VisionProvider.h"
 
 class SwerveSubsystem: public frc2::SubsystemBase {
 public:
@@ -52,6 +57,14 @@ public:
 	void Brake();
 
 	void X();
+
+	friend struct SwerveSysIdRoutine;
+	friend class VisionProvider;
+private:
+#ifndef NO_VISION
+	void AddBestEstimates(const VisionProvider &self,
+			std::vector<VisionProvider::AprilTagTransform> tags);
+#endif
 private:
 	// Gryo used for odometry and for field centric control
 	ctre::phoenix6::hardware::Pigeon2 m_gryo { DeviceIdentifier::kGyroId,
@@ -73,7 +86,14 @@ private:
 			DeviceIdentifier::kBRAngleMotorId, units::radian_t {
 					std::numbers::pi / 2.0 } };
 	// Track the position of the robot using wheel position and gryo rotation
-	frc::SwerveDriveOdometry<4> m_odometry;
-
+	frc::SwerveDrivePoseEstimator<4> m_poseEstimator {
+			Drive::DeviceProperties::SystemControl::kDriveKinematics,
+			frc::Rotation2d { }, { m_frontLeft.GetPosition(),
+					m_frontRight.GetPosition(), m_backLeft.GetPosition(),
+					m_backRight.GetPosition() }, frc::Pose2d { }, { 0.1, 0.1,
+					0.1 }, { 0.1, 0.1, 0.1 } };
 	frc::Field2d m_field { };
+	frc::Field2d m_pose { };
 };
+
+#endif

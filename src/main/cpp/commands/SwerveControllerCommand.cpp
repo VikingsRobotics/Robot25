@@ -1,9 +1,11 @@
 #include "commands/SwerveControllerCommand.h"
+#ifndef NO_SWERVE_CONTROLLER_COMMAND
+
 #include "Constants.h"
 
 #include <frc/kinematics/ChassisSpeeds.h>
 
-#include <frc/smartdashboard/SmartDashboard.h>
+#include <frc/smartdashboard/Smartdashboard.h>
 
 #include <frc2/command/RunCommand.h>
 
@@ -28,6 +30,10 @@ void SwerveControllerCommand::Initialize() {
 }
 
 void SwerveControllerCommand::Execute() {
+	frc::SmartDashboard::PutNumber("Throttle", m_internalThrottle);
+	frc::SmartDashboard::PutBoolean("Stored Throttle", m_storedThrottle);
+	frc::SmartDashboard::PutBoolean("Field Centric", m_fieldCentric);
+	frc::SmartDashboard::PutBoolean("Precision Mode", m_precision);
 	if (m_controller.GetRightBumperButtonPressed()) {
 		m_fieldCentric = !m_fieldCentric;
 	}
@@ -40,16 +46,12 @@ void SwerveControllerCommand::Execute() {
 	if (m_controller.GetBackButtonPressed()) {
 		m_subsystem->ZeroHeading();
 	}
-	frc::SmartDashboard::PutNumber("Throttle", m_internalThrottle);
-	frc::SmartDashboard::PutBoolean("Field Centric", m_fieldCentric);
-	frc::SmartDashboard::PutBoolean("Stored Throttle", m_storedThrottle);
-	frc::SmartDashboard::PutBoolean("Precision Mode", m_precision);
 	if (m_controller.GetLeftBumperButton()) {
 		m_subsystem->Brake();
 		m_controller.SetRumble(frc::GenericHID::RumbleType::kBothRumble, 0.2);
 		return;
-	}
-	m_controller.SetRumble(frc::GenericHID::RumbleType::kBothRumble, 0.2);
+	} else
+		m_controller.SetRumble(frc::GenericHID::RumbleType::kBothRumble, 0.0);
 
 	double controllerX = m_limiterX.Calculate(
 			m_controller.GetRawAxis(frc::XboxController::Axis::kLeftX));
@@ -139,3 +141,5 @@ void SwerveControllerCommand::End(bool interrupted) {
 bool SwerveControllerCommand::IsFinished() {
 	return false;
 }
+
+#endif
